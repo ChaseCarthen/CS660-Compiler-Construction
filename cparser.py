@@ -13,7 +13,7 @@ def p_primary_expression_3(p):
     '''primary_expression : STRING_LITERAL'''
 
 def p_primary_expression_4(p):
-    '''primary_expression : '(' expression ')'''
+    '''primary_expression : OPENPARAN expression CLOSEPARAN'''
 
 def p_postfix_expression_1(p):
     '''postfix_expression : primary_expression'''
@@ -22,10 +22,10 @@ def p_postfix_expression_2(p):
     '''postfix_expression : postfix_expression '[' expression ']'''
 
 def p_postfix_expression_3(p):
-    '''postfix_expression : postfix_expression '(' ')'''
+    '''postfix_expression : postfix_expression OPENPARAN CLOSEPARAN'''
 
 def p_postfix_expression_4(p):
-    '''postfix_expression : postfix_expression '(' argument_expression_list ')'''
+    '''postfix_expression : postfix_expression OPENPARAN argument_expression_list CLOSEPARAN'''
 
 def p_postfix_expression_5(p):
     '''postfix_expression : postfix_expression '.' IDENTIFIER'''
@@ -61,7 +61,7 @@ def p_unary_expression_5(p):
     '''unary_expression : SIZEOF unary_expression'''
 
 def p_unary_expression_6(p):
-    '''unary_expression : SIZEOF '(' type_name ')'''
+    '''unary_expression : SIZEOF OPENPARAN type_name CLOSEPARAN'''
 
 def p_unary_operator_1(p):
     '''unary_operator : '&'''
@@ -85,7 +85,7 @@ def p_cast_expression_1(p):
     '''cast_expression : unary_expression'''
 
 def p_cast_expression_2(p):
-    '''cast_expression : '(' type_name ')' cast_expression'''
+    '''cast_expression : OPENPARAN type_name CLOSEPARAN cast_expression'''
 
 def p_multiplicative_expression_1(p):
     '''multiplicative_expression : cast_expression'''
@@ -226,10 +226,10 @@ def p_constant_expression_1(p):
     '''constant_expression : conditional_expression'''
 
 def p_declaration_1(p):
-    '''declaration : declaration_specifiers ';'''
+    '''declaration : declaration_specifiers SEMI'''
 
 def p_declaration_2(p):
-    '''declaration : declaration_specifiers init_declarator_list ';'''
+    '''declaration : declaration_specifiers init_declarator_list SEMI'''
 
 def p_declaration_specifiers_1(p):
     '''declaration_specifiers : storage_class_specifier'''
@@ -313,10 +313,10 @@ def p_type_specifier_12(p):
     '''type_specifier : TYPE_NAME'''
 
 def p_struct_or_union_specifier_1(p):
-    '''struct_or_union_specifier : struct_or_union IDENTIFIER '{' struct_declaration_list '}'''
+    '''struct_or_union_specifier : struct_or_union IDENTIFIER OPENBRACK struct_declaration_list CLOSEBRACK'''
 
 def p_struct_or_union_specifier_2(p):
-    '''struct_or_union_specifier : struct_or_union '{' struct_declaration_list '}'''
+    '''struct_or_union_specifier : struct_or_union OPENBRACK struct_declaration_list CLOSEBRACK'''
 
 def p_struct_or_union_specifier_3(p):
     '''struct_or_union_specifier : struct_or_union IDENTIFIER'''
@@ -334,7 +334,7 @@ def p_struct_declaration_list_2(p):
     '''struct_declaration_list : struct_declaration_list struct_declaration'''
 
 def p_struct_declaration_1(p):
-    '''struct_declaration : specifier_qualifier_list struct_declarator_list ';'''
+    '''struct_declaration : specifier_qualifier_list struct_declarator_list SEMI'''
 
 def p_specifier_qualifier_list_1(p):
     '''specifier_qualifier_list : type_specifier specifier_qualifier_list'''
@@ -364,10 +364,10 @@ def p_struct_declarator_3(p):
     '''struct_declarator : declarator ':' constant_expression'''
 
 def p_enum_specifier_1(p):
-    '''enum_specifier : ENUM '{' enumerator_list '}'''
+    '''enum_specifier : ENUM OPENBRACK enumerator_list CLOSEBRACK'''
 
 def p_enum_specifier_2(p):
-    '''enum_specifier : ENUM IDENTIFIER '{' enumerator_list '}'''
+    '''enum_specifier : ENUM IDENTIFIER OPENBRACK enumerator_list CLOSEBRACK'''
 
 def p_enum_specifier_3(p):
     '''enum_specifier : ENUM IDENTIFIER'''
@@ -400,7 +400,7 @@ def p_direct_declarator_1(p):
     '''direct_declarator : IDENTIFIER'''
 
 def p_direct_declarator_2(p):
-    '''direct_declarator : '(' declarator ')'''
+    '''direct_declarator : OPENPARAN declarator CLOSEPARAN'''
 
 def p_direct_declarator_3(p):
     '''direct_declarator : direct_declarator '[' constant_expression ']'''
@@ -409,13 +409,13 @@ def p_direct_declarator_4(p):
     '''direct_declarator : direct_declarator '[' ']'''
 
 def p_direct_declarator_5(p):
-    '''direct_declarator : direct_declarator '(' parameter_type_list ')'''
+    '''direct_declarator : direct_declarator OPENPARAN parameter_type_list CLOSEPARAN'''
 
 def p_direct_declarator_6(p):
-    '''direct_declarator : direct_declarator '(' identifier_list ')'''
+    '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
 
 def p_direct_declarator_7(p):
-    '''direct_declarator : direct_declarator '(' ')'''
+    '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN''
 
 def p_pointer_1(p):
     '''pointer : '*'''
@@ -478,7 +478,7 @@ def p_abstract_declarator_3(p):
     '''abstract_declarator : pointer direct_abstract_declarator'''
 
 def p_direct_abstract_declarator_1(p):
-    '''direct_abstract_declarator : '(' abstract_declarator ')'''
+    '''direct_abstract_declarator : OPENPARAN abstract_declarator CLOSEPARAN''
 
 def p_direct_abstract_declarator_2(p):
     '''direct_abstract_declarator : '[' ']'''
@@ -493,25 +493,25 @@ def p_direct_abstract_declarator_5(p):
     '''direct_abstract_declarator : direct_abstract_declarator '[' constant_expression ']'''
 
 def p_direct_abstract_declarator_6(p):
-    '''direct_abstract_declarator : '(' ')'''
+    '''direct_abstract_declarator : OPENPARAN CLOSEPARAN''
 
 def p_direct_abstract_declarator_7(p):
-    '''direct_abstract_declarator : '(' parameter_type_list ')'''
+    '''direct_abstract_declarator : OPENPARAN parameter_type_list CLOSEPARAN''
 
 def p_direct_abstract_declarator_8(p):
-    '''direct_abstract_declarator : direct_abstract_declarator '(' ')'''
+    '''direct_abstract_declarator : direct_abstract_declarator OPENPARAN CLOSEPARAN''
 
 def p_direct_abstract_declarator_9(p):
-    '''direct_abstract_declarator : direct_abstract_declarator '(' parameter_type_list ')'''
+    '''direct_abstract_declarator : direct_abstract_declarator OPENPARAN parameter_type_list CLOSEPARAN''
 
 def p_initializer_1(p):
     '''initializer : assignment_expression'''
 
 def p_initializer_2(p):
-    '''initializer : '{' initializer_list '}'''
+    '''initializer : OPENBRACK initializer_list CLOSEBRACK''
 
 def p_initializer_3(p):
-    '''initializer : '{' initializer_list ',' '}'''
+    '''initializer : OPENBRACK initializer_list ',' CLOSEBRACK''
 
 def p_initializer_list_1(p):
     '''initializer_list : initializer'''
@@ -547,16 +547,16 @@ def p_labeled_statement_3(p):
     '''labeled_statement : DEFAULT ':' statement'''
 
 def p_compound_statement_1(p):
-    '''compound_statement : '{' '}'''
+    '''compound_statement : OPENBRACK CLOSEBRACK''
 
 def p_compound_statement_2(p):
-    '''compound_statement : '{' statement_list '}'''
+    '''compound_statement : OPENBRACK statement_list CLOSEBRACK''
 
 def p_compound_statement_3(p):
-    '''compound_statement : '{' declaration_list '}'''
+    '''compound_statement : OPENBRACK declaration_list CLOSEBRACK''
 
 def p_compound_statement_4(p):
-    '''compound_statement : '{' declaration_list statement_list '}'''
+    '''compound_statement : OPENBRACK declaration_list statement_list CLOSEBRACK''
 
 def p_declaration_list_1(p):
     '''declaration_list : declaration'''
@@ -571,46 +571,46 @@ def p_statement_list_2(p):
     '''statement_list : statement_list statement'''
 
 def p_expression_statement_1(p):
-    '''expression_statement : ';'''
+    '''expression_statement : SEMI''
 
 def p_expression_statement_2(p):
-    '''expression_statement : expression ';'''
+    '''expression_statement : expression SEMI''
 
 def p_selection_statement_1(p):
-    '''selection_statement : IF '(' expression ')' statement'''
+    '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement'''
 
 def p_selection_statement_2(p):
-    '''selection_statement : IF '(' expression ')' statement ELSE statement'''
+    '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement ELSE statement'''
 
 def p_selection_statement_3(p):
-    '''selection_statement : SWITCH '(' expression ')' statement'''
+    '''selection_statement : SWITCH OPENPARAN expression CLOSEPARAN statement'''
 
 def p_iteration_statement_1(p):
-    '''iteration_statement : WHILE '(' expression ')' statement'''
+    '''iteration_statement : WHILE OPENPARAN expression CLOSEPARAN statement'''
 
 def p_iteration_statement_2(p):
-    '''iteration_statement : DO statement WHILE '(' expression ')' ';'''
+    '''iteration_statement : DO statement WHILE OPENPARAN expression CLOSEPARAN SEMI''
 
 def p_iteration_statement_3(p):
-    '''iteration_statement : FOR '(' expression_statement expression_statement ')' statement'''
+    '''iteration_statement : FOR OPENPARAN expression_statement expression_statement CLOSEPARAN statement'''
 
 def p_iteration_statement_4(p):
-    '''iteration_statement : FOR '(' expression_statement expression_statement expression ')' statement'''
+    '''iteration_statement : FOR OPENPARAN expression_statement expression_statement expression CLOSEPARAN statement'''
 
 def p_jump_statement_1(p):
-    '''jump_statement : GOTO IDENTIFIER ';'''
+    '''jump_statement : GOTO IDENTIFIER SEMI''
 
 def p_jump_statement_2(p):
-    '''jump_statement : CONTINUE ';'''
+    '''jump_statement : CONTINUE SEMI''
 
 def p_jump_statement_3(p):
-    '''jump_statement : BREAK ';'''
+    '''jump_statement : BREAK SEMI''
 
 def p_jump_statement_4(p):
-    '''jump_statement : RETURN ';'''
+    '''jump_statement : RETURN SEMI''
 
 def p_jump_statement_5(p):
-    '''jump_statement : RETURN expression ';'''
+    '''jump_statement : RETURN expression SEMI''
 
 def p_translation_unit_1(p):
     '''translation_unit : external_declaration'''

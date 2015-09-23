@@ -100,7 +100,12 @@ class Scanner():
   t_BREAK = r".+"
   t_RETURN = r".+"
 
-  t_ignore = " \n\t"
+  t_ignore = " \t"
+
+  # Define a rule so we can track line numbers
+  def t_newline(self, t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
 
   def t_error(self,t):
     return ""

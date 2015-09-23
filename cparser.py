@@ -1,7 +1,5 @@
-
 start = 'translation_unit'
 
-precedence =  []
 
 # -------------- RULES ----------------
 

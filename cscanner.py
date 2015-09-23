@@ -1,4 +1,5 @@
-from ply import lex 
+from ply import lex
+from ply import yacc
 
 # tokens 'IDENTIFIER', 'CONSTANT', 'STRING_LITERAL', 'SIZEOF', 'PTR_OP', 
 #'INC_OP', 'DEC_OP', 'LEFT_OP', 'RIGHT_OP', 'LE_OP', 'GE_OP', 'EQ_OP', 'NE_OP', 
@@ -35,10 +36,13 @@ class Scanner():
     self.lexer = lex.lex(module=self)
 
     # Give the lexer some input
-    self.lexer.input(data)
+    # self.lexer.input(data)
+    self.input_data = data
+
+    self.yacc = yacc.yacc(module=self)
 
   def run(self):
-    pass
+    self.yacc.parse(self.input_data)
 
   def test_running(self):
     while True:

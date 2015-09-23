@@ -1,4 +1,4 @@
-from cscanner import Scanner
+from cparser import Parser
 import sys
 
 # Read the file from command line
@@ -7,5 +7,5 @@ data = input_file.read()
 input_file.close()
 
 # Build and Call the scanner
-scan = Scanner(data)
-scan.test_running()
+scan = Parser(data)
+scan.run()

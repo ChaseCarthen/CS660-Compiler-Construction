@@ -1,6 +1,3 @@
-+=
-case
-cased
-{
-   int a = 1;
-}
+
+char
+{}

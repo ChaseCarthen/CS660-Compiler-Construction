@@ -26,7 +26,7 @@ class Scanner():
             'XOR_ASSIGN', 'OR_ASSIGN', 'TYPEDEF', 'EXTERN', 'STATIC', 'AUTO', 'REGISTER', 
             'CHAR', 'SHORT', 'INT', 'LONG', 'SIGNED', 'UNSIGNED', 'FLOAT', 'DOUBLE', 'CONST', 'VOLATILE', 
             'VOID', 'STRUCT', 'UNION', 'ENUM', 'ELLIPSIS', 'CASE', 'DEFAULT', 'IF', 'ELSE', 'SWITCH', 
-            'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN']
+            'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACK','CLOSEBRACK','SEMI','OPENPARAN','CLOSEPARAN']
 
   precedence =  []
 
@@ -93,16 +93,22 @@ class Scanner():
   def t_error(self,t):
     return ""
 
-  def t_openbrack(self,t):
+  def t_OPENBRACK(self,t):
   	r'{'
   	print('PUSH ONTO STACK')
+  	return t
   	
-  	
-  def t_closebrack(self,t):
+  def t_CLOSEBRACK(self,t):
   	r'}'
   	print('POP OFF STACK')
-  	#return t
+  	return t
 
-  def t_semi(self,t):
+  def t_SEMI(self,t):
   	r'\;'
   	return t
+  def t_OPENPARAN(self,t):
+  	r'\('
+  	return t
+  def t_CLOSEPARAN(self,t):
+  	r'\)'
+  	return t 

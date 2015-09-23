@@ -548,16 +548,20 @@ def p_labeled_statement_3(p):
 
 def p_compound_statement_1(p):
     '''compound_statement : '{' '}'''
+    print ("Found a scope")
 
 def p_compound_statement_2(p):
     '''compound_statement : '{' statement_list '}'''
+    print ("Found a scope")
 
 def p_compound_statement_3(p):
     '''compound_statement : '{' declaration_list '}'''
+    print ("Found a scope")
 
 def p_compound_statement_4(p):
     '''compound_statement : '{' declaration_list statement_list '}'''
-
+    print ("Found a scope")
+    
 def p_declaration_list_1(p):
     '''declaration_list : declaration'''
 

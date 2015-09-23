@@ -8,8 +8,15 @@ from ply import lex
 #'CHAR', 'SHORT', 'INT', 'LONG', 'SIGNED', 'UNSIGNED', 'FLOAT', 'DOUBLE', 
 #'CONST', 'VOLATILE', 'VOID', 'STRUCT', 'UNION', 'ENUM', 'ELLIPSIS', 
 #'CASE', 'DEFAULT', 'IF', 'ELSE', 'SWITCH', 'WHILE', 'DO', 'FOR', 
-	#'GOTO', 'CONTINUE', 'BREAK', 'RETURN""
+#'GOTO', 'CONTINUE', 'BREAK', 'RETURN""
 
+reserved = {'auto' : 'AUTO', 'if' : 'IF', 'break' : 'BREAK', 'int' : 'INT', 'case' : 'CASE', 
+            'long' : 'LONG', 'char' : 'CHAR', 'register' : 'REGISTER', 'continue' : 'CONTINUE', 
+            'return' : 'RETURN', 'default' : 'DEFAULT', 'short' : 'SHORT', 'do' : 'DO', 
+            'sizeof' : 'SIZEOF', 'double' : 'DOUBLE', 'static' : 'STATIC', 'else' : 'ELSE', 
+            'struct' : 'STRUCT', 'switch' : 'SWITCH', 'extern' : 'EXTERN', 'typedef' : 'TYPEDEF', 
+            'float' : 'FLOAT', 'union' : 'UNION', 'for' : 'FOR', 'unsigned' : '', 'goto' : 'GOTO', 
+            'while' : 'WHILE', 'const' : 'CONST'}
 
 
 class Scanner():
@@ -42,7 +49,7 @@ class Scanner():
 
 
   
-  t_CONSTANT = r"const" # We need to turn this into a constant recognizer for 1, 1.1 
+  t_CONSTANT = r"constThing" # We need to turn this into a constant recognizer for 1, 1.1 
   t_STRING_LITERAL = r'\"|\''
   t_SIZEOF = r"SIZEOF"
   t_PTR_OP = r"\*"
@@ -59,11 +66,7 @@ class Scanner():
   t_MUL_ASSIGN = r"\*"
   t_DIV_ASSIGN = r"/"
   t_MOD_ASSIGN = r"%"
-  def t_ADD_ASSIGN(self,t):
-  	r"\+="
-  	print("SUCCESS")
-  	#print(t.type)
-  	return t
+  t_ADD_ASSIGN = r"\+="
   t_SUB_ASSIGN = r"-="
   t_LEFT_ASSIGN = r"<<="
   t_RIGHT_ASSIGN = r">>="
@@ -71,10 +74,14 @@ class Scanner():
   t_XOR_ASSIGN = r"\^="
   t_OR_ASSIGN = r"\|="
   t_ELLIPSIS = r"..."
+
   def t_IDENTIFIER(self, t):
-  	r"[_|a-zA-Z]+"
-  	print(t.value)
-  	return t
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    if t.value in reserved:
+      t.type = reserved[t.value]
+    return t
+
+  # Ignore the spaces and tabs
   t_ignore = " \t"
 
   # Define a rule so we can track line numbers
@@ -82,6 +89,7 @@ class Scanner():
     r'\n+'
     t.lexer.lineno += len(t.value)
 
+  # Lex Error message
   def t_error(self,t):
     return ""
 

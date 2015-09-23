@@ -17,7 +17,7 @@ reserved = {'auto' : 'AUTO', 'if' : 'IF', 'break' : 'BREAK', 'int' : 'INT', 'cas
             'sizeof' : 'SIZEOF', 'double' : 'DOUBLE', 'static' : 'STATIC', 'else' : 'ELSE', 
             'struct' : 'STRUCT', 'switch' : 'SWITCH', 'extern' : 'EXTERN', 'typedef' : 'TYPEDEF', 
             'float' : 'FLOAT', 'union' : 'UNION', 'for' : 'FOR', 'unsigned' : '', 'goto' : 'GOTO', 
-            'while' : 'WHILE', 'const' : 'CONST'}
+            'while' : 'WHILE', 'const' : 'CONST', 'void' : 'VOID'}
 
 
 class Scanner():

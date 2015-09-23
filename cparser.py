@@ -1,7 +1,7 @@
 from cscanner import Scanner
-
+start = 'translation_unit'
 class Parser(Scanner):
-
+    start = 'translation_unit'
     def p_primary_expression_1(self, p):
         '''primary_expression : IDENTIFIER'''
 
@@ -277,7 +277,7 @@ class Parser(Scanner):
 
     def p_type_specifier_1(self, p):
         '''type_specifier : VOID'''
-
+        print("VOID")
     def p_type_specifier_2(self, p):
         '''type_specifier : CHAR'''
         print("THE GRAMMAR FOUND A CHAR")
@@ -636,4 +636,7 @@ class Parser(Scanner):
 
     def p_function_definition_4(self, p):
         '''function_definition : declarator compound_statement'''
+    def p_error(self,p):
+        print("Syntax error in input!" )
+        print(p)
 

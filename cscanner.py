@@ -85,3 +85,16 @@ class Scanner():
   def t_error(self,t):
     return ""
 
+  def t_openbrack(self,t):
+  	r'{'
+  	print('PUSH ONTO STACK')
+  	
+  	
+  def t_closebrack(self,t):
+  	r'}'
+  	print('POP OFF STACK')
+  	#return t
+
+  def t_semi(self,t):
+  	r'\;'
+  	return t

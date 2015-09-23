@@ -1,5 +1,6 @@
-
-    .
 +=
 case
 cased
+{
+   int a = 1;
+}

@@ -30,16 +30,16 @@ class Scanner():
             'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACK','CLOSEBRACK','SEMI','OPENPARAN','CLOSEPARAN']
 
   precedence =  []
-
+  literals = ['=',']','[','&','+','-','.','?','!',',',':','\'']
   def __init__(self, data):
     # print kw.get("file", 0)
-    self.lexer = lex.lex(module=self)
+    self.lexer = lex.lex(module=self,debug=1)
 
     # Give the lexer some input
     # self.lexer.input(data)
     self.input_data = data
 
-    self.yacc = yacc.yacc(module=self)
+    self.yacc = yacc.yacc(module=self,debug=1)
 
   def run(self):
     self.yacc.parse(self.input_data)
@@ -53,8 +53,8 @@ class Scanner():
 
 
   
-  t_CONSTANT = r"constThing" # We need to turn this into a constant recognizer for 1, 1.1 
-  t_STRING_LITERAL = r'\"|\''
+  t_CONSTANT = r"[0-9]+|[0-9]*\.[0-9]" # add hexadecimal
+  t_STRING_LITERAL = r'\"(?s).*\"|\'.(?s)*\''
   t_SIZEOF = r"SIZEOF"
   t_PTR_OP = r"\*"
   t_INC_OP = r"\+\+"

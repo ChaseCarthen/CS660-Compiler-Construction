@@ -77,7 +77,7 @@ class Scanner():
   t_AND_ASSIGN = r"&="
   t_XOR_ASSIGN = r"\^="
   t_OR_ASSIGN = r"\|="
-  t_ELLIPSIS = r"..."
+  t_ELLIPSIS = r"\.\.\."
 
   def t_IDENTIFIER(self, t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'

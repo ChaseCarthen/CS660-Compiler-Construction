@@ -2,3 +2,6 @@
 *.out
 *.pyc
 *.*~
+test
+test.c
+test.py

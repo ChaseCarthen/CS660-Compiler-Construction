@@ -8,4 +8,4 @@ input_file.close()
 
 # Build and Call the scanner
 scan = Parser(data)
-scan.run()
+scan.scan(data)

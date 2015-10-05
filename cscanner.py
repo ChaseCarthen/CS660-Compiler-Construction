@@ -290,8 +290,8 @@ class Scanner():
     #self.lexer.lexpos = 1
     if self.logtokens and self.source != "":
       #self.source += "\n"
-      self.log.warn("tokens : " + self.tokens)
-      self.log.warn("source : /*" + self.source + "*/")
+      self.log.info("tokens : " + self.tokens)
+      self.log.info("source : /*" + self.source + "*/")
       self.tokens += "\n"
       self.tokenlog.write("/*"+self.source + "*/\n")
       self.tokenlog.write(self.tokens)

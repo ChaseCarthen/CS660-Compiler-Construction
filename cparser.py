@@ -82,10 +82,10 @@ class Parser(Scanner):
 
     def p_cast_expression_1(self, p):
         '''cast_expression : unary_expression'''
-
+        print  "Cast expression"
     def p_cast_expression_2(self, p):
         '''cast_expression : OPENPARAN type_name CLOSEPARAN cast_expression'''
-
+        print "Cast expression"
     def p_multiplicative_expression_1(self, p):
         '''multiplicative_expression : cast_expression'''
 
@@ -558,6 +558,8 @@ class Parser(Scanner):
     def p_compound_statement_4(self, p):
         '''compound_statement : OPENBRACK declaration_list statement_list CLOSEBRACK'''
         print ("Found a scope")
+        #for i in p:
+        #    print (i)
 
     def p_declaration_list_1(self, p):
         '''declaration_list : declaration'''

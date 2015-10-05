@@ -1,11 +1,5 @@
 void main()
 {
-  char value = "asdfasdf\\
-  asdfasdf";
+  char value = 'a';
   int b = 1;
-  return; // returning from this statement
-  //asdf
-  //fast
-  /*as;dlfkjas;ldfjka;sd
-  alpha*/
 }

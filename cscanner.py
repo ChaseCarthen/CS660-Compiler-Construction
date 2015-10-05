@@ -1,6 +1,6 @@
 from ply import lex
 from ply import yacc
-
+import logging
 # tokens 'IDENTIFIER', 'CONSTANT', 'STRING_LITERAL', 'SIZEOF', 'PTR_OP', 
 #'INC_OP', 'DEC_OP', 'LEFT_OP', 'RIGHT_OP', 'LE_OP', 'GE_OP', 'EQ_OP', 'NE_OP', 
 #'AND_OP', 'OR_OP', 'MUL_ASSIGN', 'DIV_ASSIGN', 'MOD_ASSIGN', 'ADD_ASSIGN', 'SUB_ASSIGN', 
@@ -33,24 +33,32 @@ class Scanner():
   literals = ['=',']','[','&','+','-','.','?','!',',',':','\'']
   def __init__(self, data):
     # print kw.get("file", 0)
-    self.lexer = lex.lex(module=self,debug=1)
+    logging.basicConfig(
+      level = logging.INFO,
+      filename = "parselog.txt",
+      filemode = "w",
+      format = "%(filename)10s:%(lineno)4d:%(message)s"
+    )
+    log = self.log = logging.getLogger()
+    self.lexer = lex.lex(module=self,debuglog=log,debug=True)
 
     # Give the lexer some input
     # self.lexer.input(data)
     self.input_data = data
 
-    self.yacc = yacc.yacc(module=self,debug=1)
+    self.yacc = yacc.yacc(module=self,debuglog=log,debug=True)
     self.charcount = 0
     self.logtokens = False
-    self.source = ""
-    self.tokens = ""
-
+    self.source = "" # this will keep track of what source we have seen so far
+    self.tokens = ""  # this will keep track the tokens that we have seen so far
+    self.reduction_list = [] # this will keep track of what tokens we have acquired
+    self.log_tokens('tokens.txt')
   def log_tokens(self, txt):
     self.logtokens = True
     self.tokenlog = open(txt,'wa')
 
   def run(self):
-    self.yacc.parse(self.input_data)
+    self.yacc.parse(self.input_data,debug=self.log)
   def scan(self,string):
     self.lexer.input(string)
     self.log_tokens("tokens.txt")
@@ -258,7 +266,7 @@ class Scanner():
     return t
 
   def t_COMMENT(self,t):
-    r'//(?s).*?\n|/\*(?s).*\?*/'
+    r'//(?s).*?\n|/\*(?s).*?\*/'
     #print("COMMENT")
 
   def t_IDENTIFIER(self, t):
@@ -272,29 +280,41 @@ class Scanner():
     return t
 
   # Ignore the spaces and tabs -- comments
-  t_ignore = r' \t'
+  t_ignore = ' \t'
 
   # Define a rule so we can track line numbers
   def t_newline(self, t):
     r'\n+'
+    print "NEW LINE"
     t.lexer.lineno += len(t.value)
     #self.lexer.lexpos = 1
     if self.logtokens and self.source != "":
       #self.source += "\n"
+      self.log.warn("tokens : " + self.tokens)
+      self.log.warn("source : /*" + self.source + "*/")
       self.tokens += "\n"
       self.tokenlog.write("/*"+self.source + "*/\n")
       self.tokenlog.write(self.tokens)
+
       self.source = ""
       self.tokens = ""
   # Lex Error message
   def t_error(self,t):
     
     return ""
+  def t_requal(self,t):
+    r'='
+    t.type = '='
+    if self.logtokens:
+      self.source += t.value + " " 
+      self.tokens += t.type + " "
+    return t
 
   def t_OPENBRACK(self,t):
     r'{'
     
     #print('PUSH ONTO STACK')
+
     if self.logtokens:
       self.source += t.value + " " 
       self.tokens += t.type + " "

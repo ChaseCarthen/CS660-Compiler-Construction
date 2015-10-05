@@ -1,7 +1,5 @@
 void main()
 {
-  char value = '1';
+  char value = 'a';
   int b = 1;
-  return;
-  
 }

@@ -4,10 +4,11 @@ class Parser(Scanner):
     start = 'translation_unit'
     def p_primary_expression_1(self, p):
         '''primary_expression : IDENTIFIER'''
-
+        print "IDENTIFER"
+        p[0] = p[1]
     def p_primary_expression_2(self, p):
         '''primary_expression : CONSTANT'''
-
+        p[0] = p[1]
     def p_primary_expression_3(self, p):
         '''primary_expression : STRING_LITERAL'''
 
@@ -16,7 +17,7 @@ class Parser(Scanner):
 
     def p_postfix_expression_1(self, p):
         '''postfix_expression : primary_expression'''
-
+        p[0] = p[1]
     def p_postfix_expression_2(self, p):
         '''postfix_expression : postfix_expression '[' expression ']' '''
 
@@ -229,7 +230,7 @@ class Parser(Scanner):
 
     def p_declaration_2(self, p):
         '''declaration : declaration_specifiers init_declarator_list SEMI'''
-
+        
     def p_declaration_specifiers_1(self, p):
         '''declaration_specifiers : storage_class_specifier'''
 
@@ -238,6 +239,7 @@ class Parser(Scanner):
 
     def p_declaration_specifiers_3(self, p):
         '''declaration_specifiers : type_specifier'''
+        p[0] = p[1]
 
     def p_declaration_specifiers_4(self, p):
         '''declaration_specifiers : type_specifier declaration_specifiers'''
@@ -277,17 +279,17 @@ class Parser(Scanner):
 
     def p_type_specifier_1(self, p):
         '''type_specifier : VOID'''
-        print("VOID")
+        p[0] = p[1]
+
     def p_type_specifier_2(self, p):
         '''type_specifier : CHAR'''
-        print("THE GRAMMAR FOUND A CHAR")
-
+        p[0] = p[1]
     def p_type_specifier_3(self, p):
         '''type_specifier : SHORT'''
 
     def p_type_specifier_4(self, p):
         '''type_specifier : INT'''
-
+        p[0] = p[1]
     def p_type_specifier_5(self, p):
         '''type_specifier : LONG'''
 
@@ -392,9 +394,13 @@ class Parser(Scanner):
 
     def p_declarator_2(self, p):
         '''declarator : direct_declarator'''
+        p[0] = p[1]
 
     def p_direct_declarator_1(self, p):
         '''direct_declarator : IDENTIFIER'''
+        p[0] = p[1]
+        
+
 
     def p_direct_declarator_2(self, p):
         '''direct_declarator : OPENPARAN declarator CLOSEPARAN'''
@@ -407,12 +413,21 @@ class Parser(Scanner):
 
     def p_direct_declarator_5(self, p):
         '''direct_declarator : direct_declarator OPENPARAN parameter_type_list CLOSEPARAN'''
-
+        # This is where we create a ast with function parameters?
+        print "Function: " + p[1]
+        print "Parameters: " + str(p[3])
+        self.symbol_table.NewScope()
+        for i in p[3]:
+            pass
+            #self.symbol_table.Insert(name=i[1],var=i[0],value=0,line=0,line_loc=0)
+        p[0] = p[1]
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
-
+        p[0] = p[1]
     def p_direct_declarator_7(self, p):
         '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN'''
+        p[0] = p[1] # push onto stack?
+        self.symbol_table.NewScope();
 
     def p_pointer_1(self, p):
         '''pointer : '*' '''
@@ -434,18 +449,26 @@ class Parser(Scanner):
 
     def p_parameter_type_list_1(self, p):
         '''parameter_type_list : parameter_list'''
+        p[0] = p[1]
 
     def p_parameter_type_list_2(self, p):
         '''parameter_type_list : parameter_list ',' ELLIPSIS'''
 
     def p_parameter_list_1(self, p):
         '''parameter_list : parameter_declaration'''
-
+        if p[0] == None:
+            p[0] = []
+        p[0].append(p[1])
     def p_parameter_list_2(self, p):
         '''parameter_list : parameter_list ',' parameter_declaration'''
 
+        if p[1] != None:
+            p[1].append(p[3])
+            p[0] = p[1]
     def p_parameter_declaration_1(self, p):
         '''parameter_declaration : declaration_specifiers declarator'''
+        #self.symbol_table.Insert(var = p[1],name=p[2],value=0,line=0,line_loc=0 )
+        p[0] = (p[1],p[2])
 
     def p_parameter_declaration_2(self, p):
         '''parameter_declaration : declaration_specifiers abstract_declarator'''
@@ -455,9 +478,15 @@ class Parser(Scanner):
 
     def p_identifier_list_1(self, p):
         '''identifier_list : IDENTIFIER'''
+        if p[0] == None:
+            p[0] = []
+        p[0].append(p[1])
 
     def p_identifier_list_2(self, p):
         '''identifier_list : identifier_list ',' IDENTIFIER'''
+        if p[1] != None:
+            p[1].append(p[3])
+        p[0] = p[1]
 
     def p_type_name_1(self, p):
         '''type_name : specifier_qualifier_list'''
@@ -546,7 +575,7 @@ class Parser(Scanner):
     def p_compound_statement_1(self, p):
         '''compound_statement : OPENBRACK CLOSEBRACK'''
         print ("Found a scope")
-
+        p[0] = p[1]
     def p_compound_statement_2(self, p):
         '''compound_statement : OPENBRACK statement_list CLOSEBRACK'''
         print ("Found a scope")
@@ -575,9 +604,10 @@ class Parser(Scanner):
 
     def p_expression_statement_1(self, p):
         '''expression_statement : SEMI'''
-
+        p[0] = p[1]
     def p_expression_statement_2(self, p):
         '''expression_statement : expression SEMI'''
+
 
     def p_selection_statement_1(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement'''
@@ -629,16 +659,26 @@ class Parser(Scanner):
 
     def p_function_definition_1(self, p):
         '''function_definition : declaration_specifiers declarator declaration_list compound_statement'''
-
+        # int test(a,b) int a,b; {}
+        print "==================================!!!!!!!!!!!!!!!!"
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
-
+        self.symbol_table.StackDump()
+        self.symbol_table.EndScope()
+        print("FUNCITON NAME: " + p[2])
+        p[0] = p[1]
     def p_function_definition_3(self, p):
         '''function_definition : declarator declaration_list compound_statement'''
-
+        # Function implementation with no type but with params test(a,b)int a,b;{}
+        print "BONKERS"
     def p_function_definition_4(self, p):
         '''function_definition : declarator compound_statement'''
-    def p_error(self,p):
-        print("Syntax error in input!" )
-        print(p)
+        # Funciton implementation with no type test(){}
+        print "BONKERSSSS2"
 
+    def p_error(self,p):
+        print("Syntax error in input at " + str(self.lexer.lexpos-self.lines[-1]) + " on line: " + str(self.lexer.lineno))
+        print(p)
+        print (self.lines)
+
+ 

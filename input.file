@@ -1,5 +1,6 @@
-void main()
+ff
+void main (a, b)
+int* a, *b;
 {
-  char value = 'a';
-  int b = 1;
+   ff
 }

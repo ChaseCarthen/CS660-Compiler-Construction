@@ -1,6 +1,8 @@
 from ply import lex
 from ply import yacc
 import logging
+from symboltable import SymbolTable
+
 # tokens 'IDENTIFIER', 'CONSTANT', 'STRING_LITERAL', 'SIZEOF', 'PTR_OP', 
 #'INC_OP', 'DEC_OP', 'LEFT_OP', 'RIGHT_OP', 'LE_OP', 'GE_OP', 'EQ_OP', 'NE_OP', 
 #'AND_OP', 'OR_OP', 'MUL_ASSIGN', 'DIV_ASSIGN', 'MOD_ASSIGN', 'ADD_ASSIGN', 'SUB_ASSIGN', 
@@ -30,7 +32,7 @@ class Scanner():
             'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACK','CLOSEBRACK','SEMI','OPENPARAN','CLOSEPARAN', 'COMMENT']
 
   precedence =  []
-  literals = ['=',']','[','&','+','-','.','?','!',',',':','\'']
+  literals = ['=',']','[','&','+','-','.','?','!',',',':','\'','*']
   def __init__(self, data):
     # print kw.get("file", 0)
     logging.basicConfig(
@@ -53,6 +55,17 @@ class Scanner():
     self.tokens = ""  # this will keep track the tokens that we have seen so far
     self.reduction_list = [] # this will keep track of what tokens we have acquired
     self.log_tokens('tokens.txt')
+    self.symbol_table = SymbolTable()
+    self.lines = []
+
+  def logging(self,typed,value):
+      self.source += value + " " 
+      self.tokens += typed + " "
+      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(typed) + " Value: " + str(value))
+
+  def set_symbol_table(self,sym):
+    self.symbol_table = sym
+
   def log_tokens(self, txt):
     self.logtokens = True
     self.tokenlog = open(txt,'wa')
@@ -77,135 +90,105 @@ class Scanner():
           break      # No more input
       print(tok)
       print(self.lexer.lexpos)
-  
+
+  def t_PTR_OP(self,t):
+    "->"
+    if self.logtokens:
+      self.logging(t.type,t.value)
+    return t
+
   def t_CONSTANT(self,t):
     r"[0-9]+|[0-9]*\.[0-9]" # add hexadecimal
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   def t_STRING_LITERAL(self,t):
     r'\"(?s).*\"|\'.(?s)*\''
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_SIZEOF(self,t):
     r"SIZEOF"
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
-    return t
-  def t_PTR_OP(self,t):
-    r"\*"
-    
-    if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   def t_INC_OP(self,t):
     r"\+\+"
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   def t_DEC_OP(self,t):
     r"--"
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   def t_LEFT_OP(self,t):
     r"<<"
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   def t_RIGHT_OP(self,t):
     r">>"
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   def t_LE_OP(self,t):
     r"<="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   def t_GE_OP(self,t):
     r">="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   def t_EQ_OP(self,t):
     r"=="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   def t_NE_OP(self,t): 
     r"!="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_AND_OP(self,t):
     r"&"
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_OR_OP(self,t):
     r"\|\|"
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_MUL_ASSIGN(self,t):
     r"\*="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
 
@@ -214,81 +197,61 @@ class Scanner():
 
 
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_MOD_ASSIGN(self,t):
     r"%="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_ADD_ASSIGN(self,t):
     r"\+="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_SUB_ASSIGN(self,t):
     r"-="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_LEFT_ASSIGN(self,t):
     r"<<="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_RIGHT_ASSIGN(self,t):
     r">>="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_AND_ASSIGN(self,t):
     r"&="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_XOR_ASSIGN(self,t):
     r"\^="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_OR_ASSIGN(self,t):
     r"\|="
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_ELLIPSIS(self,t):
     r"\.\.\."
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   def t_COMMENT(self,t):
@@ -301,9 +264,7 @@ class Scanner():
     if t.value in reserved:
       t.type = reserved[t.value]
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   # Ignore the spaces and tabs -- comments
@@ -313,6 +274,7 @@ class Scanner():
   def t_newline(self, t):
     r'\n+'
     print "NEW LINE"
+    self.lines.append(t.lexer.lexpos)
     t.lexer.lineno += len(t.value)
     #self.lexer.lexpos = 1
     if self.logtokens and self.source != "":
@@ -335,20 +297,86 @@ class Scanner():
     r'='
     t.type = '='
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
+    return t
+  def t_rstar(self,t):
+    r'\*'
+    print "STAR"
+    t.type = "*"
+    if self.logtokens:
+      self.logging(t.type,t.value)
+    return t
+  def t_rexclaim(self,t):
+    r"!"
+    t.type = "!"
+    if self.logtokens:
+      self.logging(t.type,t.value)
+    return t
+  def t_rquestion(self,t):
+    r'\?'
+    t.type = "?"
+    if self.logtokens:
+        self.logging(t.type,t.value)
     return t
 
+  def t_rplus(self,t):
+    r"\+"
+    t.type = "+"
+    if self.logtokens:
+      self.logging(t.type,t.value)
+    return t
+
+  def t_rminus(self,t):
+    r"-"
+    t.type = "-"
+    if self.logtokens:
+      self.logging(t.type, t.value)
+    return t
+
+  def t_rand(self,t):
+    r"&"
+    t.type = "&"
+    if self.logtokens:
+      self.logging(t.type,t.value)
+    return t
+
+  def t_rdot(self,t):
+    r'\.'
+    t.type = "."
+    if self.logtokens:
+      self.logging(t.type,t.value)
+    return t
+  def t_rcolon(self,t):
+    r":"
+    t.type = ":"
+    if self.logtokens:
+      self.logging(t.type,t.value)
+    return t
+  def t_lbrack(self,t):
+    r"\["
+    t.type = "["
+    if self.logtokens:
+      self.logging(t.type,t.value)
+    return t
+  def t_rbrack(self,t):
+    r"]"
+    t.type = "]"
+    if self.logtokens:
+      self.logging(t.type,t.value)
+    return t
+  def t_rcomma(self,t):
+    r","
+    t.type = ","
+    if self.logtokens:
+      self.logging(t.type,t.value)
+    return t
   def t_OPENBRACK(self,t):
     r'{'
     
     #print('PUSH ONTO STACK')
 
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   	
   def t_CLOSEBRACK(self,t):
@@ -356,32 +384,24 @@ class Scanner():
     
     #print('POP OFF STACK')
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
 
   def t_SEMI(self,t):
     r'\;'
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_OPENPARAN(self,t):
     r'\('
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t
   def t_CLOSEPARAN(self,t):
     r'\)'
     
     if self.logtokens:
-      self.source += t.value + " " 
-      self.tokens += t.type + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(t.type) + " Value: " + str(t.value))
+      self.logging(t.type,t.value)
     return t 

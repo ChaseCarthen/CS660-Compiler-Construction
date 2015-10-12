@@ -2,6 +2,7 @@ from ply import lex
 from ply import yacc
 import logging
 from symboltable import SymbolTable
+import os
 
 # tokens 'IDENTIFIER', 'CONSTANT', 'STRING_LITERAL', 'SIZEOF', 'PTR_OP', 
 #'INC_OP', 'DEC_OP', 'LEFT_OP', 'RIGHT_OP', 'LE_OP', 'GE_OP', 'EQ_OP', 'NE_OP', 
@@ -19,7 +20,7 @@ reserved = {'auto' : 'AUTO', 'if' : 'IF', 'break' : 'BREAK', 'int' : 'INT', 'cas
             'sizeof' : 'SIZEOF', 'double' : 'DOUBLE', 'static' : 'STATIC', 'else' : 'ELSE', 
             'struct' : 'STRUCT', 'switch' : 'SWITCH', 'extern' : 'EXTERN', 'typedef' : 'TYPEDEF', 
             'float' : 'FLOAT', 'union' : 'UNION', 'for' : 'FOR', 'unsigned' : '', 'goto' : 'GOTO', 
-            'while' : 'WHILE', 'const' : 'CONST', 'void' : 'VOID'}
+            'while' : 'WHILE', 'const' : 'CONST', 'void' : 'VOID', 'enum':'ENUM'}
 
 
 class Scanner():
@@ -54,7 +55,11 @@ class Scanner():
     self.source = "" # this will keep track of what source we have seen so far
     self.tokens = ""  # this will keep track the tokens that we have seen so far
     self.reduction_list = [] # this will keep track of what tokens we have acquired
-    self.log_tokens('tokens.txt')
+    i = 0
+    while os.path.exists("token%s.txt" % i):
+      i += 1
+    path = "token%s.txt" % i
+    self.log_tokens(path)
     self.symbol_table = SymbolTable()
     self.lines = [0]
 
@@ -75,7 +80,11 @@ class Scanner():
     self.yacc.parse(self.input_data,debug=self.log)
   def scan(self,string):
     self.lexer.input(string)
-    self.log_tokens("tokens.txt")
+    i = 0
+    while os.path.exists("token%s.txt" % i):
+      i += 1
+    path = "token%s.txt" % i
+    self.log_tokens(path)
     while(True):
       current = self.lexer.token()
       if current == None:

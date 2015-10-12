@@ -23,8 +23,8 @@ input_file.close()
 scan = Parser(data)
 st = SymbolTable()
 scan.set_symbol_table(st)
-#scan.scan(data)
-scan.run()
+scan.scan(data)
+#scan.run()
 
 print
 print

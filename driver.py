@@ -20,7 +20,8 @@ data = input_file.read()
 input_file.close()
 
 # Build and Call the scanner
-scan = Parser(data)
+print args
+scan = Parser(data,args.parselogfile != "",args.parselogfile,args.tokenfile)
 st = SymbolTable()
 scan.set_symbol_table(st)
 scan.scan(data)

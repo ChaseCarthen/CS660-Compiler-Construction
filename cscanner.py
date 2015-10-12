@@ -19,8 +19,8 @@ reserved = {'auto' : 'AUTO', 'if' : 'IF', 'break' : 'BREAK', 'int' : 'INT', 'cas
             'return' : 'RETURN', 'default' : 'DEFAULT', 'short' : 'SHORT', 'do' : 'DO', 
             'sizeof' : 'SIZEOF', 'double' : 'DOUBLE', 'static' : 'STATIC', 'else' : 'ELSE', 
             'struct' : 'STRUCT', 'switch' : 'SWITCH', 'extern' : 'EXTERN', 'typedef' : 'TYPEDEF', 
-            'float' : 'FLOAT', 'union' : 'UNION', 'for' : 'FOR', 'unsigned' : '', 'goto' : 'GOTO', 
-            'while' : 'WHILE', 'const' : 'CONST', 'void' : 'VOID', 'enum':'ENUM'}
+            'float' : 'FLOAT', 'union' : 'UNION', 'for' : 'FOR', 'unsigned' : 'UNSIGNED', 'goto' : 'GOTO', 
+            'while' : 'WHILE', 'const' : 'CONST', 'void' : 'VOID', 'enum':'ENUM', 'signed' : 'SIGNED','volatile' : 'VOLATILE'}
 
 
 class Scanner():
@@ -33,40 +33,64 @@ class Scanner():
             'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACK','CLOSEBRACK','SEMI','OPENPARAN','CLOSEPARAN', 'COMMENT']
 
   precedence =  []
-  literals = ['=',']','[','&','+','-','.','?','!',',',':','\'','*']
-  def __init__(self, data):
-    # print kw.get("file", 0)
+  literals = ['=',']','[','&','+','-','.','?','!',',',':','\'','*','<','>','^','|','%']
+  def __init__(self,data,parselog,parsefile,tokenfile):
+    
+    # set up the logger to log info... We added a flag for when not to output this info
     logging.basicConfig(
       level = logging.INFO,
-      filename = "parselog.txt",
+      filename = parsefile,
       filemode = "w",
       format = "%(filename)10s:%(lineno)4d:%(message)s"
     )
+
+    # We need to make some kind of error logger.
+
     log = self.log = logging.getLogger()
-    self.lexer = lex.lex(module=self,debuglog=log,debug=True)
+
+    # To enable a more verbose logger -- this is so we can see all of the production that were taken in the grammar.
+    self.parselog = parselog
+    
+    if self.parselog:
+      self.lexer = lex.lex(module=self,debuglog=log,debug=True)
+    else:
+      self.lexer = lex.lex(module=self)
 
     # Give the lexer some input
     # self.lexer.input(data)
     self.input_data = data
 
-    self.yacc = yacc.yacc(module=self,debuglog=log,debug=True)
-    self.charcount = 0
-    self.logtokens = False
+
+
+    if self.parselog:
+      self.yacc = yacc.yacc(module=self,debuglog=log,debug=True)
+    else:
+      self.yacc = yacc.yacc(module=self)
+
+
+
     self.source = "" # this will keep track of what source we have seen so far
     self.tokens = ""  # this will keep track the tokens that we have seen so far
     self.reduction_list = [] # this will keep track of what tokens we have acquired
-    i = 0
-    while os.path.exists("token%s.txt" % i):
-      i += 1
-    path = "token%s.txt" % i
-    self.log_tokens(path)
+    
+    # our token log file
+    self.log_tokens(tokenfile)
+
+    # The symbol table
     self.symbol_table = SymbolTable()
+
+    # Keeps track of the beginnings of lines this so we can make nice errors like fff< void main().
     self.lines = [0]
 
   def logging(self,typed,value):
       self.source += value + " " 
       self.tokens += typed + " "
-      self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(typed) + " Value: " + str(value))
+      if self.parselog:
+        self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(typed) + " Value: " + str(value))
+
+  def loginfo(self,string):
+    if self.parselog:
+      self.log.info(string)
 
   def set_symbol_table(self,sym):
     self.symbol_table = sym
@@ -76,7 +100,7 @@ class Scanner():
     self.tokenlog = open(txt,'wa')
 
   def run(self):
-    self.log.info("==============================Starting    LINE NUMBER: " + str(1) + "======================")
+    self.loginfo("==============================Starting    LINE NUMBER: " + str(1) + "======================")
     self.yacc.parse(self.input_data,debug=self.log)
   def scan(self,string):
     self.lexer.input(string)
@@ -102,166 +126,115 @@ class Scanner():
 
   def t_PTR_OP(self,t):
     "->"
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_CONSTANT(self,t):
-    r"[0-9]+|[0-9]*\.[0-9]" # add hexadecimal
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    r"(0[xX][a-fA-F0-9]+(u|U|l|L)*?)|0[0-9]+(u|U|l|L)*?|\'(\\.|[^\\\'])\'|[0-9]+[Ee][+-]?[0-9]+(f|F|l|L)?|([0-9]*\.[0-9]+([Ee][+-]?[0-9]+)?(f|F|l|L)?)|([0-9]+((u|U|l|L)*|\.?[0-9]*([Ee][+-]?[0-9]+)?(f|F|l|L)?))" # add hexadecimal
+    self.logging(t.type,t.value)
     return t
   # Help from here http://www.lysator.liu.se/c/ANSI-C-grammar-l.html
   # should this second half be a constant for 'somechar'...
   def t_STRING_LITERAL(self,t):
-    r'\"(\\.|[^\\\"])*\"|\'(\\.|[^\\\'])+\''
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    r'\"(\\.|[^\\\"])*\"'
+    self.logging(t.type,t.value)
     return t
-  def t_SIZEOF(self,t):
-    r"SIZEOF"
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
-    return t
+  #def t_SIZEOF(self,t):
+  #  r"SIZEOF|sizeof"
+  #  self.logging(t.type,t.value)
+  #  return t
 
   def t_INC_OP(self,t):
     r"\+\+"
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_DEC_OP(self,t):
     r"--"
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_LEFT_OP(self,t):
     r"<<"
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_RIGHT_OP(self,t):
     r">>"
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_LE_OP(self,t):
     r"<="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_GE_OP(self,t):
     r">="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_EQ_OP(self,t):
     r"=="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_NE_OP(self,t): 
     r"!="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_AND_OP(self,t):
-    r"&"
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    r"&&" 
+    self.logging(t.type,t.value)
     return t
   def t_OR_OP(self,t):
     r"\|\|"
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_MUL_ASSIGN(self,t):
     r"\*="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
-
 
   def t_DIV_ASSIGN(self,t):
     r"/="
-
-
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_MOD_ASSIGN(self,t):
-    r"%="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    r"%="    
+    self.logging(t.type,t.value)
     return t
   def t_ADD_ASSIGN(self,t):
     r"\+="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_SUB_ASSIGN(self,t):
     r"-="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_LEFT_ASSIGN(self,t):
     r"<<="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_RIGHT_ASSIGN(self,t):
     r">>="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_AND_ASSIGN(self,t):
-    r"&="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    r"&=" 
+    self.logging(t.type,t.value)
     return t
   def t_XOR_ASSIGN(self,t):
     r"\^="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_OR_ASSIGN(self,t):
     r"\|="
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_ELLIPSIS(self,t):
     r"\.\.\."
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_COMMENT(self,t):
@@ -269,12 +242,10 @@ class Scanner():
     #print("COMMENT")
 
   def t_IDENTIFIER(self, t):
-    r'[a-zA-Z_][a-zA-Z0-9_]*'
-    
+    r'[a-zA-Z_][a-zA-Z0-9_]*' 
     if t.value in reserved:
       t.type = reserved[t.value]
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   # Ignore the spaces and tabs -- comments
@@ -283,135 +254,133 @@ class Scanner():
   # Define a rule so we can track line numbers
   def t_newline(self, t):
     r'\n+'
-    print "NEW LINE"
     self.lines.append(t.lexer.lexpos)
     t.lexer.lineno += len(t.value)
-    #self.lexer.lexpos = 1
-    if self.logtokens and self.source != "":
-      #self.source += "\n"
-      self.log.info("tokens : " + self.tokens)
-      self.log.info("source : " + self.source)
-      self.tokens += "\n"
-      self.tokenlog.write("/*"+self.source + "*/\n")
-      self.tokenlog.write(self.tokens)
 
-      self.source = ""
-      self.tokens = ""
-    self.log.info("==============================Completed LINE NUMBER: " + str(t.lexer.lineno-1) + "======================")
-    self.log.info("==============================Starting    LINE NUMBER: " + str(t.lexer.lineno) + "======================")
+    self.loginfo("tokens : " + self.tokens)
+    self.loginfo("source : " + self.source)
+
+    self.tokens += "\n"
+    self.tokenlog.write("/*"+self.source + "*/\n")
+    self.tokenlog.write(self.tokens)
+
+    self.source = ""
+    self.tokens = ""
+    self.loginfo("==============================Completed LINE NUMBER: " + str(t.lexer.lineno-1) + "======================")
+    self.loginfo("==============================Starting    LINE NUMBER: " + str(t.lexer.lineno) + "======================")
   # Lex Error message
   def t_error(self,t):
-    
+    print "FOUND AN ERROR WITH: " + str(t) + "at line number: " + str(t.lexer.lineno) 
     return ""
   def t_requal(self,t):
     r'='
     t.type = '='
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_rstar(self,t):
     r'\*'
     print "STAR"
     t.type = "*"
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_rexclaim(self,t):
     r"!"
     t.type = "!"
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_rquestion(self,t):
     r'\?'
     t.type = "?"
-    if self.logtokens:
-        self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_rplus(self,t):
     r"\+"
     t.type = "+"
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_rminus(self,t):
     r"-"
     t.type = "-"
-    if self.logtokens:
-      self.logging(t.type, t.value)
+    self.logging(t.type, t.value)
     return t
 
   def t_rand(self,t):
     r"&"
     t.type = "&"
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
 
   def t_rdot(self,t):
     r'\.'
     t.type = "."
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_rcolon(self,t):
     r":"
     t.type = ":"
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_lbrack(self,t):
     r"\["
     t.type = "["
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_rbrack(self,t):
     r"]"
     t.type = "]"
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_rcomma(self,t):
     r","
     t.type = ","
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
+    return t
+  def t_le(self,t):
+    r"<"
+    t.type = "<"
+    self.logging(t.type,t.value)
+    return t
+  def t_ge(self,t):
+    r">"
+    t.type = ">"
+    self.logging(t.type,t.value)
+    return t
+  def t_pipe(self,t):
+    r"\|"
+    t.type = "|"
+    self.logging(t.type,t.value)
+    return t
+  def t_modulo(self,t):
+    r'%'
+    t.type = "%"
+    self.logging(t.type,t.value)
+    return t
+  def t_carrot(self,t): # Bugs Bunny
+    r"\^"
+    t.type = "^"
+    self.logging(t.type,t.value)
     return t
   def t_OPENBRACK(self,t):
     r'{'
-    
     #print('PUSH ONTO STACK')
-
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
-  	
   def t_CLOSEBRACK(self,t):
     r'}'
-    
     #print('POP OFF STACK')
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
-
   def t_SEMI(self,t):
     r'\;'
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_OPENPARAN(self,t):
     r'\('
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t
   def t_CLOSEPARAN(self,t):
     r'\)'
-    
-    if self.logtokens:
-      self.logging(t.type,t.value)
+    self.logging(t.type,t.value)
     return t 

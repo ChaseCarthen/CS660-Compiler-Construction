@@ -24,8 +24,8 @@ print args
 scan = Parser(data,args.parselogfile != "",args.parselogfile,args.tokenfile)
 st = SymbolTable()
 scan.set_symbol_table(st)
-scan.scan(data)
-#scan.run()
+#scan.scan(data)
+scan.run()
 
 print
 print

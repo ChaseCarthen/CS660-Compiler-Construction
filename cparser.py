@@ -587,8 +587,10 @@ class Parser(Scanner):
     def p_compound_statement_4(self, p):
         '''compound_statement : OPENBRACK declaration_list statement_list CLOSEBRACK'''
         print ("Found a scope")
-        #for i in p:
-        #    print (i)
+    def p_compound_statement_error(self,p):
+        '''compound_statement : error compound_statement '''
+        print p[1]
+        print "COMPOUND ERROR"
 
     def p_declaration_list_1(self, p):
         '''declaration_list : declaration'''
@@ -667,6 +669,9 @@ class Parser(Scanner):
         self.symbol_table.EndScope()
         print("FUNCITON NAME: " + p[2])
         p[0] = p[1]
+    def p_function_definition_error(self,p):
+        '''function_definition : declarator declaration_specifiers declarator'''
+        print "ERROR IDENTIFIER: " + p[1] + " BEFORE TYPE SPECIFIER!!!!!!"
     def p_function_definition_3(self, p):
         '''function_definition : declarator declaration_list compound_statement'''
         # Function implementation with no type but with params test(a,b)int a,b;{}

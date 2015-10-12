@@ -1,6 +1,6 @@
-ff
+ff;
 void main (a, b)
 int* a, *b;
 {
-   ff
+   ff;
 }

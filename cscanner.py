@@ -56,7 +56,7 @@ class Scanner():
     self.reduction_list = [] # this will keep track of what tokens we have acquired
     self.log_tokens('tokens.txt')
     self.symbol_table = SymbolTable()
-    self.lines = []
+    self.lines = [0]
 
   def logging(self,typed,value):
       self.source += value + " " 
@@ -103,9 +103,10 @@ class Scanner():
     if self.logtokens:
       self.logging(t.type,t.value)
     return t
-
+  # Help from here http://www.lysator.liu.se/c/ANSI-C-grammar-l.html
+  # should this second half be a constant for 'somechar'...
   def t_STRING_LITERAL(self,t):
-    r'\"(?s).*\"|\'.(?s)*\''
+    r'\"(\\.|[^\\\"])*\"|\'(\\.|[^\\\'])+\''
     
     if self.logtokens:
       self.logging(t.type,t.value)

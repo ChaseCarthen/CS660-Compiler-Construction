@@ -1,4 +1,5 @@
 from cscanner import Scanner
+import sys
 start = 'translation_unit'
 class Parser(Scanner):
     start = 'translation_unit'
@@ -683,7 +684,8 @@ class Parser(Scanner):
 
     def p_error(self,p):
         print("Syntax error in input at " + str(self.lexer.lexpos-self.lines[-1]) + " on line: " + str(self.lexer.lineno))
-        print(p)
-        print (self.lines)
+        self.highlightstring(self.lexer.lexdata.split('\n')[self.lexer.lineno-1],self.lexer.lexpos-self.lines[self.lexer.lineno-1])
+        sys.exit()
+
 
  

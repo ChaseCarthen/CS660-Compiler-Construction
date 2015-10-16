@@ -13,22 +13,23 @@ args = parser.parse_args()
 if args.parselogfile != '':
 	print "Enable parse log"
 
-print args
-# Read the file from command line
-input_file = open(args.source, 'r')
-data = input_file.read()
-input_file.close()
+if args.source != None:
+	#print args.source
+	# Read the file from command line
+	input_file = open(args.source, 'r')
+	data = input_file.read()
+	input_file.close()
 
-# Build and Call the scanner
-print args
-scan = Parser(data,args.parselogfile != "",args.parselogfile,args.tokenfile)
-st = SymbolTable()
-scan.set_symbol_table(st)
-#scan.scan(data)
-scan.run()
+	# Build and Call the scanner
+	print args
+	scan = Parser(data,args.parselogfile != "",args.parselogfile[0],args.tokenfile)
+	st = SymbolTable()
+	scan.set_symbol_table(st)
+	#scan.scan(data)
+	scan.run()
 
-print
-print
-print
-print
-st.StackDump()
+	print
+	print
+	print
+	print
+	st.StackDump()

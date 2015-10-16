@@ -33,23 +33,26 @@ class Scanner():
             'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACK','CLOSEBRACK','SEMI','OPENPARAN','CLOSEPARAN', 'COMMENT']
 
   precedence =  []
-  literals = ['=',']','[','&','+','-','.','?','!',',',':','\'','*','<','>','^','|','%']
+  literals = ['=',']','[','&','+','-','.','?','!',',',':','*','<','>','^','|','%']
   def __init__(self,data,parselog,parsefile,tokenfile):
     
-    # set up the logger to log info... We added a flag for when not to output this info
-    logging.basicConfig(
-      level = logging.INFO,
-      filename = parsefile,
-      filemode = "w",
-      format = "%(filename)10s:%(lineno)4d:%(message)s"
-    )
-
-    # We need to make some kind of error logger.
-
-    log = self.log = logging.getLogger()
-
     # To enable a more verbose logger -- this is so we can see all of the production that were taken in the grammar.
     self.parselog = parselog
+
+    # set up the logger to log info... We added a flag for when not to output this info
+    if self.parselog:
+      logging.basicConfig(
+        level = logging.INFO,
+        filename = parsefile,
+        filemode = "w",
+        format = "%(filename)10s:%(lineno)4d:%(message)s"
+      )
+
+      # We need to make some kind of error logger.
+
+      log = self.log = logging.getLogger()
+
+
     
     if self.parselog:
       self.lexer = lex.lex(module=self,debuglog=log,debug=True)
@@ -101,7 +104,11 @@ class Scanner():
 
   def run(self):
     self.loginfo("==============================Starting    LINE NUMBER: " + str(1) + "======================")
-    self.yacc.parse(self.input_data,debug=self.log)
+    if self.parselog:
+      self.yacc.parse(self.input_data,debug=self.log)
+    else:
+      self.yacc.parse(self.input_data)
+
   def scan(self,string):
     self.lexer.input(string)
     i = 0
@@ -268,10 +275,23 @@ class Scanner():
     self.tokens = ""
     self.loginfo("==============================Completed LINE NUMBER: " + str(t.lexer.lineno-1) + "======================")
     self.loginfo("==============================Starting    LINE NUMBER: " + str(t.lexer.lineno) + "======================")
+
+  def highlightstring(self,string,position):
+    if position <= len(string):
+      print string
+      a = ""
+      for i in range(position-1):
+        a += ' '
+      a += '^'
+      print a
+
+
   # Lex Error message
   def t_error(self,t):
-    print "FOUND AN ERROR WITH: " + str(t) + "at line number: " + str(t.lexer.lineno) 
-    return ""
+    print "FOUND LEXICAL ERROR ON LINE: "  + str(t.lexer.lineno) 
+    self.highlightstring(self.lexer.lexdata.split('\n')[self.lexer.lineno-1],self.lexer.lexpos-self.lines[self.lexer.lineno-1]+1)
+    t.lexer.skip(1)
+
   def t_requal(self,t):
     r'='
     t.type = '='

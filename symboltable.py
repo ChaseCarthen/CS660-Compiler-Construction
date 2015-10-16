@@ -114,3 +114,5 @@ class SymbolTreeNode(object):
     message = message + "CharacterLocation: " + str(self.info["CharacterLocation"]) + "."
     return message
     
+
+class Function(SymbolTable):

@@ -115,4 +115,3 @@ class SymbolTreeNode(object):
     return message
     
 
-class Function(SymbolTable):

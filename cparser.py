@@ -253,14 +253,17 @@ class Parser(Scanner):
     def p_declaration_1(self, p):
         '''declaration : declaration_specifiers SEMI'''
         p[0] = p[1] + p[2]
-        print(p[1])
+        #print(p[1])
     def p_declaration_2(self, p):
         '''declaration : declaration_specifiers init_declarator_list SEMI'''
         p[0] = p[2]
         # lookup and insert
-        #for i in p[2]:
-        #self.symbol_table.Insert(name=i[0],var=p[1],value=i[1],line=0,line_loc=0) 
-        print(p[2])
+        for i in p[2]:
+            self.symbol_table.Retrieve(i[0])
+            self.symbol_table.SetType(p[1])
+            self.symbol_table.SetValue(i[1])
+            #self.symbol_table.Insert(name=i[0],var=p[1],value=i[1],line=0,line_loc=0) 
+        #print(p[2])
 
     def p_declaration_specifiers_1(self, p):
         '''declaration_specifiers : storage_class_specifier'''
@@ -290,9 +293,12 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
+        self.symbol_table.Insert(name=p[1],var=0,value=0,line=0,line_loc=0)
         p[0] = (p[1],"")
     def p_init_declarator_2(self, p):
         '''init_declarator : declarator '=' initializer'''
+        print p[1]
+        self.symbol_table.Insert(name=p[1],var=" ",value=" ",line=0,line_loc=0) # we need to do something with p[3]
         p[0] = (p[1],  p[3])
     def p_storage_class_specifier_1(self, p):
         '''storage_class_specifier : TYPEDEF'''
@@ -437,7 +443,7 @@ class Parser(Scanner):
         '''declarator : direct_declarator'''
         p[0] = p[1]
         print p[1]
-        self.symbol_table.Insert(name=p[1],var=" ",value=" ",line=0,line_loc=0)
+        #self.symbol_table.Insert(name=p[1],var=" ",value=" ",line=0,line_loc=0)
 
     def p_direct_declarator_1(self, p):
         '''direct_declarator : IDENTIFIER'''
@@ -459,10 +465,10 @@ class Parser(Scanner):
         # This is where we create a ast with function parameters?
         print "Function: " + p[1]
         print "Parameters: " + str(p[3])
-        self.symbol_table.NewScope()
-        #for i in p[3]:
-        #    pass
-        #    self.symbol_table.Insert(name=i[1],var=i[0],value=0,line=0,line_loc=0)
+        #self.symbol_table.NewScope()
+        for i in p[3]:
+            pass
+            self.symbol_table.Insert(name=i[1],var=i[0],value=0,line=0,line_loc=0)
         p[0] = p[1]
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
@@ -519,8 +525,8 @@ class Parser(Scanner):
         '''parameter_declaration : declaration_specifiers declarator'''
         #self.symbol_table.Insert(var = p[1],name=p[2],value=0,line=0,line_loc=0 )
         #print(p[1])
-        self.symbol_table.Retrieve(p[2])
-        self.symbol_table.SetType(p[1])
+        #self.symbol_table.Retrieve(p[2])
+        #self.symbol_table.SetType(p[1])
         p[0] = (p[1],p[2])
 
     def p_parameter_declaration_2(self, p):
@@ -638,7 +644,7 @@ class Parser(Scanner):
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_3(self, p):
         '''compound_statement : OPENBRACK declaration_list CLOSEBRACK'''
-        self.symbol_table.EndScope()
+        #self.symbol_table.EndScope()
         print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_4(self, p):
@@ -646,10 +652,10 @@ class Parser(Scanner):
         #self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3] + p[4]
-    def p_compound_statement_error(self,p):
-        '''compound_statement : error compound_statement '''
-        print p[1]
-        print "COMPOUND ERROR"
+    #def p_compound_statement_error(self,p):
+    #    '''compound_statement : error compound_statement '''
+    #    print p[1]
+    #    print "COMPOUND ERROR"
 
     def p_declaration_list_1(self, p):
         '''declaration_list : declaration'''
@@ -730,9 +736,9 @@ class Parser(Scanner):
         print("FUNCITON NAME: " + p[2])
         p[0] = p[2]
 
-    def p_function_definition_error(self,p):
-        '''function_definition : declarator declaration_specifiers declarator'''
-        print "ERROR IDENTIFIER: " + p[1] + " BEFORE TYPE SPECIFIER!!!!!!"
+    #def p_function_definition_error(self,p):
+    #    '''function_definition : declarator declaration_specifiers declarator'''
+    #    print "ERROR IDENTIFIER: " + p[1] + " BEFORE TYPE SPECIFIER!!!!!!"
     def p_function_definition_3(self, p):
         '''function_definition : declarator declaration_list compound_statement'''
         # Function implementation with no type but with params test(a,b)int a,b;{}

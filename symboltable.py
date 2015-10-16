@@ -108,7 +108,7 @@ class SymbolTreeNode(object):
     return self.info["Name"]
 
   def CheckInsert(self):
-    return (self.info["Type"] and self.info["Name"] and self.info["Value"] != None and self.info["Line"] != None and self.info["CharacterLocation"] != None)
+    return (self.info["Type"] != None and self.info["Name"] and self.info["Value"] != None and self.info["Line"] != None and self.info["CharacterLocation"] != None)
 
   def __str__(self):
     message = ""

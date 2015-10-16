@@ -30,7 +30,7 @@ class Scanner():
             'XOR_ASSIGN', 'OR_ASSIGN', 'TYPEDEF', 'EXTERN', 'STATIC', 'AUTO', 'REGISTER', 
             'CHAR', 'SHORT', 'INT', 'LONG', 'SIGNED', 'UNSIGNED', 'FLOAT', 'DOUBLE', 'CONST', 'VOLATILE', 
             'VOID', 'STRUCT', 'UNION', 'ENUM', 'ELLIPSIS', 'CASE', 'DEFAULT', 'IF', 'ELSE', 'SWITCH', 
-            'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACK','CLOSEBRACK','SEMI','OPENPARAN','CLOSEPARAN', 'COMMENT']
+            'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACK','CLOSEBRACK','SEMI','OPENPARAN','CLOSEPARAN', 'COMMENT','DUMPSYMBOL']
 
   precedence =  []
   literals = ['=',']','[','&','+','-','.','?','!',',',':','*','<','>','^','|','%']
@@ -246,7 +246,7 @@ class Scanner():
 
   def t_COMMENT(self,t):
     r'//(?s).*?\n|/\*(?s).*?\*/'
-    #print("COMMENT")
+    print("COMMENT")
 
   def t_IDENTIFIER(self, t):
     r'[a-zA-Z_][a-zA-Z0-9_]*' 
@@ -384,8 +384,9 @@ class Scanner():
     return t
   def t_OPENBRACK(self,t):
     r'{'
-    #print('PUSH ONTO STACK')
+    print('PUSH ONTO STACK')
     self.logging(t.type,t.value)
+    self.symbol_table.NewScope()
     return t
   def t_CLOSEBRACK(self,t):
     r'}'
@@ -404,3 +405,9 @@ class Scanner():
     r'\)'
     self.logging(t.type,t.value)
     return t 
+  # Dump symbol is @
+  def t_DUMPSYMBOL(self,t):
+    r'@'
+    self.symbol_table.StackDump()
+    self.logging(t.type,t.value)
+

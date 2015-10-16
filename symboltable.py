@@ -34,12 +34,15 @@ class SymbolTable(object):
         self.stack.append(tree)
 
   def _CheckStack(self, name, pointer):
-
+    if len(self.stack) == 0:
+        return
     tree = self.stack.pop()
     pointer = self._CheckTree(tree, name)
 
     if not pointer:
       self._CheckStack(name, pointer)
+    else:
+      self.pointer = pointer
 
     # check for stack overflow -- later
     self.stack.append(tree)
@@ -67,7 +70,9 @@ class SymbolTable(object):
 
   def SetValue(self,val):
     # Check for type conflicts int to float conversions here
-    self.pointer.info["Value"] = val   
+    self.pointer.info["Value"] = val
+  def SetType(self,typed):
+    self.pointer.info["Type"] = typed 
 
   def EndInsert(self):
     self.insert = False
@@ -87,7 +92,7 @@ class SymbolTable(object):
       print "Scope: " + str(treeIndex)
       print "========= Scope Contents ========"
       for info in self.stack[treeIndex]:
-        print info
+        print self.stack[treeIndex][info]
       print "========= End of Scope Contents ========="
 
 

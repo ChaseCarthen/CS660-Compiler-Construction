@@ -1,6 +1,10 @@
-
-void main (a, b)
-int* a, *b;
+void main(int da, char da2)
 {
-   aasdfasdf;
+	int a=1,b=2,c=3,d=4;
+	{
+		char buubles;
+	}
+	@
+	fast(a);
+
 }

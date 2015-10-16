@@ -10,8 +10,7 @@ parser.add_argument("-p",nargs=1,default=" ",type=str,dest="parselogfile",metava
 parser.add_argument("-t",nargs=1,default="tokenfile.txt",type=str,dest="tokenfile", metavar='Token Log Output', help="The token log output file specifier.")
 parser.add_argument("-v",default="Version 1.0.0",type=str,metavar='Version information.')
 args = parser.parse_args()
-if args.parselogfile != '':
-	print "Enable parse log"
+
 
 if args.source != None:
 	#print args.source

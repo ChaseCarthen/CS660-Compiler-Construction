@@ -164,8 +164,6 @@ class FunctionNode(SymbolTreeNode):
     super(FunctionNode, self).__init__(type_var, name, line, line_loc)
     self.parameters = parameters
 
-
-
   def __str__(self):
     string = super(PointerNode,self).__str__()
     string += "\nParameter List\n----------------\n"
@@ -173,4 +171,13 @@ class FunctionNode(SymbolTreeNode):
     for i in self.parameters:
       string = string + str(i) + '\n'
 
+    return string
+
+class VariableNode(SymbolTreeNode):
+  """A function node"""
+  def __init__(self, type_var = '', name = '', line = 0, line_loc = 0):
+    super(VariableNode, self).__init__(type_var, name, line, line_loc)
+
+  def __str__(self):
+    string = super(PointerNode,self).__str__()
     return string

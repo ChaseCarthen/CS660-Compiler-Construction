@@ -17,34 +17,30 @@ class SymbolTable(object):
     if not self.pointer:
       raise SymbolTableError("There is no value in the symbol table of that type.")
 
-
   def Insert(self, var = None, name = None, value = None, line = None, line_loc = None):
     node = SymbolTreeNode(var, name, value, line, line_loc)
+    try:
+      InsertNode(self, node)
+    except:
+      e = sys.exc_info()[0]
+      print(e)
+
+  def InsertNode(self, node):
+    if node == None:
+      raise SymbolTableError("The Insert did not have all required Values: \n" + str(node))
+
     if not node.CheckInsert():
       raise SymbolTableError("The Insert did not have all required Values: \n" + str(node))
-    else:
-      print("Inserting to the tree at stack location: " + str(len(self.stack)))
-      tree = self.stack.pop()
-      
-      if self._CheckTree(tree, node.GetKey()):
+    
+    print("Inserting to the tree at stack location: " + str(len(self.stack)))
+    tree = self.stack.pop()
+    
+    if self._CheckTree(tree, node.GetKey()):
         self.stack.append(tree)
         raise SymbolTableError("The variable added to tree exists at this scope.")
-      else:
-        tree[node.GetKey()] = node
-        self.stack.append(tree)
-  def InsertSymbolTreeNode(self,node):
-    if not node.CheckInsert():
-      raise SymbolTableError("The Insert did not have all required Values: \n" + str(node))
     else:
-      print("Inserting to the tree at stack location: " + str(len(self.stack)))
-      tree = self.stack.pop()
-      
-      if self._CheckTree(tree, node.GetKey()):
-        self.stack.append(tree)
-        raise SymbolTableError("The variable added to tree exists at this scope.")
-      else:
-        tree[node.GetKey()] = node
-        self.stack.append(tree)
+      tree[node.GetKey()] = node
+      self.stack.append(tree)
 
   def _CheckStack(self, name, pointer):
     if len(self.stack) == 0:
@@ -113,15 +109,15 @@ class SymbolTable(object):
 class SymbolTreeNode(object):
   """docstring for symboltable"""
 
-  def __init__(self, type_var = None, name = None, value = None, line = None, line_loc = None):
-    self.info = { "Type" : type_var, "Name" : name, "Value" : value, 
-                  "Line" : line, "CharacterLocation" : line_loc}
+  def __init__(self, type_var = None, name = None, line = None, line_loc = None):
+    self.info = { "Type" : type_var, "Name" : name, "Line" : line, "CharacterLocation" : line_loc}
 
   def GetKey(self):
     return self.info["Name"]
 
   def CheckInsert(self):
-    return (self.info["Type"] != None and self.info["Name"] and self.info["Value"] != None and self.info["Line"] != None and self.info["CharacterLocation"] != None)
+    return (self.info["Type"] != None and self.info["Name"] and self.info["Line"] != None and self.info["CharacterLocation"] != None)
+  
   def SetName(self,name):
     self.info["Name"] = name
     print name
@@ -133,7 +129,6 @@ class SymbolTreeNode(object):
     message = ""
     message = message + "Type: " + str(self.info["Type"]) + ", "
     message = message + "Name: " + str(self.info["Name"]) + ", "
-    message = message + "Value: " + str(self.info["Value"]) + ", "
     message = message + "Line: " + str(self.info["Line"]) + ", "
     message = message + "CharacterLocation: " + str(self.info["CharacterLocation"]) +"."
     return message
@@ -141,7 +136,8 @@ class SymbolTreeNode(object):
 # A pointer node to be propagated around the pointer grammar symbol
 class PointerNode(SymbolTreeNode):
   """A pointer node to be place into the symbol table?"""
-  def __init__(self,tq=None, type_var = '', name = '', value ='', line = 0, line_loc = 0):
+
+  def __init__(self, tq=None, type_var = '', name = '', line = 0, line_loc = 0):
     super(PointerNode,self).__init__(type_var,name,value,line,line_loc) # Call base class of this guy which is SymbolTableNode
     #self.info["NumberOfIndirections"] = 1 
     self.numindirection = 1
@@ -149,24 +145,32 @@ class PointerNode(SymbolTreeNode):
       self.typequalifiers = tq # This could be a list!
     else:
       self.typequalifiers = [] # Empty list means we have no type qualifiers
+
   def AddIndirection(self):
     self.numindirection += 1
+
   def AddTypeQualifiers(self,tq):
     self.typequalifiers += tq
+
   def __str__(self):
     string = super(PointerNode,self).__str__() 
     string += "Number of Indirections: " + str(self.numindirection) + ", "
     string += "Type Qualifiers: " + str(self.typequalifiers)
     return string
+
 class FunctionNode(SymbolTreeNode):
   """A function node"""
-  def __init__(self, parameters=None, type_var = '', name = '', value ='', line = 0, line_loc = 0):
-    super(PointerNode,self).__init__(type_var,name,value,line,line_loc)
+  def __init__(self, parameters = [], type_var = '', name = '', line = 0, line_loc = 0):
+    super(FunctionNode, self).__init__(type_var, name, line, line_loc)
     self.parameters = parameters
+
+
+
   def __str__(self):
     string = super(PointerNode,self).__str__()
-    string += "Parameters: "
-    if self.parameters != None:
-      for i in self.parameters:
-        string += str(i)
-    return str
+    string += "\nParameter List\n----------------\n"
+    
+    for i in self.parameters:
+      string = string + str(i) + '\n'
+
+    return string

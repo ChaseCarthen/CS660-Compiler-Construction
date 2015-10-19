@@ -255,6 +255,7 @@ class Parser(Scanner):
         '''declaration : declaration_specifiers SEMI'''
         p[0] = p[1] + p[2]
         #print(p[1])
+
     def p_declaration_2(self, p):
         '''declaration : declaration_specifiers init_declarator_list SEMI'''
         p[0] = p[2]
@@ -292,15 +293,18 @@ class Parser(Scanner):
         '''init_declarator_list : init_declarator_list ',' init_declarator'''
         p[1].append(p[3])
         p[0] = p[1]
+        
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
         self.symbol_table.Insert(name=p[1],var=0,value=0,line=0,line_loc=0)
         p[0] = (p[1],"")
+
     def p_init_declarator_2(self, p):
         '''init_declarator : declarator '=' initializer'''
         print p[1]
         self.symbol_table.Insert(name=p[1],var=" ",value=" ",line=0,line_loc=0) # we need to do something with p[3]
         p[0] = (p[1],  p[3])
+
     def p_storage_class_specifier_1(self, p):
         '''storage_class_specifier : TYPEDEF'''
         p[0] = p[1]
@@ -437,10 +441,12 @@ class Parser(Scanner):
     def p_type_qualifier_2(self, p):
         '''type_qualifier : VOLATILE'''
         p[0] = p[1]
+
     def p_declarator_1(self, p):
         '''declarator : pointer direct_declarator'''
         p[1].SetName(p[2])
         p[0] = p[1]
+
     def p_declarator_2(self, p):
         '''declarator : direct_declarator'''
         p[0] = SymbolTreeNode(name=p[1],type_var="",value="",line=0,line_loc=0)
@@ -469,7 +475,7 @@ class Parser(Scanner):
         print "Parameters: " + str(p[3])
         
         for i in p[3]:
-            self.symbol_table.InsertSymbolTreeNode(i)
+            self.symbol_table.InsertNode(i)
         #self.symbol_table.NewScope()
         #for i in p[3]:
         #    pass

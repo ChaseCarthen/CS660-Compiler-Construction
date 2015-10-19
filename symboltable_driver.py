@@ -1,0 +1,6 @@
+st = SymbolTable()
+
+
+
+
+st.StackDump()

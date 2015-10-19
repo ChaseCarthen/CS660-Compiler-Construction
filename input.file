@@ -1,4 +1,2 @@
-void main(int* a,int b)
-{	
-	int* c;
-}
+char a(char b){}
+	

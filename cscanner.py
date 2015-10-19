@@ -386,9 +386,6 @@ class Scanner():
     r'{'
     print "LENGTH: " + str(len(self.symbol_table.stack))
     self.logging(t.type,t.value)
-    print('PUSH ONTO STACK')
-    self.symbol_table.NewScope()
-    self.loginfo("PUSH ONTO STACK")
     return t
   def t_CLOSEBRACK(self,t):
     r'}'

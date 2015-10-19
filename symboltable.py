@@ -1,5 +1,6 @@
 import bintrees
 from CompilerExceptions import SymbolTableError
+import sys
 
 class SymbolTable(object):
   """docstring for SymbolTable"""
@@ -17,13 +18,12 @@ class SymbolTable(object):
     if not self.pointer:
       raise SymbolTableError("There is no value in the symbol table of that type.")
 
-  def Insert(self, var = None, name = None, value = None, line = None, line_loc = None):
-    node = SymbolTreeNode(var, name, value, line, line_loc)
+  def Insert(self, var = None, name = None,  line = None, line_loc = None):
+    node = SymbolTreeNode(var, name, line, line_loc)
     try:
       InsertNode(self, node)
-    except:
-      e = sys.exc_info()[0]
-      print(e)
+    except SymbolTableError,e:
+      raise SymbolTableError(str(e))
 
   def InsertNode(self, node):
     if node == None:

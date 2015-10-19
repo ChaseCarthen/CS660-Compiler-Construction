@@ -260,11 +260,11 @@ class Parser(Scanner):
         '''declaration : declaration_specifiers init_declarator_list SEMI'''
         p[0] = p[2]
         # lookup and insert
-        for i in p[2]:
-            self.symbol_table.Retrieve(i[0])
-            self.symbol_table.SetType(p[1])
-            self.symbol_table.SetValue(i[1])
-            #self.symbol_table.Insert(name=i[0],var=p[1],value=i[1],line=0,line_loc=0) 
+        #for i in p[2]:
+        #    self.symbol_table.Retrieve(i[0])
+        #    self.symbol_table.SetType(p[1])
+        #   self.symbol_table.SetValue(i[1])
+        #    #self.symbol_table.Insert(name=i[0],var=p[1],value=i[1],line=0,line_loc=0) 
         #print(p[2])
 
     def p_declaration_specifiers_1(self, p):
@@ -296,13 +296,13 @@ class Parser(Scanner):
         
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
-        self.symbol_table.Insert(name=p[1],var=0,value=0,line=0,line_loc=0)
+        #self.symbol_table.Insert(name=p[1],var=0,line=0,line_loc=0)
         p[0] = (p[1],"")
 
     def p_init_declarator_2(self, p):
         '''init_declarator : declarator '=' initializer'''
         print p[1]
-        self.symbol_table.Insert(name=p[1],var=" ",value=" ",line=0,line_loc=0) # we need to do something with p[3]
+        #self.symbol_table.Insert(name=p[1],var=" ",line=0,line_loc=0) # we need to do something with p[3]
         p[0] = (p[1],  p[3])
 
     def p_storage_class_specifier_1(self, p):
@@ -449,7 +449,7 @@ class Parser(Scanner):
 
     def p_declarator_2(self, p):
         '''declarator : direct_declarator'''
-        p[0] = SymbolTreeNode(name=p[1],type_var="",value="",line=0,line_loc=0)
+        p[0] = SymbolTreeNode(name=p[1],type_var="",line=0,line_loc=0)
         print p[1]
         #self.symbol_table.Insert(name=p[1],var=" ",value=" ",line=0,line_loc=0)
 

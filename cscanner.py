@@ -388,7 +388,7 @@ class Scanner():
     self.logging(t.type,t.value)
     print('PUSH ONTO STACK')
     self.symbol_table.NewScope()
-    self.log.info("PUSH ONTO STACK")
+    self.loginfo("PUSH ONTO STACK")
     return t
   def t_CLOSEBRACK(self,t):
     r'}'

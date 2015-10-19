@@ -1,5 +1,6 @@
 from cscanner import Scanner
 import sys
+from symboltable import *
 start = 'translation_unit'
 class Parser(Scanner):
     start = 'translation_unit'
@@ -438,10 +439,11 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_declarator_1(self, p):
         '''declarator : pointer direct_declarator'''
-        p[0] = p[1] + p[2]
+        p[1].SetName(p[2])
+        p[0] = p[1]
     def p_declarator_2(self, p):
         '''declarator : direct_declarator'''
-        p[0] = p[1]
+        p[0] = SymbolTreeNode(name=p[1],type_var="",value="",line=0,line_loc=0)
         print p[1]
         #self.symbol_table.Insert(name=p[1],var=" ",value=" ",line=0,line_loc=0)
 
@@ -465,13 +467,17 @@ class Parser(Scanner):
         # This is where we create a ast with function parameters?
         print "Function: " + p[1]
         print "Parameters: " + str(p[3])
-        #self.symbol_table.NewScope()
+        
         for i in p[3]:
-            pass
-            self.symbol_table.Insert(name=i[1],var=i[0],value=0,line=0,line_loc=0)
+            self.symbol_table.InsertSymbolTreeNode(i)
+        #self.symbol_table.NewScope()
+        #for i in p[3]:
+        #    pass
+        #    self.symbol_table.Insert(name=i[1],var=i[0],value=0,line=0,line_loc=0)
         p[0] = p[1]
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
+        print "IDENTIFIER LIST"
         p[0] = p[1]
     def p_direct_declarator_7(self, p):
         '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN'''
@@ -480,19 +486,22 @@ class Parser(Scanner):
 
     def p_pointer_1(self, p):
         '''pointer : '*' '''
-        p[0] = p[1]
+        p[0] = PointerNode(None)
 
     def p_pointer_2(self, p):
         '''pointer : '*' type_qualifier_list'''
-        p[0] = p[1] + p[2] + p[3]
+        p[0] = PointerNode(p[2])
 
     def p_pointer_3(self, p):
         '''pointer : '*' pointer'''
-        p[0] = p[1] + p[2]
+        p[2].AddIndirection()
+        p[0] = p[2]
 
     def p_pointer_4(self, p):
         '''pointer : '*' type_qualifier_list pointer'''
-        p[0] = p[1] + p[2] + p[3]
+        p[3].AddIndirection() 
+        p[3].AddTypeQualifiers(p[2])
+        p[0] = p[3]
 
     def p_type_qualifier_list_1(self, p):
         '''type_qualifier_list : type_qualifier'''
@@ -527,7 +536,8 @@ class Parser(Scanner):
         #print(p[1])
         #self.symbol_table.Retrieve(p[2])
         #self.symbol_table.SetType(p[1])
-        p[0] = (p[1],p[2])
+        p[2].SetType(p[1])
+        p[0] = p[2]
 
     def p_parameter_declaration_2(self, p):
         '''parameter_declaration : declaration_specifiers abstract_declarator'''
@@ -733,7 +743,6 @@ class Parser(Scanner):
         '''function_definition : declaration_specifiers declarator compound_statement'''
         #elf.symbol_table.StackDump()
         #self.symbol_table.EndScope()
-        print("FUNCITON NAME: " + p[2])
         p[0] = p[2]
 
     #def p_function_definition_error(self,p):

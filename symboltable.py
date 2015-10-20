@@ -40,7 +40,11 @@ class SymbolTable(object):
     
     if self._CheckTree(tree, node.GetKey()):
         self.stack.append(tree)
-        raise SymbolTableError("The variable added to tree exists at this scope.")
+        if not type(node) == type(FunctionNode()):
+          raise SymbolTableError("The variable added to tree exists at this scope.")
+        else:
+          self.Retrieve(node.GetName())
+          raise SymbolTableError("This function has been defined!")
 
     self.pointer = None
     self._CheckStack(node.GetKey(), self.pointer)
@@ -64,7 +68,14 @@ class SymbolTable(object):
     
     if self._CheckTree(tree, node.GetKey()):
         self.stack.append(tree)
-        raise SymbolTableError("The variable added to tree exists at this scope.")
+        self.stack.append(tree_holder)
+        if not type(node) == type(FunctionNode()):
+          raise SymbolTableError("The variable added to tree exists at this scope.")
+        else:
+          self.Retrieve(node.GetName())
+          if not self.pointer.CheckParameters(node.parameters):
+            raise SymbolTableError("Error function parameters do not match!")
+
 
     self.pointer = None
     self._CheckStack(node.GetKey(), self.pointer)
@@ -249,6 +260,13 @@ class FunctionNode(SymbolTreeNode):
       string = string + '\t' + str(i) + '\n'
 
     return string
+  def CheckParameters(self,params):
+    good = True
+    for i,j in zip(self.parameters,params):
+      good = good and i.GetType() == j.GetType()
+    if good:
+      self.parameters = params
+    return good
 
 class VariableNode(SymbolTreeNode):
   """A variable node"""

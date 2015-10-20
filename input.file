@@ -1,15 +1,11 @@
-void foo();
+void foo(int a,int b);
 
 
-int main()
+void main()
 {
-  int i;
-  for(i = 0; i < 10; i++) {
-    int val;
-  }@
+   int a[5];
 }
 
-void foo()
+void foo(char a, int b)
 {
-	int b;
 }@

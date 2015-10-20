@@ -602,12 +602,13 @@ class Parser(Scanner):
             print(e)
 
         for i in p[3]:
-            try:
-                self.symbol_table.InsertNode(i)
-            except SymbolTableWarning, e:
-                print(e)
-            except SymbolTableError, e:
-                print(e)
+            if len(self.symbol_table.stack) > 1:
+                try:
+                    self.symbol_table.InsertNode(i)
+                except SymbolTableWarning, e:
+                    print(e)
+                except SymbolTableError, e:
+                    print(e)
 
         p[0] = p[1]
 

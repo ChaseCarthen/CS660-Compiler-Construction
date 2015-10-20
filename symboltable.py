@@ -45,6 +45,7 @@ class SymbolTable(object):
         else:
           self.Retrieve(node.GetName())
           raise SymbolTableError("This function has been defined!")
+        
 
     self.pointer = None
     self._CheckStack(node.GetKey(), self.pointer)
@@ -75,6 +76,8 @@ class SymbolTable(object):
           self.Retrieve(node.GetName())
           if not self.pointer.CheckParameters(node.parameters):
             raise SymbolTableError("Error function parameters do not match!")
+          else:
+            return
 
 
     self.pointer = None

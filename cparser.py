@@ -603,8 +603,10 @@ class Parser(Scanner):
 
         for i in p[3]:
             if len(self.symbol_table.stack) > 1:
+                self.loginfo("INSERTING INTO STACK")
                 try:
                     self.symbol_table.InsertNode(i)
+                    #pass
                 except SymbolTableWarning, e:
                     print(e)
                 except SymbolTableError, e:
@@ -697,7 +699,8 @@ class Parser(Scanner):
         #self.symbol_table.Retrieve(p[2])
         #self.symbol_table.SetType(p[1])
         self.typelist.pop()
-        p[2].SetType(str(p[1]))
+        p[2].SetType(p[1]["specifiers"])
+        p[2].SetQualifiers(p[1]["qualifiers"])
         p[0] = p[2]
 
     def p_parameter_declaration_2(self, p):
@@ -707,7 +710,8 @@ class Parser(Scanner):
     def p_parameter_declaration_3(self, p):
         '''parameter_declaration : declaration_specifiers'''
         self.typelist.pop()
-        p[0] = SymbolTreeNode(type_var = str(p[1]))
+        print( "TYPE: " + str(p[1]))
+        p[0] = VariableNode(type_var = p[1]['specifiers'], tq = p[1]['qualifiers'])
 
     def p_identifier_list_1(self, p):
         '''identifier_list : IDENTIFIER'''

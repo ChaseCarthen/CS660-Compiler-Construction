@@ -1,11 +1,6 @@
-void foo(int a,int b);
+void foo(int,int);
 
-
-void main()
+void foo(int a,int b)
 {
-   int a[5];
-}
-
-void foo(char a, int b)
-{
+	
 }@

@@ -227,6 +227,8 @@ class PointerNode(SymbolTreeNode):
     super(PointerNode,self).__init__(type_var,name,line,line_loc) # Call base class of this guy which is SymbolTableNode
     #self.info["NumberOfIndirections"] = 1 
     self.numindirection = 1
+    if tq == None:
+      tq = []
     self.typequalifiers = tq # This could be a list!
 
   def AddIndirection(self):
@@ -245,7 +247,9 @@ class PointerNode(SymbolTreeNode):
     string += "Number of Indirections: " + str(self.numindirection) + ", "
     string += "Type Qualifiers: " + str(self.typequalifiers)
     return string
-
+  def SetQualifiers(self, tq):
+    print self.typequalifiers
+    self.typequalifiers += tq
 class FunctionNode(SymbolTreeNode):
   """A function node"""
   def __init__(self, parameters = [], type_var = '', name = '', line = 0, line_loc = 0):

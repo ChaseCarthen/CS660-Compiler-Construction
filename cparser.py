@@ -349,7 +349,7 @@ class Parser(Scanner):
         '''declaration_specifiers : storage_class_specifier'''
         locallist = [p[1]]
         self.typelist.append(locallist)
-        p[0] = {}
+        p[0] = {"qualifiers" : [], "specifiers" : locallist}
     def p_declaration_specifiers_2(self, p):
         '''declaration_specifiers : storage_class_specifier declaration_specifiers'''
         #p[0] = p[1] + p[2]
@@ -707,6 +707,7 @@ class Parser(Scanner):
     def p_parameter_declaration_3(self, p):
         '''parameter_declaration : declaration_specifiers'''
         self.typelist.pop()
+        p[0] = SymbolTreeNode(type_var = str(p[1]))
 
     def p_identifier_list_1(self, p):
         '''identifier_list : IDENTIFIER'''

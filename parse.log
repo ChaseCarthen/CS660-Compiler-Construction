@@ -1,0 +1,94 @@
+    lex.py: 922:lex: tokens   = ['IDENTIFIER', 'CONSTANT', 'STRING_LITERAL', 'SIZEOF', 'PTR_OP', 'INC_OP', 'DEC_OP', 'LEFT_OP', 'RIGHT_OP', 'LE_OP', 'GE_OP', 'EQ_OP', 'NE_OP', 'AND_OP', 'OR_OP', 'MUL_ASSIGN', 'DIV_ASSIGN', 'MOD_ASSIGN', 'ADD_ASSIGN', 'SUB_ASSIGN', 'LEFT_ASSIGN', 'RIGHT_ASSIGN', 'AND_ASSIGN', 'XOR_ASSIGN', 'OR_ASSIGN', 'TYPEDEF', 'EXTERN', 'STATIC', 'AUTO', 'REGISTER', 'CHAR', 'SHORT', 'INT', 'LONG', 'SIGNED', 'UNSIGNED', 'FLOAT', 'DOUBLE', 'CONST', 'VOLATILE', 'VOID', 'STRUCT', 'UNION', 'ENUM', 'ELLIPSIS', 'CASE', 'DEFAULT', 'IF', 'ELSE', 'SWITCH', 'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN', 'OPENBRACK', 'CLOSEBRACK', 'SEMI', 'OPENPARAN', 'CLOSEPARAN', 'COMMENT', 'DUMPSYMBOL']
+    lex.py: 923:lex: literals = ['=', ']', '[', '&', '+', '-', '.', '?', '!', ',', ':', '*', '<', '>', '^', '|', '%']
+    lex.py: 924:lex: states   = {'INITIAL': 'inclusive'}
+    lex.py: 953:lex: Adding rule t_PTR_OP -> '->' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_CONSTANT -> '(0[xX][a-fA-F0-9]+(u|U|l|L)*?)|0[0-9]+(u|U|l|L)*?|\'(\\.|[^\\\'])\'|[0-9]+[Ee][+-]?[0-9]+(f|F|l|L)?|([0-9]*\.[0-9]+([Ee][+-]?[0-9]+)?(f|F|l|L)?)|([0-9]+((u|U|l|L)*|\.?[0-9]*([Ee][+-]?[0-9]+)?(f|F|l|L)?))' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_STRING_LITERAL -> '\"(\\.|[^\\\"])*\"' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_INC_OP -> '\+\+' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_DEC_OP -> '--' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_LEFT_OP -> '<<' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_RIGHT_OP -> '>>' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_LE_OP -> '<=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_GE_OP -> '>=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_EQ_OP -> '==' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_NE_OP -> '!=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_AND_OP -> '&&' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_OR_OP -> '\|\|' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_MUL_ASSIGN -> '\*=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_DIV_ASSIGN -> '/=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_MOD_ASSIGN -> '%=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_ADD_ASSIGN -> '\+=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_SUB_ASSIGN -> '-=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_LEFT_ASSIGN -> '<<=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_RIGHT_ASSIGN -> '>>=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_AND_ASSIGN -> '&=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_XOR_ASSIGN -> '\^=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_OR_ASSIGN -> '\|=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_ELLIPSIS -> '\.\.\.' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_COMMENT -> '//(?s).*?\n|/\*(?s).*?\*/' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_IDENTIFIER -> '[a-zA-Z_][a-zA-Z0-9_]*' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_newline -> '\n+' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_requal -> '=' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_rstar -> '\*' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_rexclaim -> '!' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_rquestion -> '\?' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_rplus -> '\+' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_rminus -> '-' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_rand -> '&' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_rdot -> '\.' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_rcolon -> ':' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_lbrack -> '\[' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_rbrack -> ']' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_rcomma -> ',' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_le -> '<' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_ge -> '>' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_pipe -> '\|' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_modulo -> '%' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_carrot -> '\^' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_OPENBRACK -> '{' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_CLOSEBRACK -> '}' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_SEMI -> '\;' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_OPENPARAN -> '\(' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_CLOSEPARAN -> '\)' (state 'INITIAL')
+    lex.py: 953:lex: Adding rule t_DUMPSYMBOL -> '@' (state 'INITIAL')
+    lex.py: 966:lex: ==== MASTER REGEXS FOLLOW ====
+    lex.py: 975:lex: state 'INITIAL' : regex[0] = '(?P<t_PTR_OP>->)|(?P<t_CONSTANT>(0[xX][a-fA-F0-9]+(u|U|l|L)*?)|0[0-9]+(u|U|l|L)*?|\'(\\.|[^\\\'])\'|[0-9]+[Ee][+-]?[0-9]+(f|F|l|L)?|([0-9]*\.[0-9]+([Ee][+-]?[0-9]+)?(f|F|l|L)?)|([0-9]+((u|U|l|L)*|\.?[0-9]*([Ee][+-]?[0-9]+)?(f|F|l|L)?)))|(?P<t_STRING_LITERAL>\"(\\.|[^\\\"])*\")|(?P<t_INC_OP>\+\+)|(?P<t_DEC_OP>--)|(?P<t_LEFT_OP><<)|(?P<t_RIGHT_OP>>>)|(?P<t_LE_OP><=)|(?P<t_GE_OP>>=)|(?P<t_EQ_OP>==)|(?P<t_NE_OP>!=)|(?P<t_AND_OP>&&)|(?P<t_OR_OP>\|\|)|(?P<t_MUL_ASSIGN>\*=)|(?P<t_DIV_ASSIGN>/=)|(?P<t_MOD_ASSIGN>%=)|(?P<t_ADD_ASSIGN>\+=)|(?P<t_SUB_ASSIGN>-=)|(?P<t_LEFT_ASSIGN><<=)|(?P<t_RIGHT_ASSIGN>>>=)|(?P<t_AND_ASSIGN>&=)|(?P<t_XOR_ASSIGN>\^=)|(?P<t_OR_ASSIGN>\|=)|(?P<t_ELLIPSIS>\.\.\.)|(?P<t_COMMENT>//(?s).*?\n|/\*(?s).*?\*/)|(?P<t_IDENTIFIER>[a-zA-Z_][a-zA-Z0-9_]*)|(?P<t_newline>\n+)|(?P<t_requal>=)|(?P<t_rstar>\*)|(?P<t_rexclaim>!)|(?P<t_rquestion>\?)|(?P<t_rplus>\+)|(?P<t_rminus>-)|(?P<t_rand>&)|(?P<t_rdot>\.)|(?P<t_rcolon>:)|(?P<t_lbrack>\[)|(?P<t_rbrack>])|(?P<t_rcomma>,)|(?P<t_le><)|(?P<t_ge>>)|(?P<t_pipe>\|)|(?P<t_modulo>%)|(?P<t_carrot>\^)|(?P<t_OPENBRACK>{)|(?P<t_CLOSEBRACK>})|(?P<t_SEMI>\;)|(?P<t_OPENPARAN>\()|(?P<t_CLOSEPARAN>\))|(?P<t_DUMPSYMBOL>@)'
+cscanner.py:  96:==============================Starting    LINE NUMBER: 1======================
+   yacc.py: 360:PLY: PARSE DEBUG START
+cscanner.py:  92:Line Number: 1 Token: INT Value: int
+cscanner.py:  92:Line Number: 1 Token: IDENTIFIER Value: a
+   yacc.py: 469:Action : Reduce rule [type_specifier -> INT] with ['int'] and goto state 13
+   yacc.py: 503:Result : <str @ 0x103f66a30> ('int')
+   yacc.py: 469:Action : Reduce rule [declaration_specifiers -> type_specifier] with ['int'] and goto state 25
+   yacc.py: 503:Result : <str @ 0x103f66a30> ('int')
+cscanner.py:  92:Line Number: 1 Token: , Value: ,
+   yacc.py: 469:Action : Reduce rule [direct_declarator -> IDENTIFIER] with ['a'] and goto state 24
+   yacc.py: 503:Result : <str @ 0x103bb8558> ('a')
+   yacc.py: 469:Action : Reduce rule [declarator -> direct_declarator] with ['a'] and goto state 54
+   yacc.py: 503:Result : <SymbolTreeNode @ 0x103f6ff90> (<symboltable.SymbolTreeNode object at 0x ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator -> declarator] with [<SymbolTreeNode @ 0x103f6ff90>] and goto state 53
+   yacc.py: 503:Result : <tuple @ 0x103f8be60> ((<symboltable.SymbolTreeNode object at 0 ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator_list -> init_declarator] with [<tuple @ 0x103f8be60>] and goto state 52
+   yacc.py: 503:Result : <list @ 0x103fb8cf8> ([(<symboltable.SymbolTreeNode object at  ...)
+cscanner.py:  92:Line Number: 1 Token: IDENTIFIER Value: b
+cscanner.py:  92:Line Number: 1 Token: SEMI Value: ;
+   yacc.py: 469:Action : Reduce rule [direct_declarator -> IDENTIFIER] with ['b'] and goto state 24
+   yacc.py: 503:Result : <str @ 0x103bb8580> ('b')
+   yacc.py: 469:Action : Reduce rule [declarator -> direct_declarator] with ['b'] and goto state 145
+   yacc.py: 503:Result : <SymbolTreeNode @ 0x104002a50> (<symboltable.SymbolTreeNode object at 0x ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator -> declarator] with [<SymbolTreeNode @ 0x104002a50>] and goto state 206
+   yacc.py: 503:Result : <tuple @ 0x103f91050> ((<symboltable.SymbolTreeNode object at 0 ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator_list -> init_declarator_list , init_declarator] with [<list @ 0x103fb8cf8>,',',<tuple @ 0x103f91050>] and goto state 52
+   yacc.py: 503:Result : <list @ 0x103fb8cf8> ([(<symboltable.SymbolTreeNode object at  ...)
+cscanner.py:  96:tokens : INT IDENTIFIER , IDENTIFIER SEMI 
+cscanner.py:  96:source : int a , b ; 
+cscanner.py:  96:==============================Completed LINE NUMBER: 1======================
+cscanner.py:  96:==============================Starting    LINE NUMBER: 2======================
+   yacc.py: 469:Action : Reduce rule [declaration -> declaration_specifiers init_declarator_list SEMI] with ['int',<list @ 0x103fb8cf8>,';'] and goto state 26
+   yacc.py: 503:Result : <list @ 0x103fb8cf8> ([(<symboltable.SymbolTreeNode object at  ...)
+   yacc.py: 469:Action : Reduce rule [external_declaration -> declaration] with [<list @ 0x103fb8cf8>] and goto state 12
+   yacc.py: 503:Result : <list @ 0x103fb8cf8> ([(<symboltable.SymbolTreeNode object at  ...)
+   yacc.py: 469:Action : Reduce rule [translation_unit -> external_declaration] with [<list @ 0x103fb8cf8>] and goto state 20
+   yacc.py: 503:Result : <list @ 0x103fb8cf8> ([(<symboltable.SymbolTreeNode object at  ...)
+   yacc.py: 564:Done   : Returning <list @ 0x103fb8cf8> ([(<symboltable.SymbolTreeNode object at  ...)
+   yacc.py: 565:PLY: PARSE DEBUG END

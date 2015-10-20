@@ -26,7 +26,6 @@ class SymbolTable(object):
       raise SymbolTableError(str(e))
 
   def InsertNode(self, node):
-    print node.GetType()
     if node == None:
       raise SymbolTableError("The Insert did not have all required Values: \n" + str(node))
 
@@ -38,12 +37,10 @@ class SymbolTable(object):
     
     if self._CheckTree(tree, node.GetKey()):
         self.stack.append(tree)
-        print "THERE WAS AN ERROR"
         raise SymbolTableError("The variable added to tree exists at this scope.")
     else:
       tree[node.GetKey()] = node
       self.stack.append(tree)
-      print "THERE WAS NO ERROR"
 
   def _CheckStack(self, name, pointer):
     if len(self.stack) == 0:

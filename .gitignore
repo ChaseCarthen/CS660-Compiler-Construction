@@ -9,3 +9,5 @@ input.file
 parse.log
 tokenfile.txt
 parselog.txt
+parsetab.py
+

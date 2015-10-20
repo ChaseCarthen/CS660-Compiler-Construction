@@ -1,6 +1,8 @@
 from cscanner import Scanner
 import sys
 from symboltable import *
+from CompilerExceptions import *
+
 start = 'translation_unit'
 class Parser(Scanner):
     start = 'translation_unit'
@@ -299,12 +301,24 @@ class Parser(Scanner):
         
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
-        self.symbol_table.InsertNode(p[1])
+        try:
+            self.symbol_table.InsertNode(p[1])
+        except SymbolTableWarning, e:
+            print(e)
+        except SymbolTableError, e:
+            print(e)
+
         p[0] = p[1]
 
     def p_init_declarator_2(self, p):
         '''init_declarator : declarator '=' initializer'''
-        self.symbol_table.InsertNode(p[1])
+        try:
+            self.symbol_table.InsertNode(p[1])
+        except SymbolTableWarning, e:
+            print(e)
+        except SymbolTableError, e:
+            print(e)
+
         p[0] = p[1]
 
     def p_storage_class_specifier_1(self, p):
@@ -476,23 +490,48 @@ class Parser(Scanner):
         print "Function: " + p[1]
         print "Parameters: " + str(p[3])
         p[0] = FunctionNode(p[3],type_var =self.typelist[-1],name=p[1])
-        self.symbol_table.InsertNode(p[0])
+        try:
+            self.symbol_table.InsertNode(p[0])
+        except SymbolTableWarning, e:
+            print(e)
+        except SymbolTableError, e:
+            print(e)
+
         self.symbol_table.NewScope()
         for i in p[3]:
-            print "PARAMETERS"
-            self.symbol_table.InsertNode(i)
+            try:
+                self.symbol_table.InsertNode(i)
+            except SymbolTableWarning, e:
+                print(e)
+            except SymbolTableError, e:
+                print(e)
+
         p[0] = p[1]
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
         print "IDENTIFIER LIST"
         p[0] = FunctionNode(p[3],type_var =self.typelist[-1],name=p[1])
-        self.symbol_table.InsertNode(p[0])
+
+        try:
+            self.symbol_table.InsertNode(p[0])
+        except SymbolTableWarning, e:
+            print(e)
+        except SymbolTableError, e:
+            print(e)
+
         self.symbol_table.NewScope()
         p[0] = p[1]
     def p_direct_declarator_7(self, p):
         '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN'''
         p[0] = FunctionNode(p[3],type_var =self.typelist[-1],name=p[1])
-        self.symbol_table.InsertNode(p[0])
+
+        try:
+            self.symbol_table.InsertNode(p[0])
+        except SymbolTableWarning, e:
+            print(e)
+        except SymbolTableError, e:
+            print(e)
+
         p[0] = p[1] # push onto stack?
         self.symbol_table.NewScope();
 

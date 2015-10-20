@@ -1,5 +1,5 @@
 import bintrees
-from CompilerExceptions import SymbolTableError
+from CompilerExceptions import *
 import sys
 
 class SymbolTable(object):
@@ -38,9 +38,15 @@ class SymbolTable(object):
     if self._CheckTree(tree, node.GetKey()):
         self.stack.append(tree)
         raise SymbolTableError("The variable added to tree exists at this scope.")
-    else:
-      tree[node.GetKey()] = node
-      self.stack.append(tree)
+
+    self.pointer = None
+    self._CheckStack(node.GetKey(), self.pointer)
+
+    tree[node.GetKey()] = node
+    self.stack.append(tree)
+
+    if self.pointer:
+      raise SymbolTableWarning("Overshadow of value.")
 
   def _CheckStack(self, name, pointer):
     if len(self.stack) == 0:
@@ -167,10 +173,10 @@ class FunctionNode(SymbolTreeNode):
 
   def __str__(self):
     string = super(FunctionNode,self).__str__()
-    string += "\nParameter List\n----------------\n"
+    string += "\n\tParameter List\n\t----------------\n"
     
     for i in self.parameters:
-      string = string + str(i) + '\n'
+      string = string + '\t' + str(i) + '\n'
 
     return string
 

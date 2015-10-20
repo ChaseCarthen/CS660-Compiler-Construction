@@ -1,2 +1,12 @@
-/*int a , b ; */
-INT IDENTIFIER , IDENTIFIER SEMI 
+/*int a ; */
+INT IDENTIFIER SEMI 
+/*int main ( int c , int b ) */
+INT IDENTIFIER OPENPARAN INT IDENTIFIER , INT IDENTIFIER CLOSEPARAN 
+/*{ */
+OPENBRACK 
+/*int a ; */
+INT IDENTIFIER SEMI 
+/*} @ */
+CLOSEBRACK DUMPSYMBOL 
+/**/
+

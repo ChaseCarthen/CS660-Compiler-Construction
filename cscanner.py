@@ -75,6 +75,7 @@ class Scanner():
     self.source = "" # this will keep track of what source we have seen so far
     self.tokens = ""  # this will keep track the tokens that we have seen so far
     self.reduction_list = [] # this will keep track of what tokens we have acquired
+    self.typelist = []
     
     # our token log file
     self.log_tokens(tokenfile)

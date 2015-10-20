@@ -1,2 +1,6 @@
-char a(char b){}
+int a;
+int main(int c, int b)
+{
+	int a;
+}@
 	

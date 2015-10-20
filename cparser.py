@@ -254,38 +254,41 @@ class Parser(Scanner):
     def p_declaration_1(self, p):
         '''declaration : declaration_specifiers SEMI'''
         p[0] = p[1] + p[2]
+        self.typelist.pop()
         #print(p[1])
 
     def p_declaration_2(self, p):
         '''declaration : declaration_specifiers init_declarator_list SEMI'''
         p[0] = p[2]
+        self.typelist.pop()
         # lookup and insert
-        #for i in p[2]:
-        #    self.symbol_table.Retrieve(i[0])
-        #    self.symbol_table.SetType(p[1])
+        for i in p[2]:
+            i.SetType(p[1])
         #   self.symbol_table.SetValue(i[1])
         #    #self.symbol_table.Insert(name=i[0],var=p[1],value=i[1],line=0,line_loc=0) 
         #print(p[2])
 
     def p_declaration_specifiers_1(self, p):
         '''declaration_specifiers : storage_class_specifier'''
-        p[0] = p[1]
+        #p[0] = p[1]
     def p_declaration_specifiers_2(self, p):
         '''declaration_specifiers : storage_class_specifier declaration_specifiers'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_declaration_specifiers_3(self, p):
         '''declaration_specifiers : type_specifier'''
-        p[0] = p[1]
+        locallist = [p[1]]
+        self.typelist.append(locallist)
+        p[0] = locallist
 
     def p_declaration_specifiers_4(self, p):
         '''declaration_specifiers : type_specifier declaration_specifiers'''
-        p[0] = p[1] + p[2]
+        p[0] = [p[1]] + p[2]
     def p_declaration_specifiers_5(self, p):
         '''declaration_specifiers : type_qualifier'''
-        p[0] = p[1]
+        #p[0] = p[1]
     def p_declaration_specifiers_6(self, p):
         '''declaration_specifiers : type_qualifier declaration_specifiers'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_init_declarator_list_1(self, p):
         '''init_declarator_list : init_declarator'''
         p[0] = [p[1]]
@@ -296,14 +299,13 @@ class Parser(Scanner):
         
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
-        #self.symbol_table.Insert(name=p[1],var=0,line=0,line_loc=0)
-        p[0] = (p[1],"")
+        self.symbol_table.InsertNode(p[1])
+        p[0] = p[1]
 
     def p_init_declarator_2(self, p):
         '''init_declarator : declarator '=' initializer'''
-        print p[1]
-        #self.symbol_table.Insert(name=p[1],var=" ",line=0,line_loc=0) # we need to do something with p[3]
-        p[0] = (p[1],  p[3])
+        self.symbol_table.InsertNode(p[1])
+        p[0] = p[1]
 
     def p_storage_class_specifier_1(self, p):
         '''storage_class_specifier : TYPEDEF'''
@@ -449,7 +451,7 @@ class Parser(Scanner):
 
     def p_declarator_2(self, p):
         '''declarator : direct_declarator'''
-        p[0] = SymbolTreeNode(name=p[1],type_var="",line=0,line_loc=0)
+        p[0] = VariableNode(name=p[1],type_var="",line=0,line_loc=0)
         print p[1]
         #self.symbol_table.Insert(name=p[1],var=" ",value=" ",line=0,line_loc=0)
 
@@ -473,22 +475,26 @@ class Parser(Scanner):
         # This is where we create a ast with function parameters?
         print "Function: " + p[1]
         print "Parameters: " + str(p[3])
-        
+        p[0] = FunctionNode(p[3],type_var =self.typelist[-1],name=p[1])
+        self.symbol_table.InsertNode(p[0])
+        self.symbol_table.NewScope()
         for i in p[3]:
+            print "PARAMETERS"
             self.symbol_table.InsertNode(i)
-        #self.symbol_table.NewScope()
-        #for i in p[3]:
-        #    pass
-        #    self.symbol_table.Insert(name=i[1],var=i[0],value=0,line=0,line_loc=0)
         p[0] = p[1]
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
         print "IDENTIFIER LIST"
+        p[0] = FunctionNode(p[3],type_var =self.typelist[-1],name=p[1])
+        self.symbol_table.InsertNode(p[0])
+        self.symbol_table.NewScope()
         p[0] = p[1]
     def p_direct_declarator_7(self, p):
         '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN'''
+        p[0] = FunctionNode(p[3],type_var =self.typelist[-1],name=p[1])
+        self.symbol_table.InsertNode(p[0])
         p[0] = p[1] # push onto stack?
-        #self.symbol_table.NewScope();
+        self.symbol_table.NewScope();
 
     def p_pointer_1(self, p):
         '''pointer : '*' '''
@@ -542,14 +548,17 @@ class Parser(Scanner):
         #print(p[1])
         #self.symbol_table.Retrieve(p[2])
         #self.symbol_table.SetType(p[1])
-        p[2].SetType(p[1])
+        self.typelist.pop()
+        p[2].SetType(str(p[1]))
         p[0] = p[2]
 
     def p_parameter_declaration_2(self, p):
         '''parameter_declaration : declaration_specifiers abstract_declarator'''
+        self.typelist.pop()
 
     def p_parameter_declaration_3(self, p):
         '''parameter_declaration : declaration_specifiers'''
+        self.typelist.pop()
 
     def p_identifier_list_1(self, p):
         '''identifier_list : IDENTIFIER'''
@@ -668,11 +677,6 @@ class Parser(Scanner):
         #self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3] + p[4]
-    #def p_compound_statement_error(self,p):
-    #    '''compound_statement : error compound_statement '''
-    #    print p[1]
-    #    print "COMPOUND ERROR"
-
     def p_declaration_list_1(self, p):
         '''declaration_list : declaration'''
         p[0] = p[1]
@@ -730,10 +734,15 @@ class Parser(Scanner):
         p[0] = p[1] + p[2] + p[3]
     def p_translation_unit_1(self, p):
         '''translation_unit : external_declaration'''
-        p[0] = p[1]
+        if len(self.symbol_table.stack) > 1:
+            self.symbol_table.EndScope();
+
+        #p[0] = p[1]
     def p_translation_unit_2(self, p):
         '''translation_unit : translation_unit external_declaration'''
-        p[0] = p[1] + p[2]
+        if len(self.symbol_table.stack) > 1:
+            self.symbol_table.EndScope();
+        #p[0] = p[1] + p[2]
     def p_external_declaration_1(self, p):
         '''external_declaration : function_definition'''
         p[0] = p[1]
@@ -743,26 +752,24 @@ class Parser(Scanner):
     def p_function_definition_1(self, p):
         '''function_definition : declaration_specifiers declarator declaration_list compound_statement'''
         # int test(a,b) int a,b; {}
-        print "==================================!!!!!!!!!!!!!!!!"
+        self.typelist.pop()
         p[0] = p[2]
+        self.symbol_table.EndScope()
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
-        #elf.symbol_table.StackDump()
-        #self.symbol_table.EndScope()
         p[0] = p[2]
-
-    #def p_function_definition_error(self,p):
-    #    '''function_definition : declarator declaration_specifiers declarator'''
-    #    print "ERROR IDENTIFIER: " + p[1] + " BEFORE TYPE SPECIFIER!!!!!!"
+        self.typelist.pop()
+        self.symbol_table.EndScope()
     def p_function_definition_3(self, p):
         '''function_definition : declarator declaration_list compound_statement'''
         # Function implementation with no type but with params test(a,b)int a,b;{}
-        print "BONKERS"
         p[0] = p[1]
+        self.symbol_table.EndScope()
     def p_function_definition_4(self, p):
         '''function_definition : declarator compound_statement'''
         # Funciton implementation with no type test(){}
-        print "BONKERSSSS2"
+
+        self.symbol_table.EndScope()
         p[0] + p[1]
 
     def p_error(self,p):

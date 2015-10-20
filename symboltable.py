@@ -26,6 +26,7 @@ class SymbolTable(object):
       raise SymbolTableError(str(e))
 
   def InsertNode(self, node):
+    print node.GetType()
     if node == None:
       raise SymbolTableError("The Insert did not have all required Values: \n" + str(node))
 
@@ -37,10 +38,12 @@ class SymbolTable(object):
     
     if self._CheckTree(tree, node.GetKey()):
         self.stack.append(tree)
+        print "THERE WAS AN ERROR"
         raise SymbolTableError("The variable added to tree exists at this scope.")
     else:
       tree[node.GetKey()] = node
       self.stack.append(tree)
+      print "THERE WAS NO ERROR"
 
   def _CheckStack(self, name, pointer):
     if len(self.stack) == 0:
@@ -124,7 +127,8 @@ class SymbolTreeNode(object):
 
   def SetType(self,Type):
     self.info["Type"] = Type
-
+  def GetType(self):
+    return self.info["Type"]
   def __str__(self):
     message = ""
     message = message + "Type: " + str(self.info["Type"]) + ", "
@@ -165,7 +169,7 @@ class FunctionNode(SymbolTreeNode):
     self.parameters = parameters
 
   def __str__(self):
-    string = super(PointerNode,self).__str__()
+    string = super(FunctionNode,self).__str__()
     string += "\nParameter List\n----------------\n"
     
     for i in self.parameters:
@@ -179,5 +183,5 @@ class VariableNode(SymbolTreeNode):
     super(VariableNode, self).__init__(type_var, name, line, line_loc)
 
   def __str__(self):
-    string = super(PointerNode,self).__str__()
+    string = super(VariableNode,self).__str__()
     return string

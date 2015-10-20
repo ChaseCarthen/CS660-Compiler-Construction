@@ -249,7 +249,6 @@ class Scanner():
 
   def t_COMMENT(self,t):
     r'//(?s).*?\n|/\*(?s).*?\*/'
-    print("COMMENT")
 
   def t_IDENTIFIER(self, t):
     r'[a-zA-Z_][a-zA-Z0-9_]*' 
@@ -387,7 +386,6 @@ class Scanner():
     return t
   def t_OPENBRACK(self,t):
     r'{'
-    print "LENGTH: " + str(len(self.symbol_table.stack))
     self.logging(t.type,t.value)
     return t
   def t_CLOSEBRACK(self,t):

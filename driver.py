@@ -20,16 +20,9 @@ if args.source != None:
 	input_file.close()
 
 	# Build and Call the scanner
-	print "TEST" + str(args.parselogfile)
-	print args	
 	scan = Parser(data,args.parselogfile != " ",args.parselogfile[0],args.tokenfile)
 	st = SymbolTable()
 	scan.set_symbol_table(st)
 	#scan.scan(data)
 	scan.run()
-
-	print
-	print
-	print
-	print
 	st.StackDump()

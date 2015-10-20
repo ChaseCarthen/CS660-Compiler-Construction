@@ -1,5 +1,9 @@
-void foo(int,int);
 void foo(int a, int b)
 {
-	
+	return 1;
+}@
+
+void main() {
+  int a;
+  a = b + 1;
 }@

@@ -13,6 +13,7 @@ class Parser(Scanner):
             p[0] = self.symbol_table.Retrieve(p[1])
         except SymbolTableError, e:
             print("We need to fail(this output on line 14): " + str(e))
+            p[0] = 0
 
     def p_primary_expression_2(self, p):
         '''primary_expression : CONSTANT'''

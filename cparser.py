@@ -513,8 +513,6 @@ class Parser(Scanner):
     def p_direct_declarator_5(self, p):
         '''direct_declarator : direct_declarator OPENPARAN parameter_type_list CLOSEPARAN'''
         # This is where we create a ast with function parameters?
-        print "Function: " + str(p[1])
-        print "Parameters: " + str(p[3])
         p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
         try:
             self.symbol_table.InsertNode(p[0])
@@ -536,7 +534,6 @@ class Parser(Scanner):
 
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
-        print "IDENTIFIER LIST"
         p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
@@ -701,7 +698,6 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_statement_2(self, p):
         '''statement : compound_statement'''
-        print "COMPOUND"
         p[0] = p[1]
     def p_statement_3(self, p):
         '''statement : expression_statement'''
@@ -737,7 +733,6 @@ class Parser(Scanner):
     def p_compound_statement_3(self, p):
         '''compound_statement : OPENBRACK declaration_list CLOSEBRACK'''
         #self.symbol_table.EndScope()
-        print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_4(self, p):
         '''compound_statement : OPENBRACK declaration_list statement_list CLOSEBRACK'''

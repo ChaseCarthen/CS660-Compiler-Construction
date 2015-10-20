@@ -25,6 +25,11 @@ class Parser(Scanner):
 
     def p_postfix_expression_1(self, p):
         '''postfix_expression : primary_expression'''
+        try:
+            self.symbol_table.Retrieve(p[1])
+        except SymbolTableError, e:
+            print("We need to fail(this output on line 31: " + str(e))
+
         p[0] = p[1]
 
     def p_postfix_expression_2(self, p):
@@ -199,6 +204,7 @@ class Parser(Scanner):
         p[0] = p[1] + p[2] + p[3]
     def p_conditional_expression_1(self, p):
         '''conditional_expression : logical_or_expression'''
+        print("Conditional expression" + str(p[1]))
         p[0] = p[1]
     def p_conditional_expression_2(self, p):
         '''conditional_expression : logical_or_expression '?' expression ':' conditional_expression'''
@@ -264,8 +270,10 @@ class Parser(Scanner):
         p[0] = p[2]
         self.typelist.pop()
         # lookup and insert
+
         for i in p[2]:
-            i.SetType(p[1])
+            i.SetType(p[1]["specifiers"])
+            i.SetQualifiers(p[1]["qualifiers"])
         #   self.symbol_table.SetValue(i[1])
         #    #self.symbol_table.Insert(name=i[0],var=p[1],value=i[1],line=0,line_loc=0) 
         #print(p[2])
@@ -273,27 +281,33 @@ class Parser(Scanner):
     def p_declaration_specifiers_1(self, p):
         '''declaration_specifiers : storage_class_specifier'''
         #p[0] = p[1]
+
     def p_declaration_specifiers_2(self, p):
         '''declaration_specifiers : storage_class_specifier declaration_specifiers'''
         #p[0] = p[1] + p[2]
+
     def p_declaration_specifiers_3(self, p):
         '''declaration_specifiers : type_specifier'''
         locallist = [p[1]]
         self.typelist.append(locallist)
-        p[0] = locallist
+        p[0] = {"qualifiers" : [], "specifiers" : locallist}
 
     def p_declaration_specifiers_4(self, p):
         '''declaration_specifiers : type_specifier declaration_specifiers'''
-        p[0] = [p[1]] + p[2]
+        p[0] = {"qualifiers" : p[2]["qualifiers"], "specifiers" : [p[1]] + p[2]["specifiers"]}
+
     def p_declaration_specifiers_5(self, p):
         '''declaration_specifiers : type_qualifier'''
         #p[0] = p[1]
+
     def p_declaration_specifiers_6(self, p):
         '''declaration_specifiers : type_qualifier declaration_specifiers'''
-        #p[0] = p[1] + p[2]
+        p[0] = {"qualifiers" : p[1] + p[2]["qualifiers"], "specifiers" : p[2]["specifiers"]}
+
     def p_init_declarator_list_1(self, p):
         '''init_declarator_list : init_declarator'''
         p[0] = [p[1]]
+
     def p_init_declarator_list_2(self, p):
         '''init_declarator_list : init_declarator_list ',' init_declarator'''
         p[1].append(p[3])
@@ -451,12 +465,14 @@ class Parser(Scanner):
     def p_enumerator_2(self, p):
         '''enumerator : IDENTIFIER '=' constant_expression'''
         p[0] = p[1] + p[2] + p[3]
+
     def p_type_qualifier_1(self, p):
         '''type_qualifier : CONST'''
-        p[0] = p[1]
+        p[0] = [p[1]]
+
     def p_type_qualifier_2(self, p):
         '''type_qualifier : VOLATILE'''
-        p[0] = p[1]
+        p[0] = [p[1]]
 
     def p_declarator_1(self, p):
         '''declarator : pointer direct_declarator'''

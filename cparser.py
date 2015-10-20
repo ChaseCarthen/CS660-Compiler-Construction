@@ -468,29 +468,38 @@ class Parser(Scanner):
 
     def p_declarator_2(self, p):
         '''declarator : direct_declarator'''
-        p[0] = VariableNode(name=p[1][0],type_var="",line=p[1][1],line_loc=p[1][2])
+        p[0] = p[1] #VariableNode(name=p[1][0], type_var="", line=p[1][1], line_loc=p[1][2])
 
     def p_direct_declarator_1(self, p):
         '''direct_declarator : IDENTIFIER'''
-        p[0] = (p[1],p.lineno(1),p.lexpos(1) - self.lines[p.lineno(1)-1])
+        p[0] = VariableNode(name=p[1], type_var="", line=p.lineno(1), line_loc=p.lexpos(1) - self.lines[p.lineno(1)-1])
         
-
-
     def p_direct_declarator_2(self, p):
         '''direct_declarator : OPENPARAN declarator CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3]
+        p[0] = p[2]
+
     def p_direct_declarator_3(self, p):
         '''direct_declarator : direct_declarator '[' constant_expression ']' '''
-        p[0] = p[1] + p[2] + p[3] + p[4]
+        if type(p[1]) == type(VariableNode()):
+            p[1] = ArrayNode(type_var = p[1].GetType(), name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation(), dim = 1)
+        else:
+            p[1].IncrementDimensions()
+        p[0] = p[1]
+
     def p_direct_declarator_4(self, p):
         '''direct_declarator : direct_declarator '[' ']' '''
-        p[0] = p[1] + p[2] + p[3]
+        if type(p[1]) == type(VariableNode()):
+            p[1] = ArrayNode(type_var = p[1].GetType(), name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation(), dim = 1)
+        else:
+            p[1].IncrementDimensions()
+        p[0] = p[1]
+
     def p_direct_declarator_5(self, p):
         '''direct_declarator : direct_declarator OPENPARAN parameter_type_list CLOSEPARAN'''
         # This is where we create a ast with function parameters?
-        print "Function: " + str(p[1][0])
+        print "Function: " + str(p[1])
         print "Parameters: " + str(p[3])
-        p[0] = FunctionNode(p[3],type_var =self.typelist[-1],name=p[1][0],line=p[1][1],line_loc=p[1][2])
+        p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
         try:
             self.symbol_table.InsertNode(p[0])
         except SymbolTableWarning, e:
@@ -508,10 +517,11 @@ class Parser(Scanner):
                 print(e)
 
         p[0] = p[1]
+
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
         print "IDENTIFIER LIST"
-        p[0] = FunctionNode(p[3],type_var =self.typelist[-1],name=p[1])
+        p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
             self.symbol_table.InsertNode(p[0])
@@ -522,9 +532,10 @@ class Parser(Scanner):
 
         self.symbol_table.NewScope()
         p[0] = p[1]
+
     def p_direct_declarator_7(self, p):
         '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN'''
-        p[0] = FunctionNode(p[3],type_var =self.typelist[-1],name=p[1])
+        p[0] = FunctionNode(type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
             self.symbol_table.InsertNode(p[0])

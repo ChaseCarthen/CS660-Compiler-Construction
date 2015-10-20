@@ -128,18 +128,27 @@ class SymbolTreeNode(object):
   
   def SetName(self,name):
     self.info["Name"] = name
-    print name
 
   def SetType(self,Type):
     self.info["Type"] = Type
-  def GetType(self):
-    return self.info["Type"]
 
   def SetCharacterLocation(self,LineLoc):
     self.info["CharacterLocation"] = LineLoc
 
   def SetLine(self,Line):
     self.info["Line"] = Line
+
+  def GetName(self):
+    return self.info["Name"]
+
+  def GetType(self):
+    return self.info["Type"]
+
+  def GetCharacterLocation(self):
+    return self.info["CharacterLocation"]
+
+  def GetLine(self):
+    return self.info["Line"]
 
   def __str__(self):
     message = ""
@@ -203,6 +212,9 @@ class ArrayNode(SymbolTreeNode):
   def __init__(self, type_var = '', name = '', line = 0, line_loc = 0, dim = 0):
     super(ArrayNode, self).__init__(type_var, name, line, line_loc)
     self.dimensions = dim
+
+  def IncrementDimensions(self):
+    self.dimensions += 1
 
   def __str__(self):
     string = super(ArrayNode, self).__str__()

@@ -51,6 +51,7 @@ class SymbolTable(object):
   def _CheckStack(self, name, pointer):
     if len(self.stack) == 0:
         return
+
     tree = self.stack.pop()
     pointer = self._CheckTree(tree, name)
 
@@ -86,6 +87,7 @@ class SymbolTable(object):
   def SetValue(self,val):
     # Check for type conflicts int to float conversions here
     self.pointer.info["Value"] = val
+
   def SetType(self,typed):
     self.pointer.info["Type"] = typed 
 
@@ -181,10 +183,21 @@ class FunctionNode(SymbolTreeNode):
     return string
 
 class VariableNode(SymbolTreeNode):
-  """A function node"""
+  """A variable node"""
   def __init__(self, type_var = '', name = '', line = 0, line_loc = 0):
     super(VariableNode, self).__init__(type_var, name, line, line_loc)
 
   def __str__(self):
     string = super(VariableNode,self).__str__()
+    return string
+
+class ArrayNode(SymbolTreeNode):
+  """An array node"""
+  def __init__(self, type_var = '', name = '', line = 0, line_loc = 0, dim = 0):
+    super(ArrayNode, self).__init__(type_var, name, line, line_loc)
+    self.dimensions = dim
+
+  def __str__(self):
+    string = super(ArrayNode, self).__str__()
+    string = string + " Dimensions: " + str(self.dimensions)
     return string

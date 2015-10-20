@@ -18,6 +18,8 @@ class SymbolTable(object):
     if not self.pointer:
       raise SymbolTableError("There is no value in the symbol table with name: " + str(name))
 
+    return self.pointer
+
   def Insert(self, var = None, name = None,  line = None, line_loc = None):
     node = SymbolTreeNode(var, name, line, line_loc)
     try:

@@ -8,8 +8,10 @@ class Parser(Scanner):
     start = 'translation_unit'
     def p_primary_expression_1(self, p):
         '''primary_expression : IDENTIFIER'''
-        print "IDENTIFER"
-        p[0] = p[1] # Do a lookup
+        try:
+            p[0] = self.symbol_table.Retrieve(p[1])
+        except SymbolTableError, e:
+            print("We need to fail(this output on line 14): " + str(e))
 
     def p_primary_expression_2(self, p):
         '''primary_expression : CONSTANT'''
@@ -25,11 +27,6 @@ class Parser(Scanner):
 
     def p_postfix_expression_1(self, p):
         '''postfix_expression : primary_expression'''
-        try:
-            self.symbol_table.Retrieve(p[1])
-        except SymbolTableError, e:
-            print("We need to fail(this output on line 31: " + str(e))
-
         p[0] = p[1]
 
     def p_postfix_expression_2(self, p):
@@ -135,7 +132,8 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_additive_expression_2(self, p):
         '''additive_expression : additive_expression '+' multiplicative_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
+
     def p_additive_expression_3(self, p):
         '''additive_expression : additive_expression '-' multiplicative_expression'''
         p[0] = p[1] + p[2] + p[3]
@@ -215,7 +213,9 @@ class Parser(Scanner):
 
     def p_assignment_expression_2(self, p):
         '''assignment_expression : unary_expression assignment_operator assignment_expression'''
-        p[0] = p[1] + p[2] + p[3]
+
+        #p[0] = p[1] + p[2] + p[3]
+
     def p_assignment_operator_1(self, p):
         '''assignment_operator : '=' '''
         p[0] = p[1]
@@ -756,7 +756,8 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_expression_statement_2(self, p):
         '''expression_statement : expression SEMI'''
-        p[0] = p[1] + p[2]
+        
+        #p[0] = p[1] + p[2]
 
     def p_selection_statement_1(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement'''

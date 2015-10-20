@@ -5,3 +5,7 @@
 test
 test.c
 test.py
+input.file
+parse.log
+tokenfile.txt
+parselog.txt

@@ -592,13 +592,15 @@ class Parser(Scanner):
         # This is where we create a ast with function parameters?
         p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
         try:
-            self.symbol_table.InsertNode(p[0])
+            if len(self.symbol_table.stack) > 1:
+                self.symbol_table.InsertNodePreviousStack(p[0])
+            else:
+                self.symbol_table.InsertNode(p[0])
         except SymbolTableWarning, e:
             print(e)
         except SymbolTableError, e:
             print(e)
 
-        self.symbol_table.NewScope()
         for i in p[3]:
             try:
                 self.symbol_table.InsertNode(i)
@@ -614,13 +616,15 @@ class Parser(Scanner):
         p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
-            self.symbol_table.InsertNode(p[0])
+            if len(self.symbol_table.stack) > 1:
+                self.symbol_table.InsertNodePreviousStack(p[0])
+            else:
+                self.symbol_table.InsertNode(p[0])
         except SymbolTableWarning, e:
             print(e)
         except SymbolTableError, e:
             print(e)
 
-        self.symbol_table.NewScope()
         p[0] = p[1]
 
     def p_direct_declarator_7(self, p):
@@ -628,14 +632,16 @@ class Parser(Scanner):
         p[0] = FunctionNode(type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
-            self.symbol_table.InsertNode(p[0])
+            if len(self.symbol_table.stack) > 1:
+                self.symbol_table.InsertNodePreviousStack(p[0])
+            else:
+                self.symbol_table.InsertNode(p[0])
         except SymbolTableWarning, e:
             print(e)
         except SymbolTableError, e:
             print(e)
 
-        p[0] = p[1] # push onto stack?
-        self.symbol_table.NewScope();
+        p[0] = p[1]
 
     def p_pointer_1(self, p):
         '''pointer : '*' '''
@@ -799,21 +805,21 @@ class Parser(Scanner):
         p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_1(self, p):
         '''compound_statement : OPENBRACK CLOSEBRACK'''
-        #self.symbol_table.EndScope()
+        self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2]
     def p_compound_statement_2(self, p):
         '''compound_statement : OPENBRACK statement_list CLOSEBRACK'''
-        #self.symbol_table.EndScope()
+        self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_3(self, p):
         '''compound_statement : OPENBRACK declaration_list CLOSEBRACK'''
-        #self.symbol_table.EndScope()
+        self.symbol_table.EndScope()
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_4(self, p):
         '''compound_statement : OPENBRACK declaration_list statement_list CLOSEBRACK'''
-        #self.symbol_table.EndScope()
+        self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3] + p[4]
     def p_declaration_list_1(self, p):
@@ -874,14 +880,11 @@ class Parser(Scanner):
         p[0] = p[1] + p[2] + p[3]
     def p_translation_unit_1(self, p):
         '''translation_unit : external_declaration'''
-        if len(self.symbol_table.stack) > 1:
-            self.symbol_table.EndScope();
 
         #p[0] = p[1]
     def p_translation_unit_2(self, p):
         '''translation_unit : translation_unit external_declaration'''
-        if len(self.symbol_table.stack) > 1:
-            self.symbol_table.EndScope();
+
         #p[0] = p[1] + p[2]
     def p_external_declaration_1(self, p):
         '''external_declaration : function_definition'''
@@ -894,22 +897,17 @@ class Parser(Scanner):
         # int test(a,b) int a,b; {}
         self.typelist.pop()
         p[0] = p[2]
-        self.symbol_table.EndScope()
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
         p[0] = p[2]
         self.typelist.pop()
-        self.symbol_table.EndScope()
     def p_function_definition_3(self, p):
         '''function_definition : declarator declaration_list compound_statement'''
         # Function implementation with no type but with params test(a,b)int a,b;{}
         p[0] = p[1]
-        self.symbol_table.EndScope()
     def p_function_definition_4(self, p):
         '''function_definition : declarator compound_statement'''
         # Funciton implementation with no type test(){}
-
-        self.symbol_table.EndScope()
         p[0] + p[1]
 
     def p_error(self,p):

@@ -391,6 +391,7 @@ class Scanner():
     return t
   def t_OPENBRACK(self,t):
     r'{'
+    self.symbol_table.NewScope()
     self.logging(t.type,t.value)
     return t
   def t_CLOSEBRACK(self,t):

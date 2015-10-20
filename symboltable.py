@@ -51,6 +51,31 @@ class SymbolTable(object):
     if self.pointer:
       raise SymbolTableWarning("Overshadow of value.")
 
+  def InsertNodePreviousStack(self, node):
+    if node == None:
+      raise SymbolTableError("The Insert did not have all required Values: \n" + str(node))
+
+    if not node.CheckInsert():
+      raise SymbolTableError("The Insert did not have all required Values: \n" + str(node))
+    
+    tree_holder = self.stack.pop()
+    print("Inserting to the tree at stack location: " + str(len(self.stack)))
+    tree = self.stack.pop()
+    
+    if self._CheckTree(tree, node.GetKey()):
+        self.stack.append(tree)
+        raise SymbolTableError("The variable added to tree exists at this scope.")
+
+    self.pointer = None
+    self._CheckStack(node.GetKey(), self.pointer)
+
+    tree[node.GetKey()] = node
+    self.stack.append(tree)
+    self.stack.append(tree_holder)
+
+    if self.pointer:
+      raise SymbolTableWarning("Overshadow of value.")
+
   def _CheckStack(self, name, pointer):
     if len(self.stack) == 0:
         return
@@ -65,6 +90,7 @@ class SymbolTable(object):
 
     # check for stack overflow -- later
     self.stack.append(tree)
+
   def CheckForType(self,name):
     if len(self.stack) == 0:
       return
@@ -82,7 +108,8 @@ class SymbolTable(object):
 
     # check for stack overflow -- later
     self.stack.append(tree)
-    return result    
+    return result
+
   def InsertNewType(self,name,typenode):
     self.stack[-1]["_type"][name] = typenode
 

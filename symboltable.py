@@ -197,6 +197,11 @@ class PointerNode(SymbolTreeNode):
   def AddTypeQualifiers(self,tq):
     self.typequalifiers += tq
 
+  def IsConstant(self):
+    if 'const' in self.typequalifiers:
+      return True
+    return False
+
   def __str__(self):
     string = super(PointerNode,self).__str__() 
     string += "Number of Indirections: " + str(self.numindirection) + ", "
@@ -232,16 +237,26 @@ class VariableNode(SymbolTreeNode):
   def SetQualifiers(self, tq):
     self.typequalifiers += tq
 
+  def IsConstant(self):
+    if 'const' in self.typequalifiers:
+      return True
+    return False
+
 class ArrayNode(SymbolTreeNode):
   """An array node"""
-  def __init__(self, type_var = '', name = '', line = 0, line_loc = 0, dim = 0):
+  def __init__(self, tq = [], type_var = '', name = '', line = 0, line_loc = 0, dim = 0):
     super(ArrayNode, self).__init__(type_var, name, line, line_loc)
     self.dimensions = dim
+    self.typequalifiers = tq
 
   def IncrementDimensions(self):
     self.dimensions += 1
 
+  def SetQualifiers(self, tq):
+    self.typequalifiers += tq
+
   def __str__(self):
     string = super(ArrayNode, self).__str__()
-    string = string + " Dimensions: " + str(self.dimensions)
+    string = string + " Dimensions: " + str(self.dimensions) + ","
+    string += " Type Qualifiers: " + str(self.typequalifiers)
     return string

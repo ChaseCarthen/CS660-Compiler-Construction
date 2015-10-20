@@ -25,4 +25,3 @@ if args.source != None:
 	scan.set_symbol_table(st)
 	#scan.scan(data)
 	scan.run()
-	st.StackDump()

@@ -52,7 +52,7 @@ class Parser(Scanner):
 
     def p_postfix_expression_7(self, p):
         '''postfix_expression : postfix_expression INC_OP'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
 
     def p_postfix_expression_8(self, p):
         '''postfix_expression : postfix_expression DEC_OP'''
@@ -120,24 +120,84 @@ class Parser(Scanner):
 
     def p_multiplicative_expression_2(self, p):
         '''multiplicative_expression : multiplicative_expression '*' cast_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        if not type(p[1]) == type(VariableNode()) and not type(p[3]) == type(PointerNode()):
+            try:
+                p[3] = int(p[3])
+            except:
+                p[3] = float(p[3])
+
+            try:
+                p[1] = int(p[1])
+            except:
+                p[1] = float(p[1])
+
+            p[0] = str(p[1] * p[3])
+        else:
+            pass
+            #p[0] = p[1] + p[2] + p[3]
 
     def p_multiplicative_expression_3(self, p):
         '''multiplicative_expression : multiplicative_expression '/' cast_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        if not type(p[1]) == type(VariableNode()) and not type(p[3]) == type(PointerNode()):
+            try:
+                p[3] = int(p[3])
+            except:
+                p[3] = float(p[3])
+
+            try:
+                p[1] = int(p[1])
+            except:
+                p[1] = float(p[1])
+
+            p[0] = str(p[1] / p[3])
+        else:
+            pass
+            #p[0] = p[1] + p[2] + p[3]
+
     def p_multiplicative_expression_4(self, p):
         '''multiplicative_expression : multiplicative_expression '%' cast_expression'''
         p[0] = p[1] + p[2] + p[3]
+
     def p_additive_expression_1(self, p):
         '''additive_expression : multiplicative_expression'''
         p[0] = p[1]
+
     def p_additive_expression_2(self, p):
         '''additive_expression : additive_expression '+' multiplicative_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        if not type(p[1]) == type(VariableNode()) and not type(p[3]) == type(PointerNode()):
+            try:
+                p[3] = int(p[3])
+            except:
+                p[3] = float(p[3])
+
+            try:
+                p[1] = int(p[1])
+            except:
+                p[1] = float(p[1])
+
+            p[0] = str(p[1] + p[3])
+        else:
+            pass
+            #p[0] = p[1] + p[2] + p[3]
 
     def p_additive_expression_3(self, p):
         '''additive_expression : additive_expression '-' multiplicative_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        if not type(p[1]) == type(VariableNode()) and not type(p[3]) == type(PointerNode()):
+            try:
+                p[3] = int(p[3])
+            except:
+                p[3] = float(p[3])
+
+            try:
+                p[1] = int(p[1])
+            except:
+                p[1] = float(p[1])
+
+            p[0] = str(p[1] - p[3])
+        else:
+            pass
+            #p[0] = p[1] + p[2] + p[3]
+
     def p_shift_expression_1(self, p):
         '''shift_expression : additive_expression'''
         p[0] = p[1]
@@ -152,7 +212,8 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_relational_expression_2(self, p):
         '''relational_expression : relational_expression '<' shift_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
+
     def p_relational_expression_3(self, p):
         '''relational_expression : relational_expression '>' shift_expression'''
         p[0] = p[1] + p[2] + p[3]
@@ -214,6 +275,8 @@ class Parser(Scanner):
 
     def p_assignment_expression_2(self, p):
         '''assignment_expression : unary_expression assignment_operator assignment_expression'''
+        if p[1].IsConstant():
+            print("This is not allowed since the variable is constant.")
 
         #p[0] = p[1] + p[2] + p[3]
 
@@ -232,9 +295,11 @@ class Parser(Scanner):
     def p_assignment_operator_5(self, p):
         '''assignment_operator : ADD_ASSIGN'''
         p[0] = p[1]
+        
     def p_assignment_operator_6(self, p):
         '''assignment_operator : SUB_ASSIGN'''
         p[0] = p[1]
+
     def p_assignment_operator_7(self, p):
         '''assignment_operator : LEFT_ASSIGN'''
         p[0] = p[1]
@@ -791,7 +856,7 @@ class Parser(Scanner):
         p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6]
     def p_iteration_statement_4(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement expression CLOSEPARAN statement'''
-        p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
+        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
     def p_jump_statement_1(self, p):
         '''jump_statement : GOTO IDENTIFIER SEMI'''
         p[0] = p[1] + p[2] + p[3] # look up

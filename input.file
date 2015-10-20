@@ -1,13 +1,8 @@
 
-typedef char pumpkin;
 int main()
 {
-pumpkin d;
-typedef long pumpkin2;
-
-pumpkin c;
-
-pumpkin2 b;
-pumpkin2 dc;
-///
-}@
+  int i;
+  for(i = 0; i < 10; i++) {
+    int val;
+  }@
+}

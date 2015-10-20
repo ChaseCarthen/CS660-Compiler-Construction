@@ -1,2 +1,2 @@
-/*int a ( char thing ) ; */
-INT IDENTIFIER OPENPARAN CHAR IDENTIFIER CLOSEPARAN SEMI 
+/*int * a ; */
+INT * IDENTIFIER SEMI 

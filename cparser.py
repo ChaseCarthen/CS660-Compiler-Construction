@@ -461,9 +461,9 @@ class Parser(Scanner):
     def p_declarator_1(self, p):
         '''declarator : pointer direct_declarator'''
         print "P2: " + str(p[2])
-        p[1].SetName(p[2][0])
-        p[1].SetLine(p[2][1])
-        p[1].SetCharacterLocation(p[2][2])
+        p[1].SetName(p[2].GetName())
+        p[1].SetLine(p[2].GetLine())
+        p[1].SetCharacterLocation(p[2].GetCharacterLocation())
         p[0] = p[1]
 
     def p_declarator_2(self, p):

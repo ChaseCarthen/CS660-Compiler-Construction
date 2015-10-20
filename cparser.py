@@ -9,8 +9,10 @@ class Parser(Scanner):
     start = 'translation_unit'
     def p_primary_expression_1(self, p):
         '''primary_expression : IDENTIFIER'''
-        print "IDENTIFER"
-        p[0] = p[1] # Do a lookup
+        try:
+            p[0] = self.symbol_table.Retrieve(p[1])
+        except SymbolTableError, e:
+            print("We need to fail(this output on line 14): " + str(e))
 
     def p_primary_expression_2(self, p):
         '''primary_expression : CONSTANT'''
@@ -131,7 +133,8 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_additive_expression_2(self, p):
         '''additive_expression : additive_expression '+' multiplicative_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
+
     def p_additive_expression_3(self, p):
         '''additive_expression : additive_expression '-' multiplicative_expression'''
         p[0] = p[1] + p[2] + p[3]
@@ -200,6 +203,7 @@ class Parser(Scanner):
         p[0] = p[1] + p[2] + p[3]
     def p_conditional_expression_1(self, p):
         '''conditional_expression : logical_or_expression'''
+        print("Conditional expression" + str(p[1]))
         p[0] = p[1]
     def p_conditional_expression_2(self, p):
         '''conditional_expression : logical_or_expression '?' expression ':' conditional_expression'''
@@ -210,7 +214,9 @@ class Parser(Scanner):
 
     def p_assignment_expression_2(self, p):
         '''assignment_expression : unary_expression assignment_operator assignment_expression'''
-        p[0] = p[1] + p[2] + p[3]
+
+        #p[0] = p[1] + p[2] + p[3]
+
     def p_assignment_operator_1(self, p):
         '''assignment_operator : '=' '''
         p[0] = p[1]
@@ -265,9 +271,11 @@ class Parser(Scanner):
         p[0] = p[2]
         self.typelist.pop()
         # lookup and insert
+
         for i in p[2]:
             if i != None:
-                i.SetType(p[1])
+                i.SetType(p[1]["specifiers"])
+                i.SetQualifiers(p[1]["qualifiers"])
         #   self.symbol_table.SetValue(i[1])
         #    #self.symbol_table.Insert(name=i[0],var=p[1],value=i[1],line=0,line_loc=0) 
         #print(p[2])
@@ -276,31 +284,36 @@ class Parser(Scanner):
         '''declaration_specifiers : storage_class_specifier'''
         locallist = [p[1]]
         self.typelist.append(locallist)
-        p[0] = locallist
+        p[0] = {}
     def p_declaration_specifiers_2(self, p):
         '''declaration_specifiers : storage_class_specifier declaration_specifiers'''
         #p[0] = p[1] + p[2]
-        self.typelist[-1] = [p[1]] + p[2]
-        p[0] = [p[1]] + p[2]
+        self.typelist[-1] = [p[1]] + p[2]["specifiers"]
+        p[0] = p[2]["specifiers"]
+
     def p_declaration_specifiers_3(self, p):
         '''declaration_specifiers : type_specifier'''
         locallist = [p[1]]
         self.typelist.append(locallist)
-        p[0] = locallist
+        p[0] = {"qualifiers" : [], "specifiers" : locallist}
 
     def p_declaration_specifiers_4(self, p):
         '''declaration_specifiers : type_specifier declaration_specifiers'''
-        p[0] = [p[1]] + p[2]
+        #p[0] = [p[1]] + p[2]
+        p[0] = {"qualifiers" : p[2]["qualifiers"], "specifiers" : [p[1]] + p[2]["specifiers"]}
         self.typelist[-1] = [p[1]] + p[2]
     def p_declaration_specifiers_5(self, p):
         '''declaration_specifiers : type_qualifier'''
         #p[0] = p[1]
+
     def p_declaration_specifiers_6(self, p):
         '''declaration_specifiers : type_qualifier declaration_specifiers'''
-        #p[0] = p[1] + p[2]
+        p[0] = {"qualifiers" : p[1] + p[2]["qualifiers"], "specifiers" : p[2]["specifiers"]}
+
     def p_init_declarator_list_1(self, p):
         '''init_declarator_list : init_declarator'''
         p[0] = [p[1]]
+
     def p_init_declarator_list_2(self, p):
         '''init_declarator_list : init_declarator_list ',' init_declarator'''
         p[1].append(p[3])
@@ -464,12 +477,14 @@ class Parser(Scanner):
     def p_enumerator_2(self, p):
         '''enumerator : IDENTIFIER '=' constant_expression'''
         p[0] = p[1] + p[2] + p[3]
+
     def p_type_qualifier_1(self, p):
         '''type_qualifier : CONST'''
-        p[0] = p[1]
+        p[0] = [p[1]]
+
     def p_type_qualifier_2(self, p):
         '''type_qualifier : VOLATILE'''
-        p[0] = p[1]
+        p[0] = [p[1]]
 
     def p_declarator_1(self, p):
         '''declarator : pointer direct_declarator'''
@@ -753,7 +768,8 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_expression_statement_2(self, p):
         '''expression_statement : expression SEMI'''
-        p[0] = p[1] + p[2]
+        
+        #p[0] = p[1] + p[2]
 
     def p_selection_statement_1(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement'''

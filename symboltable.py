@@ -17,7 +17,9 @@ class SymbolTable(object):
     self.pointer = None
     self._CheckStack(name, self.pointer)
     if not self.pointer:
-      raise SymbolTableError("There is no value in the symbol table of that type.")
+      raise SymbolTableError("There is no value in the symbol table with name: " + str(name))
+
+    return self.pointer
 
   def Insert(self, var = None, name = None,  line = None, line_loc = None):
     node = SymbolTreeNode(var, name, line, line_loc)
@@ -183,14 +185,11 @@ class SymbolTreeNode(object):
 class PointerNode(SymbolTreeNode):
   """A pointer node to be place into the symbol table?"""
 
-  def __init__(self, tq=None, type_var = '', name = '', line = 0, line_loc = 0):
+  def __init__(self, tq = [], type_var = '', name = '', line = 0, line_loc = 0):
     super(PointerNode,self).__init__(type_var,name,line,line_loc) # Call base class of this guy which is SymbolTableNode
     #self.info["NumberOfIndirections"] = 1 
     self.numindirection = 1
-    if tq != None:
-      self.typequalifiers = tq # This could be a list!
-    else:
-      self.typequalifiers = [] # Empty list means we have no type qualifiers
+    self.typequalifiers = tq # This could be a list!
 
   def AddIndirection(self):
     self.numindirection += 1
@@ -221,12 +220,17 @@ class FunctionNode(SymbolTreeNode):
 
 class VariableNode(SymbolTreeNode):
   """A variable node"""
-  def __init__(self, type_var = '', name = '', line = 0, line_loc = 0):
+  def __init__(self, tq = [], type_var = '', name = '', line = 0, line_loc = 0):
     super(VariableNode, self).__init__(type_var, name, line, line_loc)
+    self.typequalifiers = tq
 
   def __str__(self):
     string = super(VariableNode,self).__str__()
+    string += " Type Qualifiers: " + str(self.typequalifiers)
     return string
+
+  def SetQualifiers(self, tq):
+    self.typequalifiers += tq
 
 class ArrayNode(SymbolTreeNode):
   """An array node"""

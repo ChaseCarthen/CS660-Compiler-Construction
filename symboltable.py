@@ -132,6 +132,13 @@ class SymbolTreeNode(object):
     self.info["Type"] = Type
   def GetType(self):
     return self.info["Type"]
+
+  def SetCharacterLocation(self,LineLoc):
+    self.info["CharacterLocation"] = LineLoc
+
+  def SetLine(self,Line):
+    self.info["Line"] = Line
+
   def __str__(self):
     message = ""
     message = message + "Type: " + str(self.info["Type"]) + ", "

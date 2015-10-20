@@ -279,7 +279,7 @@ class Scanner():
     self.loginfo("==============================Completed LINE NUMBER: " + str(t.lexer.lineno-1) + "======================")
     self.loginfo("==============================Starting    LINE NUMBER: " + str(t.lexer.lineno) + "======================")
 
-  def highlightstring(self,string,position):
+  def highlightstring(self,string,position): 
     if position <= len(string):
       print string
       a = ""
@@ -291,8 +291,8 @@ class Scanner():
 
   # Lex Error message
   def t_error(self,t):
-    print "FOUND LEXICAL ERROR ON LINE: "  + str(t.lexer.lineno) 
-    self.highlightstring(self.lexer.lexdata.split('\n')[self.lexer.lineno-1],self.lexer.lexpos-self.lines[self.lexer.lineno-1]+1)
+    print "FOUND LEXICAL ERROR ON LINE: "  + str(t.lineno) + " " + self.lexer.lexdata[t.lexer.lexpos]
+    self.highlightstring(self.lexer.lexdata.split('\n')[self.lexer.lineno-1],t.lexer.lexpos-self.lines[self.lexer.lineno-1]+1)
     t.lexer.skip(1)
 
   def t_requal(self,t):

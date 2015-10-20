@@ -76,7 +76,7 @@ class Scanner():
     self.tokens = ""  # this will keep track the tokens that we have seen so far
     self.reduction_list = [] # this will keep track of what tokens we have acquired
     self.typelist = []
-    
+
     # our token log file
     self.log_tokens(tokenfile)
 
@@ -85,6 +85,8 @@ class Scanner():
 
     # Keeps track of the beginnings of lines this so we can make nice errors like fff< void main().
     self.lines = [0]
+    for i in data.split('\n'):
+      self.lines.append(self.lines[-1]+len(i)+1)
 
   def logging(self,typed,value):
       self.source += value + " " 
@@ -262,7 +264,7 @@ class Scanner():
   # Define a rule so we can track line numbers
   def t_newline(self, t):
     r'\n+'
-    self.lines.append(t.lexer.lexpos)
+    
     t.lexer.lineno += len(t.value)
 
     self.loginfo("tokens : " + self.tokens)

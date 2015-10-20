@@ -465,13 +465,11 @@ class Parser(Scanner):
 
     def p_declarator_2(self, p):
         '''declarator : direct_declarator'''
-        p[0] = VariableNode(name=p[1],type_var="",line=0,line_loc=0)
-        print p[1]
-        #self.symbol_table.Insert(name=p[1],var=" ",value=" ",line=0,line_loc=0)
+        p[0] = VariableNode(name=p[1][0],type_var="",line=p[1][1],line_loc=p[1][2])
 
     def p_direct_declarator_1(self, p):
         '''direct_declarator : IDENTIFIER'''
-        p[0] = p[1]
+        p[0] = (p[1],p.lineno(1),p.lexpos(1) - self.lines[p.lineno(1)-1])
         
 
 
@@ -487,9 +485,9 @@ class Parser(Scanner):
     def p_direct_declarator_5(self, p):
         '''direct_declarator : direct_declarator OPENPARAN parameter_type_list CLOSEPARAN'''
         # This is where we create a ast with function parameters?
-        print "Function: " + p[1]
+        print "Function: " + str(p[1][0])
         print "Parameters: " + str(p[3])
-        p[0] = FunctionNode(p[3],type_var =self.typelist[-1],name=p[1])
+        p[0] = FunctionNode(p[3],type_var =self.typelist[-1],name=p[1][0],line=p[1][1],line_loc=p[1][2])
         try:
             self.symbol_table.InsertNode(p[0])
         except SymbolTableWarning, e:

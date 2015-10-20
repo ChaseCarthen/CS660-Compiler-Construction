@@ -1,6 +1,7 @@
 int a;
 int main(int c, int b)
 {
-	int a;
+	char a;
+	int* a;
 }@
 	

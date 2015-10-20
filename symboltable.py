@@ -145,7 +145,7 @@ class PointerNode(SymbolTreeNode):
   """A pointer node to be place into the symbol table?"""
 
   def __init__(self, tq=None, type_var = '', name = '', line = 0, line_loc = 0):
-    super(PointerNode,self).__init__(type_var,name,value,line,line_loc) # Call base class of this guy which is SymbolTableNode
+    super(PointerNode,self).__init__(type_var,name,line,line_loc) # Call base class of this guy which is SymbolTableNode
     #self.info["NumberOfIndirections"] = 1 
     self.numindirection = 1
     if tq != None:

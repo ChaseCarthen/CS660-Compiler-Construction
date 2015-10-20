@@ -1,4 +1,5 @@
 from cscanner import Scanner
+from cscanner import reserved
 import sys
 from symboltable import *
 from CompilerExceptions import *
@@ -255,7 +256,7 @@ class Parser(Scanner):
 
     def p_declaration_1(self, p):
         '''declaration : declaration_specifiers SEMI'''
-        p[0] = p[1] + p[2]
+        p[0] = p[1]
         self.typelist.pop()
         #print(p[1])
 
@@ -265,17 +266,22 @@ class Parser(Scanner):
         self.typelist.pop()
         # lookup and insert
         for i in p[2]:
-            i.SetType(p[1])
+            if i != None:
+                i.SetType(p[1])
         #   self.symbol_table.SetValue(i[1])
         #    #self.symbol_table.Insert(name=i[0],var=p[1],value=i[1],line=0,line_loc=0) 
         #print(p[2])
 
     def p_declaration_specifiers_1(self, p):
         '''declaration_specifiers : storage_class_specifier'''
-        #p[0] = p[1]
+        locallist = [p[1]]
+        self.typelist.append(locallist)
+        p[0] = locallist
     def p_declaration_specifiers_2(self, p):
         '''declaration_specifiers : storage_class_specifier declaration_specifiers'''
         #p[0] = p[1] + p[2]
+        self.typelist[-1] = [p[1]] + p[2]
+        p[0] = [p[1]] + p[2]
     def p_declaration_specifiers_3(self, p):
         '''declaration_specifiers : type_specifier'''
         locallist = [p[1]]
@@ -285,6 +291,7 @@ class Parser(Scanner):
     def p_declaration_specifiers_4(self, p):
         '''declaration_specifiers : type_specifier declaration_specifiers'''
         p[0] = [p[1]] + p[2]
+        self.typelist[-1] = [p[1]] + p[2]
     def p_declaration_specifiers_5(self, p):
         '''declaration_specifiers : type_qualifier'''
         #p[0] = p[1]
@@ -301,14 +308,20 @@ class Parser(Scanner):
         
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
-        try:
-            self.symbol_table.InsertNode(p[1])
-        except SymbolTableWarning, e:
-            print(e)
-        except SymbolTableError, e:
-            print(e)
+        print "TYPE: " + str(self.typelist[-1])
+        if not self.typelist[-1][0] == "typedef":
+            try:
+                self.symbol_table.InsertNode(p[1])
+            except SymbolTableWarning, e:
+                print(e)
+            except SymbolTableError, e:
+                print(e)
+            p[0] = p[1]
+        else:
+            self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1][1:])
+            p[0] = None
 
-        p[0] = p[1]
+        
 
     def p_init_declarator_2(self, p):
         '''init_declarator : declarator '=' initializer'''
@@ -819,7 +832,7 @@ class Parser(Scanner):
         p[0] + p[1]
 
     def p_error(self,p):
-        print("Syntax error in input at " + str(self.lexer.lexpos-self.lines[-1]) + " on line: " + str(self.lexer.lineno))
+        print("Syntax error in input at " + str(self.lexer.lexpos-self.lines[self.lexer.lineno-1]) + " on line: " + str(self.lexer.lineno))
         self.highlightstring(self.lexer.lexdata.split('\n')[self.lexer.lineno-1],self.lexer.lexpos-self.lines[self.lexer.lineno-1])
         sys.exit()
 

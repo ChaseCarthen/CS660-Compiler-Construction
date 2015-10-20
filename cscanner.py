@@ -55,7 +55,7 @@ class Scanner():
 
     
     if self.parselog:
-      self.lexer = lex.lex(module=self,debuglog=log,debug=True)
+      self.lexer = lex.lex(module=self,debuglog=log)#,debug=True)
     else:
       self.lexer = lex.lex(module=self)
 
@@ -66,7 +66,7 @@ class Scanner():
 
 
     if self.parselog:
-      self.yacc = yacc.yacc(module=self,debuglog=log,debug=True)
+      self.yacc = yacc.yacc(module=self,debuglog=log)#,debug=True)
     else:
       self.yacc = yacc.yacc(module=self)
 
@@ -251,9 +251,14 @@ class Scanner():
     r'//(?s).*?\n|/\*(?s).*?\*/'
 
   def t_IDENTIFIER(self, t):
-    r'[a-zA-Z_][a-zA-Z0-9_]*' 
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
     if t.value in reserved:
       t.type = reserved[t.value]
+    else:
+      typeval = self.symbol_table.CheckForType(t.value)
+      if typeval != None:
+        t.value = str(typeval)
+        t.type = "INT" # Hack to get it through
     self.logging(t.type,t.value)
     return t
 

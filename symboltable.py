@@ -9,6 +9,7 @@ class SymbolTable(object):
     self.stack = []
     self.insert = True
     tree = bintrees.RBTree()
+    tree["_type"] = {}
     self.stack.append(tree)
     self.pointer = None
 
@@ -62,7 +63,26 @@ class SymbolTable(object):
 
     # check for stack overflow -- later
     self.stack.append(tree)
+  def CheckForType(self,name):
+    if len(self.stack) == 0:
+      return
+    tree = self.stack.pop()
+    typenode = self._CheckTree(tree, "_type")
+    result = None
+    print typenode
+    if not typenode:
+      result = self.CheckForType(name)
+    else:
+      if name in typenode:
+        result = typenode[name]
+      else:
+        result = self.CheckForType(name)
 
+    # check for stack overflow -- later
+    self.stack.append(tree)
+    return result    
+  def InsertNewType(self,name,typenode):
+    self.stack[-1]["_type"][name] = typenode
 
   def _CheckTree(self, tree, key):
     value = None
@@ -101,6 +121,7 @@ class SymbolTable(object):
   def NewScope(self):
     self.insert = True
     tree = bintrees.RBTree()
+    tree["_type"] = {}
     self.stack.append(tree)
 
   def StackDump(self):

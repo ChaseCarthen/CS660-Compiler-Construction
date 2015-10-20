@@ -1,5 +1,13 @@
-int main()
-{int a;
 
+typedef char pumpkin;
+int main()
+{
+pumpkin d;
+typedef long pumpkin2;
+
+pumpkin c;
+
+pumpkin2 b;
+pumpkin2 dc;
 ///
 }@

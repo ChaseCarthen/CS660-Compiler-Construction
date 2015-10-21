@@ -20,6 +20,8 @@ if args.source != None:
 	input_file.close()
 
 	# Build and Call the scanner
+	if type(args.tokenfile) != str:
+		args.tokenfile = args.tokenfile[0]
 	scan = Parser(data,args.parselogfile != " ",args.parselogfile[0],args.tokenfile)
 	st = SymbolTable()
 	scan.set_symbol_table(st)

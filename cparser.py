@@ -276,7 +276,7 @@ class Parser(Scanner):
 
     def p_assignment_expression_2(self, p):
         '''assignment_expression : unary_expression assignment_operator assignment_expression'''
-        if p[1] == None:
+        if p[1] == None or p[1] == 0: # A PATCH
             pass
         elif p[1].IsConstant():
             print("This is not allowed since the variable is constant.")

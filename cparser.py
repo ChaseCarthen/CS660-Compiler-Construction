@@ -32,15 +32,15 @@ class Parser(Scanner):
 
     def p_postfix_expression_2(self, p):
         '''postfix_expression : postfix_expression '[' expression ']' '''
-        p[0] = p[1] + p[2] + p[3] + p[4]
+        p[0] = p[1] #+ p[2] + p[3] + p[4]
 
     def p_postfix_expression_3(self, p):
         '''postfix_expression : postfix_expression OPENPARAN CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3]
+        p[0] = p[1] #+ p[2] + p[3]
 
     def p_postfix_expression_4(self, p):
         '''postfix_expression : postfix_expression OPENPARAN argument_expression_list CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3] + p[4]
+        p[0] = p[1] # do a type check in parameter
 
     def p_postfix_expression_5(self, p):
         '''postfix_expression : postfix_expression '.' IDENTIFIER'''
@@ -64,7 +64,7 @@ class Parser(Scanner):
 
     def p_argument_expression_list_2(self, p):
         '''argument_expression_list : argument_expression_list ',' assignment_expression'''
-        p[0] = p[1]+p[2]+p[3]
+        p[0] = p[1]#+p[2]+p[3]
 
     def p_unary_expression_1(self, p):
         '''unary_expression : postfix_expression'''
@@ -80,7 +80,7 @@ class Parser(Scanner):
 
     def p_unary_expression_4(self, p):
         '''unary_expression : unary_operator cast_expression'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_unary_expression_5(self, p):
         '''unary_expression : SIZEOF unary_expression'''
         p[0] = p[1] + p[2]
@@ -219,7 +219,7 @@ class Parser(Scanner):
         p[0] = p[1] + p[2] + p[3]
     def p_relational_expression_4(self, p):
         '''relational_expression : relational_expression LE_OP shift_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_relational_expression_5(self, p):
         '''relational_expression : relational_expression GE_OP shift_expression'''
         p[0] = p[1] + p[2] + p[3]
@@ -228,10 +228,10 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_equality_expression_2(self, p):
         '''equality_expression : equality_expression EQ_OP relational_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_equality_expression_3(self, p):
         '''equality_expression : equality_expression NE_OP relational_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_and_expression_1(self, p):
         '''and_expression : equality_expression'''
         p[0] = p[1]
@@ -261,10 +261,10 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_logical_or_expression_2(self, p):
         '''logical_or_expression : logical_or_expression OR_OP logical_and_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_conditional_expression_1(self, p):
         '''conditional_expression : logical_or_expression'''
-        print("Conditional expression" + str(p[1]))
+        #print("Conditional expression" + str(p[1]))
         p[0] = p[1]
     def p_conditional_expression_2(self, p):
         '''conditional_expression : logical_or_expression '?' expression ':' conditional_expression'''
@@ -275,7 +275,9 @@ class Parser(Scanner):
 
     def p_assignment_expression_2(self, p):
         '''assignment_expression : unary_expression assignment_operator assignment_expression'''
-        if p[1].IsConstant():
+        if p[1] == None:
+            pass
+        elif p[1].IsConstant():
             print("This is not allowed since the variable is constant.")
 
         #p[0] = p[1] + p[2] + p[3]
@@ -354,7 +356,7 @@ class Parser(Scanner):
         '''declaration_specifiers : storage_class_specifier declaration_specifiers'''
         #p[0] = p[1] + p[2]
         self.typelist[-1] = [p[1]] + p[2]["specifiers"]
-        p[0] = p[2]["specifiers"]
+        p[0] = p[2]
 
     def p_declaration_specifiers_3(self, p):
         '''declaration_specifiers : type_specifier'''
@@ -366,7 +368,7 @@ class Parser(Scanner):
         '''declaration_specifiers : type_specifier declaration_specifiers'''
         #p[0] = [p[1]] + p[2]
         p[0] = {"qualifiers" : p[2]["qualifiers"], "specifiers" : [p[1]] + p[2]["specifiers"]}
-        self.typelist[-1] = [p[1]] + p[2]
+        self.typelist[-1] = [p[1]] + p[2]["specifiers"]
     def p_declaration_specifiers_5(self, p):
         '''declaration_specifiers : type_qualifier'''
         #p[0] = p[1]
@@ -386,7 +388,7 @@ class Parser(Scanner):
         
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
-        print "TYPE: " + str(self.typelist[-1])
+        #print "TYPE: " + str(self.typelist[-1])
         if not self.typelist[-1][0] == "typedef":
             try:
                 self.symbol_table.InsertNode(p[1])
@@ -553,7 +555,6 @@ class Parser(Scanner):
 
     def p_declarator_1(self, p):
         '''declarator : pointer direct_declarator'''
-        print "P2: " + str(p[2])
         p[1].SetName(p[2].GetName())
         p[1].SetLine(p[2].GetLine())
         p[1].SetCharacterLocation(p[2].GetCharacterLocation())
@@ -612,7 +613,7 @@ class Parser(Scanner):
                 except SymbolTableError, e:
                     print(e)
 
-        p[0] = p[1]
+        #p[0] = p[1]
 
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
@@ -710,7 +711,7 @@ class Parser(Scanner):
     def p_parameter_declaration_3(self, p):
         '''parameter_declaration : declaration_specifiers'''
         self.typelist.pop()
-        print( "TYPE: " + str(p[1]))
+        #print( "TYPE: " + str(p[1]))
         p[0] = VariableNode(type_var = p[1]['specifiers'], tq = p[1]['qualifiers'])
 
     def p_identifier_list_1(self, p):
@@ -850,22 +851,22 @@ class Parser(Scanner):
 
     def p_selection_statement_1(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement'''
-        p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
     def p_selection_statement_2(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement ELSE statement'''
-        p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
+        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
     def p_selection_statement_3(self, p):
         '''selection_statement : SWITCH OPENPARAN expression CLOSEPARAN statement'''
-        p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
     def p_iteration_statement_1(self, p):
         '''iteration_statement : WHILE OPENPARAN expression CLOSEPARAN statement'''
-        p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
     def p_iteration_statement_2(self, p):
         '''iteration_statement : DO statement WHILE OPENPARAN expression CLOSEPARAN SEMI'''
-        p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
+        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
     def p_iteration_statement_3(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement CLOSEPARAN statement'''
-        p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6]
+        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6]
     def p_iteration_statement_4(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement expression CLOSEPARAN statement'''
         #p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
@@ -883,7 +884,7 @@ class Parser(Scanner):
         p[0] = p[1] + p[2]
     def p_jump_statement_5(self, p):
         '''jump_statement : RETURN expression SEMI'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_translation_unit_1(self, p):
         '''translation_unit : external_declaration'''
 

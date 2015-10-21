@@ -306,7 +306,7 @@ class Scanner():
     return t
   def t_rstar(self,t):
     r'\*'
-    print "STAR"
+    #print "STAR"
     t.type = "*"
     self.logging(t.type,t.value)
     return t

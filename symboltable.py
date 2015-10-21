@@ -34,17 +34,19 @@ class SymbolTable(object):
 
     if not node.CheckInsert():
       raise SymbolTableError("The Insert did not have all required Values: \n" + str(node))
-    
-    print("Inserting to the tree at stack location: " + str(len(self.stack)))
+
     tree = self.stack.pop()
     
     if self._CheckTree(tree, node.GetKey()):
         self.stack.append(tree)
         if not type(node) == type(FunctionNode()):
-          raise SymbolTableError("The variable added to tree exists at this scope.")
+          raise SymbolTableError("The variable " + node.GetKey() +  " added to tree exists at this scope.")
         else:
           self.Retrieve(node.GetName())
-          raise SymbolTableError("This function has been defined!")
+          if not self.pointer.CheckParameters(node.parameters):
+            raise SymbolTableError("Error function parameters do not match!")
+          else:
+            return
         
 
     self.pointer = None
@@ -54,7 +56,7 @@ class SymbolTable(object):
     self.stack.append(tree)
 
     if self.pointer:
-      raise SymbolTableWarning("Overshadow of value.")
+      raise SymbolTableWarning("Overshadow of " + str(node.GetKey()) + " at line: " + str(self.pointer.GetLine()) + ".")
 
   def InsertNodePreviousStack(self, node):
     if node == None:
@@ -64,14 +66,14 @@ class SymbolTable(object):
       raise SymbolTableError("The Insert did not have all required Values: \n" + str(node))
     
     tree_holder = self.stack.pop()
-    print("Inserting to the tree at stack location: " + str(len(self.stack)))
+
     tree = self.stack.pop()
     
     if self._CheckTree(tree, node.GetKey()):
         self.stack.append(tree)
         self.stack.append(tree_holder)
         if not type(node) == type(FunctionNode()):
-          raise SymbolTableError("The variable added to tree exists at this scope.")
+          raise SymbolTableWarning("Overshadow of " + str(node.GetKey()) + " at line: " + str(self.pointer.GetLine()) + ".")
         else:
           self.Retrieve(node.GetName())
           if not self.pointer.CheckParameters(node.parameters):
@@ -111,7 +113,7 @@ class SymbolTable(object):
     tree = self.stack.pop()
     typenode = self._CheckTree(tree, "_type")
     result = None
-    print typenode
+
     if not typenode:
       result = self.CheckForType(name)
     else:
@@ -208,6 +210,9 @@ class SymbolTreeNode(object):
   def GetType(self):
     return self.info["Type"]
 
+  def IsConstant(self):
+    return False
+
   def GetCharacterLocation(self):
     return self.info["CharacterLocation"]
 
@@ -251,7 +256,6 @@ class PointerNode(SymbolTreeNode):
     string += "Type Qualifiers: " + str(self.typequalifiers)
     return string
   def SetQualifiers(self, tq):
-    print self.typequalifiers
     self.typequalifiers += tq
 class FunctionNode(SymbolTreeNode):
   """A function node"""
@@ -274,6 +278,8 @@ class FunctionNode(SymbolTreeNode):
     if good:
       self.parameters = params
     return good
+  def SetQualifiers(self, tq):
+    pass
 
 class VariableNode(SymbolTreeNode):
   """A variable node"""

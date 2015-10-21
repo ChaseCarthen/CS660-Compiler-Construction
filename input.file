@@ -1,5 +1,1 @@
-void foo(int,int);
-void foo(int a, int b)
-{
-	
-}@
+

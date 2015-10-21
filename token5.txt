@@ -1,0 +1,14 @@
+/*int a ; */
+INT IDENTIFIER SEMI 
+/*int main ( ) */
+INT IDENTIFIER OPENPARAN CLOSEPARAN 
+/*{ */
+OPENBRACK 
+/*int a ; */
+INT IDENTIFIER SEMI 
+/*char a ; */
+CHAR IDENTIFIER SEMI 
+/*b = 1 ; */
+IDENTIFIER = CONSTANT SEMI 
+/*} */
+CLOSEBRACK 

@@ -178,6 +178,16 @@ class SymbolTable(object):
         print self.stack[treeIndex][info]
       print "========= End of Scope Contents ========="
 
+  def __str__(self):
+    string = ""
+    for treeIndex in range(len(self.stack)):
+      string = string + "Scope: " + str(treeIndex) + '\n'
+      string = string + "========= Scope Contents ========\n"
+      for info in self.stack[treeIndex]:
+        string = string + str(self.stack[treeIndex][info]) + '\n'
+      string = string + "========= End of Scope Contents =========\n"
+    return string
+
 
 
 class SymbolTreeNode(object):
@@ -255,8 +265,10 @@ class PointerNode(SymbolTreeNode):
     string += "Number of Indirections: " + str(self.numindirection) + ", "
     string += "Type Qualifiers: " + str(self.typequalifiers)
     return string
+    
   def SetQualifiers(self, tq):
     self.typequalifiers += tq
+
 class FunctionNode(SymbolTreeNode):
   """A function node"""
   def __init__(self, parameters = [], type_var = '', name = '', line = 0, line_loc = 0):
@@ -271,6 +283,7 @@ class FunctionNode(SymbolTreeNode):
       string = string + '\t' + str(i) + '\n'
 
     return string
+
   def CheckParameters(self,params):
     good = True
     for i,j in zip(self.parameters,params):
@@ -278,6 +291,7 @@ class FunctionNode(SymbolTreeNode):
     if good:
       self.parameters = params
     return good
+
   def SetQualifiers(self, tq):
     pass
 

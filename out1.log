@@ -1,0 +1,58 @@
+Warning: FastBinaryTree not available, using Python version BinaryTree.
+Warning: FastAVLTree not available, using Python version AVLTree.
+Warning: FastRBTree not available, using Python version RBTree.
+Stack Dump: 
+Scope: 0
+========= Scope Contents ========
+{'happy_halloween': ['int']}
+Type: ['void'], Name: foo, Line: 1, CharacterLocation: 5.
+	Parameter List
+	----------------
+	Type: ['int'], Name: , Line: 0, CharacterLocation: 0. Type Qualifiers: []
+
+Type: ['int'], Name: main, Line: 3, CharacterLocation: 4.
+	Parameter List
+	----------------
+
+========= End of Scope Contents =========
+Scope: 1
+========= Scope Contents ========
+{}
+Type: ['int'], Name: a, Line: 6, CharacterLocation: 7. Type Qualifiers: []
+Type: ['int'], Name: b, Line: 7, CharacterLocation: 7. Type Qualifiers: []
+Type: ['char'], Name: c, Line: 8, CharacterLocation: 8. Type Qualifiers: []
+Type: ['char'], Name: d, Line: 9, CharacterLocation: 8. Dimensions: 2, Type Qualifiers: []
+Type: ['int'], Name: e, Line: 10, CharacterLocation: 8.Number of Indirections: 1, Type Qualifiers: []
+Type: ['int'], Name: i, Line: 11, CharacterLocation: 7. Type Qualifiers: []
+Type: ['int'], Name: j, Line: 12, CharacterLocation: 7. Type Qualifiers: []
+Type: ["['int']"], Name: pumpkin, Line: 5, CharacterLocation: 19. Type Qualifiers: []
+========= End of Scope Contents =========
+Scope: 2
+========= Scope Contents ========
+{}
+Type: ['int'], Name: somethinghere, Line: 15, CharacterLocation: 9. Type Qualifiers: []
+========= End of Scope Contents =========
+Scope: 3
+========= Scope Contents ========
+{}
+========= End of Scope Contents =========
+Stack Dump: 
+Scope: 0
+========= Scope Contents ========
+{'happy_halloween': ['int']}
+Type: ['void'], Name: foo, Line: 1, CharacterLocation: 5.
+	Parameter List
+	----------------
+	Type: ['int'], Name: a, Line: 24, CharacterLocation: 13. Type Qualifiers: []
+
+Type: ['int'], Name: main, Line: 3, CharacterLocation: 4.
+	Parameter List
+	----------------
+
+========= End of Scope Contents =========
+Scope: 1
+========= Scope Contents ========
+{}
+Type: ['int'], Name: a, Line: 24, CharacterLocation: 13. Type Qualifiers: []
+Type: ["['int']"], Name: jack, Line: 26, CharacterLocation: 18. Type Qualifiers: []
+========= End of Scope Contents =========

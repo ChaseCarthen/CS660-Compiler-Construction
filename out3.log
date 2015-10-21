@@ -1,0 +1,6 @@
+Warning: FastBinaryTree not available, using Python version BinaryTree.
+Warning: FastAVLTree not available, using Python version AVLTree.
+Warning: FastRBTree not available, using Python version RBTree.
+Syntax error in input at 2 on line: 4
+};
+ ^

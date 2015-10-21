@@ -1,0 +1,4 @@
+/*void main ( ) */
+VOID IDENTIFIER OPENPARAN CLOSEPARAN 
+/*{ */
+OPENBRACK 

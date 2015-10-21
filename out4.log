@@ -1,0 +1,6 @@
+Warning: FastBinaryTree not available, using Python version BinaryTree.
+Warning: FastAVLTree not available, using Python version AVLTree.
+Warning: FastRBTree not available, using Python version RBTree.
+FOUND LEXICAL ERROR ON LINE: 2 "
+{"
+ ^

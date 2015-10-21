@@ -1,0 +1,169 @@
+cscanner.py:  99:==============================Starting    LINE NUMBER: 1======================
+   yacc.py: 360:PLY: PARSE DEBUG START
+cscanner.py:  95:Line Number: 1 Token: INT Value: int
+cscanner.py:  95:Line Number: 1 Token: IDENTIFIER Value: a
+   yacc.py: 469:Action : Reduce rule [type_specifier -> INT] with ['int'] and goto state 13
+   yacc.py: 503:Result : <str @ 0x10ab40878> ('int')
+   yacc.py: 469:Action : Reduce rule [declaration_specifiers -> type_specifier] with ['int'] and goto state 25
+   yacc.py: 503:Result : <dict @ 0x10ab8a398> ({'specifiers': ['int'], 'qualifiers': [] ...)
+cscanner.py:  95:Line Number: 1 Token: SEMI Value: ;
+   yacc.py: 469:Action : Reduce rule [direct_declarator -> IDENTIFIER] with ['a'] and goto state 24
+   yacc.py: 503:Result : <VariableNode @ 0x10ab7be50> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [declarator -> direct_declarator] with [<VariableNode @ 0x10ab7be50>] and goto state 54
+   yacc.py: 503:Result : <VariableNode @ 0x10ab7be50> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator -> declarator] with [<VariableNode @ 0x10ab7be50>] and goto state 53
+   yacc.py: 503:Result : <VariableNode @ 0x10ab7be50> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator_list -> init_declarator] with [<VariableNode @ 0x10ab7be50>] and goto state 52
+   yacc.py: 503:Result : <list @ 0x10a812950> ([<symboltable.VariableNode object at 0x1 ...)
+cscanner.py:  99:tokens : INT IDENTIFIER SEMI 
+cscanner.py:  99:source : int a ; 
+cscanner.py:  99:==============================Completed LINE NUMBER: 1======================
+cscanner.py:  99:==============================Starting    LINE NUMBER: 2======================
+cscanner.py:  95:Line Number: 2 Token: INT Value: int
+   yacc.py: 469:Action : Reduce rule [declaration -> declaration_specifiers init_declarator_list SEMI] with [<dict @ 0x10ab8a398>,<list @ 0x10a812950>,';'] and goto state 26
+   yacc.py: 503:Result : <list @ 0x10a812950> ([<symboltable.VariableNode object at 0x1 ...)
+   yacc.py: 469:Action : Reduce rule [external_declaration -> declaration] with [<list @ 0x10a812950>] and goto state 12
+   yacc.py: 503:Result : <list @ 0x10a812950> ([<symboltable.VariableNode object at 0x1 ...)
+   yacc.py: 469:Action : Reduce rule [translation_unit -> external_declaration] with [<list @ 0x10a812950>] and goto state 20
+   yacc.py: 503:Result : <NoneType @ 0x10a67f7f8> (None)
+cscanner.py:  95:Line Number: 2 Token: IDENTIFIER Value: main
+   yacc.py: 469:Action : Reduce rule [type_specifier -> INT] with ['int'] and goto state 13
+   yacc.py: 503:Result : <str @ 0x10ab408a0> ('int')
+   yacc.py: 469:Action : Reduce rule [declaration_specifiers -> type_specifier] with ['int'] and goto state 25
+   yacc.py: 503:Result : <dict @ 0x10ae1db40> ({'specifiers': ['int'], 'qualifiers': [] ...)
+cscanner.py:  95:Line Number: 2 Token: OPENPARAN Value: (
+   yacc.py: 469:Action : Reduce rule [direct_declarator -> IDENTIFIER] with ['main'] and goto state 24
+   yacc.py: 503:Result : <VariableNode @ 0x10ab52910> (<symboltable.VariableNode object at 0x10 ...)
+cscanner.py:  95:Line Number: 2 Token: CLOSEPARAN Value: )
+cscanner.py:  99:tokens : INT IDENTIFIER OPENPARAN CLOSEPARAN 
+cscanner.py:  99:source : int main ( ) 
+cscanner.py:  99:==============================Completed LINE NUMBER: 2======================
+cscanner.py:  99:==============================Starting    LINE NUMBER: 3======================
+cscanner.py:  95:Line Number: 3 Token: OPENBRACK Value: {
+   yacc.py: 469:Action : Reduce rule [direct_declarator -> direct_declarator OPENPARAN CLOSEPARAN] with [<VariableNode @ 0x10ab52910>,'(',')'] and goto state 24
+   yacc.py: 503:Result : <VariableNode @ 0x10ab52910> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [declarator -> direct_declarator] with [<VariableNode @ 0x10ab52910>] and goto state 54
+   yacc.py: 503:Result : <VariableNode @ 0x10ab52910> (<symboltable.VariableNode object at 0x10 ...)
+cscanner.py:  99:tokens : OPENBRACK 
+cscanner.py:  99:source : { 
+cscanner.py:  99:==============================Completed LINE NUMBER: 3======================
+cscanner.py:  99:==============================Starting    LINE NUMBER: 4======================
+cscanner.py:  95:Line Number: 4 Token: INT Value: int
+cscanner.py:  95:Line Number: 4 Token: IDENTIFIER Value: a
+   yacc.py: 469:Action : Reduce rule [type_specifier -> INT] with ['int'] and goto state 13
+   yacc.py: 503:Result : <str @ 0x10ab405a8> ('int')
+   yacc.py: 469:Action : Reduce rule [declaration_specifiers -> type_specifier] with ['int'] and goto state 58
+   yacc.py: 503:Result : <dict @ 0x10ae1dd70> ({'specifiers': ['int'], 'qualifiers': [] ...)
+cscanner.py:  95:Line Number: 4 Token: SEMI Value: ;
+   yacc.py: 469:Action : Reduce rule [direct_declarator -> IDENTIFIER] with ['a'] and goto state 24
+   yacc.py: 503:Result : <VariableNode @ 0x10a7d8dd0> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [declarator -> direct_declarator] with [<VariableNode @ 0x10a7d8dd0>] and goto state 145
+   yacc.py: 503:Result : <VariableNode @ 0x10a7d8dd0> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator -> declarator] with [<VariableNode @ 0x10a7d8dd0>] and goto state 53
+   yacc.py: 503:Result : <VariableNode @ 0x10a7d8dd0> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator_list -> init_declarator] with [<VariableNode @ 0x10a7d8dd0>] and goto state 52
+   yacc.py: 503:Result : <list @ 0x10ab933b0> ([<symboltable.VariableNode object at 0x1 ...)
+cscanner.py:  99:tokens : INT IDENTIFIER SEMI 
+cscanner.py:  99:source : int a ; 
+cscanner.py:  99:==============================Completed LINE NUMBER: 4======================
+cscanner.py:  99:==============================Starting    LINE NUMBER: 5======================
+cscanner.py:  95:Line Number: 5 Token: CHAR Value: char
+   yacc.py: 469:Action : Reduce rule [declaration -> declaration_specifiers init_declarator_list SEMI] with [<dict @ 0x10ae1dd70>,<list @ 0x10ab933b0>,';'] and goto state 59
+   yacc.py: 503:Result : <list @ 0x10ab933b0> ([<symboltable.VariableNode object at 0x1 ...)
+   yacc.py: 469:Action : Reduce rule [declaration_list -> declaration] with [<list @ 0x10ab933b0>] and goto state 121
+   yacc.py: 503:Result : <list @ 0x10ab933b0> ([<symboltable.VariableNode object at 0x1 ...)
+cscanner.py:  95:Line Number: 5 Token: IDENTIFIER Value: a
+   yacc.py: 469:Action : Reduce rule [type_specifier -> CHAR] with ['char'] and goto state 13
+   yacc.py: 503:Result : <str @ 0x10ab89ae0> ('char')
+   yacc.py: 469:Action : Reduce rule [declaration_specifiers -> type_specifier] with ['char'] and goto state 58
+   yacc.py: 503:Result : <dict @ 0x10ab8a398> ({'specifiers': ['char'], 'qualifiers': [ ...)
+cscanner.py:  95:Line Number: 5 Token: SEMI Value: ;
+   yacc.py: 469:Action : Reduce rule [direct_declarator -> IDENTIFIER] with ['a'] and goto state 24
+   yacc.py: 503:Result : <VariableNode @ 0x10ae1e110> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [declarator -> direct_declarator] with [<VariableNode @ 0x10ae1e110>] and goto state 145
+   yacc.py: 503:Result : <VariableNode @ 0x10ae1e110> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator -> declarator] with [<VariableNode @ 0x10ae1e110>] and goto state 53
+   yacc.py: 503:Result : <VariableNode @ 0x10ae1e110> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator_list -> init_declarator] with [<VariableNode @ 0x10ae1e110>] and goto state 52
+   yacc.py: 503:Result : <list @ 0x10a812950> ([<symboltable.VariableNode object at 0x1 ...)
+cscanner.py:  99:tokens : CHAR IDENTIFIER SEMI 
+cscanner.py:  99:source : char a ; 
+cscanner.py:  99:==============================Completed LINE NUMBER: 5======================
+cscanner.py:  99:==============================Starting    LINE NUMBER: 6======================
+cscanner.py:  95:Line Number: 6 Token: IDENTIFIER Value: b
+   yacc.py: 469:Action : Reduce rule [declaration -> declaration_specifiers init_declarator_list SEMI] with [<dict @ 0x10ab8a398>,<list @ 0x10a812950>,';'] and goto state 147
+   yacc.py: 503:Result : <list @ 0x10a812950> ([<symboltable.VariableNode object at 0x1 ...)
+   yacc.py: 469:Action : Reduce rule [declaration_list -> declaration_list declaration] with [<list @ 0x10ab933b0>,<list @ 0x10a812950>] and goto state 121
+   yacc.py: 503:Result : <list @ 0x10ab8b0e0> ([<symboltable.VariableNode object at 0x1 ...)
+cscanner.py:  95:Line Number: 6 Token: = Value: =
+   yacc.py: 469:Action : Reduce rule [primary_expression -> IDENTIFIER] with ['b'] and goto state 99
+   yacc.py: 503:Result : <int @ 0x7fb05ac0e5b0> (0)
+   yacc.py: 469:Action : Reduce rule [postfix_expression -> primary_expression] with [0] and goto state 106
+   yacc.py: 503:Result : <int @ 0x7fb05ac0e5b0> (0)
+   yacc.py: 469:Action : Reduce rule [unary_expression -> postfix_expression] with [0] and goto state 132
+   yacc.py: 503:Result : <int @ 0x7fb05ac0e5b0> (0)
+cscanner.py:  95:Line Number: 6 Token: CONSTANT Value: 1
+   yacc.py: 469:Action : Reduce rule [assignment_operator -> =] with ['='] and goto state 236
+   yacc.py: 503:Result : <str @ 0x10a832ee0> ('=')
+cscanner.py:  95:Line Number: 6 Token: SEMI Value: ;
+   yacc.py: 469:Action : Reduce rule [primary_expression -> CONSTANT] with ['1'] and goto state 99
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [postfix_expression -> primary_expression] with ['1'] and goto state 106
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [unary_expression -> postfix_expression] with ['1'] and goto state 132
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [cast_expression -> unary_expression] with ['1'] and goto state 96
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [multiplicative_expression -> cast_expression] with ['1'] and goto state 107
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [additive_expression -> multiplicative_expression] with ['1'] and goto state 98
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [shift_expression -> additive_expression] with ['1'] and goto state 102
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [relational_expression -> shift_expression] with ['1'] and goto state 94
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [equality_expression -> relational_expression] with ['1'] and goto state 103
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [and_expression -> equality_expression] with ['1'] and goto state 87
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [exclusive_or_expression -> and_expression] with ['1'] and goto state 85
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [inclusive_or_expression -> exclusive_or_expression] with ['1'] and goto state 90
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [logical_and_expression -> inclusive_or_expression] with ['1'] and goto state 100
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [logical_or_expression -> logical_and_expression] with ['1'] and goto state 97
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [conditional_expression -> logical_or_expression] with ['1'] and goto state 144
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [assignment_expression -> conditional_expression] with ['1'] and goto state 302
+   yacc.py: 503:Result : <str @ 0x10a8324e0> ('1')
+   yacc.py: 469:Action : Reduce rule [assignment_expression -> unary_expression assignment_operator assignment_expression] with [0,'=','1'] and goto state 142
+   yacc.py: 503:Result : <NoneType @ 0x10a67f7f8> (None)
+   yacc.py: 469:Action : Reduce rule [expression -> assignment_expression] with [None] and goto state 128
+   yacc.py: 503:Result : <NoneType @ 0x10a67f7f8> (None)
+cscanner.py:  99:tokens : IDENTIFIER = CONSTANT SEMI 
+cscanner.py:  99:source : b = 1 ; 
+cscanner.py:  99:==============================Completed LINE NUMBER: 7======================
+cscanner.py:  99:==============================Starting    LINE NUMBER: 8======================
+cscanner.py:  95:Line Number: 8 Token: CLOSEBRACK Value: }
+   yacc.py: 469:Action : Reduce rule [expression_statement -> expression SEMI] with [None,';'] and goto state 117
+   yacc.py: 503:Result : <NoneType @ 0x10a67f7f8> (None)
+   yacc.py: 469:Action : Reduce rule [statement -> expression_statement] with [None] and goto state 134
+   yacc.py: 503:Result : <NoneType @ 0x10a67f7f8> (None)
+   yacc.py: 469:Action : Reduce rule [statement_list -> statement] with [None] and goto state 213
+   yacc.py: 503:Result : <NoneType @ 0x10a67f7f8> (None)
+cscanner.py:  99:tokens : CLOSEBRACK 
+cscanner.py:  99:source : } 
+cscanner.py:  99:==============================Completed LINE NUMBER: 8======================
+cscanner.py:  99:==============================Starting    LINE NUMBER: 9======================
+   yacc.py: 469:Action : Reduce rule [compound_statement -> OPENBRACK declaration_list statement_list CLOSEBRACK] with ['{',<list @ 0x10ab8b0e0>,None,'}'] and goto state 114
+   yacc.py: 503:Result : <NoneType @ 0x10a67f7f8> (None)
+   yacc.py: 469:Action : Reduce rule [function_definition -> declaration_specifiers declarator compound_statement] with [<dict @ 0x10ae1db40>,<VariableNode @ 0x10ab52910>,None] and goto state 28
+   yacc.py: 503:Result : <VariableNode @ 0x10ab52910> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [external_declaration -> function_definition] with [<VariableNode @ 0x10ab52910>] and goto state 46
+   yacc.py: 503:Result : <VariableNode @ 0x10ab52910> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [translation_unit -> translation_unit external_declaration] with [None,<VariableNode @ 0x10ab52910>] and goto state 20
+   yacc.py: 503:Result : <NoneType @ 0x10a67f7f8> (None)
+   yacc.py: 564:Done   : Returning <NoneType @ 0x10a67f7f8> (None)
+   yacc.py: 565:PLY: PARSE DEBUG END

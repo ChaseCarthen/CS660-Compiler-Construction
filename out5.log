@@ -1,6 +1,0 @@
-Warning: FastBinaryTree not available, using Python version BinaryTree.
-Warning: FastAVLTree not available, using Python version AVLTree.
-Warning: FastRBTree not available, using Python version RBTree.
-Overshadow of a at line: 1.
-The variable a added to tree exists at this scope.
-We need to fail(this output on line 14): There is no value in the symbol table with name: b

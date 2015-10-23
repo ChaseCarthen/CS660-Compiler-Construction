@@ -3,7 +3,8 @@ from cscanner import reserved
 import sys
 from symboltable import *
 from CompilerExceptions import *
-
+from container import *
+from node import *
 start = 'translation_unit'
 class Parser(Scanner):
     start = 'translation_unit'
@@ -389,7 +390,9 @@ class Parser(Scanner):
         
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
-        #print "TYPE: " + str(self.typelist[-1])
+        astnode = p[1][1]
+        astnode.SetChild(node(text="Declarator"))
+        p[1] = p[1][0]
         if not self.typelist[-1][0] == "typedef":
             try:
                 self.symbol_table.InsertNode(p[1])
@@ -397,11 +400,11 @@ class Parser(Scanner):
                 print(e)
             except SymbolTableError, e:
                 print(e)
-            p[0] = p[1]
+            p[0] = p[1],astnode
         else:
             self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1][1:])
             p[0] = None
-
+        p[0] = p[0],astnode
         
 
     def p_init_declarator_2(self, p):
@@ -465,11 +468,11 @@ class Parser(Scanner):
         '''type_specifier : enum_specifier'''
         p[0] = p[1]
     def p_struct_or_union_specifier_1(self, p):
-        '''struct_or_union_specifier : struct_or_union IDENTIFIER OPENBRACK struct_declaration_list CLOSEBRACK'''
+        '''struct_or_union_specifier : struct_or_union IDENTIFIER OPENBRACE struct_declaration_list CLOSEBRACK'''
         p[0] = p[1] + p[2] + p[3] + p[4] + p[5] # insert this guy
 
     def p_struct_or_union_specifier_2(self, p):
-        '''struct_or_union_specifier : struct_or_union OPENBRACK struct_declaration_list CLOSEBRACK'''
+        '''struct_or_union_specifier : struct_or_union OPENBRACE struct_declaration_list CLOSEBRACK'''
         p[0] = p[1] + p[2] + p[3] + p[4] # insert this guy???
 
     def p_struct_or_union_specifier_3(self, p):
@@ -525,10 +528,10 @@ class Parser(Scanner):
         '''struct_declarator : declarator ':' constant_expression'''
         p[0] = p[1] + p[2] + p[3]
     def p_enum_specifier_1(self, p):
-        '''enum_specifier : ENUM OPENBRACK enumerator_list CLOSEBRACK'''
+        '''enum_specifier : ENUM OPENBRACE enumerator_list CLOSEBRACK'''
         p[0] = p[1] + p[2] + p[3] + p[4]
     def p_enum_specifier_2(self, p):
-        '''enum_specifier : ENUM IDENTIFIER OPENBRACK enumerator_list CLOSEBRACK'''
+        '''enum_specifier : ENUM IDENTIFIER OPENBRACE enumerator_list CLOSEBRACK'''
         p[0] = p[1] + p[2] + p[3] + p[4] + p[5] # lookup
     def p_enum_specifier_3(self, p):
         '''enum_specifier : ENUM IDENTIFIER'''
@@ -567,7 +570,8 @@ class Parser(Scanner):
 
     def p_direct_declarator_1(self, p):
         '''direct_declarator : IDENTIFIER'''
-        p[0] = VariableNode(name=p[1], type_var="", line=p.lineno(1), line_loc=p.lexpos(1) - self.lines[p.lineno(1)-1])
+        out = node(text=p[1])
+        p[0] = VariableNode(name=p[1], type_var="", line=p.lineno(1), line_loc=p.lexpos(1) - self.lines[p.lineno(1)-1]),out
         
     def p_direct_declarator_2(self, p):
         '''direct_declarator : OPENPARAN declarator CLOSEPARAN'''
@@ -634,6 +638,9 @@ class Parser(Scanner):
 
     def p_direct_declarator_7(self, p):
         '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN'''
+        astnode = p[1][1]
+        astnode.text += p[2] + p[3]
+        p[1] = p[1][0]
         p[0] = FunctionNode(type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
@@ -646,7 +653,7 @@ class Parser(Scanner):
         except SymbolTableError, e:
             print(e)
 
-        p[0] = p[1]
+        p[0] = p[0],astnode
 
     def p_pointer_1(self, p):
         '''pointer : '*' '''
@@ -773,10 +780,10 @@ class Parser(Scanner):
         '''initializer : assignment_expression'''
         p[0] = p[1]
     def p_initializer_2(self, p):
-        '''initializer : OPENBRACK initializer_list CLOSEBRACK'''
+        '''initializer : OPENBRACE initializer_list CLOSEBRACK'''
         p[0] = p[1] + p[2] + p[3]
     def p_initializer_3(self, p):
-        '''initializer : OPENBRACK initializer_list ',' CLOSEBRACK'''
+        '''initializer : OPENBRACE initializer_list ',' CLOSEBRACK'''
         p[0] = p[1] + p[2] + p[3] + p[4]
     def p_initializer_list_1(self, p):
         '''initializer_list : initializer'''
@@ -812,21 +819,22 @@ class Parser(Scanner):
         '''labeled_statement : DEFAULT ':' statement'''
         p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_1(self, p):
-        '''compound_statement : OPENBRACK CLOSEBRACK'''
+        '''compound_statement : OPENBRACE CLOSEBRACK'''
         self.symbol_table.EndScope()
+        p[0] = None,node(text=p[1]+p[2])
         #print ("Found a scope")
         #p[0] = p[1] + p[2]
     def p_compound_statement_2(self, p):
-        '''compound_statement : OPENBRACK statement_list CLOSEBRACK'''
+        '''compound_statement : OPENBRACE statement_list CLOSEBRACK'''
         self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_3(self, p):
-        '''compound_statement : OPENBRACK declaration_list CLOSEBRACK'''
+        '''compound_statement : OPENBRACE declaration_list CLOSEBRACK'''
         self.symbol_table.EndScope()
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_4(self, p):
-        '''compound_statement : OPENBRACK declaration_list statement_list CLOSEBRACK'''
+        '''compound_statement : OPENBRACE declaration_list statement_list CLOSEBRACK'''
         self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3] + p[4]
@@ -888,7 +896,7 @@ class Parser(Scanner):
         #p[0] = p[1] + p[2] + p[3]
     def p_translation_unit_1(self, p):
         '''translation_unit : external_declaration'''
-
+        p[0] = p[1]
         #p[0] = p[1]
     def p_translation_unit_2(self, p):
         '''translation_unit : translation_unit external_declaration'''
@@ -907,6 +915,7 @@ class Parser(Scanner):
         p[0] = p[2]
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
+        p[2][1].SetChild(p[3][1])
         p[0] = p[2]
         self.typelist.pop()
     def p_function_definition_3(self, p):

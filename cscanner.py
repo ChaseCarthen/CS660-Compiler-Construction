@@ -30,7 +30,7 @@ class Scanner():
             'XOR_ASSIGN', 'OR_ASSIGN', 'TYPEDEF', 'EXTERN', 'STATIC', 'AUTO', 'REGISTER', 
             'CHAR', 'SHORT', 'INT', 'LONG', 'SIGNED', 'UNSIGNED', 'FLOAT', 'DOUBLE', 'CONST', 'VOLATILE', 
             'VOID', 'STRUCT', 'UNION', 'ENUM', 'ELLIPSIS', 'CASE', 'DEFAULT', 'IF', 'ELSE', 'SWITCH', 
-            'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACK','CLOSEBRACK','SEMI','OPENPARAN','CLOSEPARAN', 'COMMENT','DUMPSYMBOL']
+            'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACE','CLOSEBRACK','SEMI','OPENPARAN','CLOSEPARAN', 'COMMENT','DUMPSYMBOL']
 
   precedence =  []
   literals = ['=',']','[','&','+','-','.','?','!',',',':','*','<','>','^','|','%']
@@ -108,9 +108,10 @@ class Scanner():
   def run(self):
     self.loginfo("==============================Starting    LINE NUMBER: " + str(1) + "======================")
     if self.parselog:
-      self.yacc.parse(self.input_data,debug=self.log)
+      out = self.yacc.parse(self.input_data,debug=self.log)
     else:
-      self.yacc.parse(self.input_data)
+      out = self.yacc.parse(self.input_data)
+    print out[1].ParseTree()
 
   def scan(self,string):
     self.lexer.input(string)
@@ -389,7 +390,7 @@ class Scanner():
     t.type = "^"
     self.logging(t.type,t.value)
     return t
-  def t_OPENBRACK(self,t):
+  def t_OPENBRACE(self,t):
     r'{'
     self.symbol_table.NewScope()
     self.logging(t.type,t.value)

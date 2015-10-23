@@ -46,11 +46,11 @@ class Parser(Scanner):
 
     def p_postfix_expression_5(self, p):
         '''postfix_expression : postfix_expression '.' IDENTIFIER'''
-        p[0] = p[1] + p[2] + p[3] # Do a look on identfier
+        #p[0] = p[1] + p[2] + p[3] # Do a look on identfier
 
     def p_postfix_expression_6(self, p):
         '''postfix_expression : postfix_expression PTR_OP IDENTIFIER'''
-        p[0] = p[1] + p[2] + p[3] # Do a look up
+        #p[0] = p[1] + p[2] + p[3] # Do a look up
 
     def p_postfix_expression_7(self, p):
         '''postfix_expression : postfix_expression INC_OP'''
@@ -58,7 +58,7 @@ class Parser(Scanner):
 
     def p_postfix_expression_8(self, p):
         '''postfix_expression : postfix_expression DEC_OP'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
 
     def p_argument_expression_list_1(self, p):
         '''argument_expression_list : assignment_expression'''
@@ -74,21 +74,21 @@ class Parser(Scanner):
 
     def p_unary_expression_2(self, p):
         '''unary_expression : INC_OP unary_expression'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
 
     def p_unary_expression_3(self, p):
         '''unary_expression : DEC_OP unary_expression'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
 
     def p_unary_expression_4(self, p):
         '''unary_expression : unary_operator cast_expression'''
         #p[0] = p[1] + p[2]
     def p_unary_expression_5(self, p):
         '''unary_expression : SIZEOF unary_expression'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_unary_expression_6(self, p):
         '''unary_expression : SIZEOF OPENPARAN type_name CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
 
     def p_unary_operator_1(self, p):
         '''unary_operator : '&' '''
@@ -114,7 +114,7 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_cast_expression_2(self, p):
         '''cast_expression : OPENPARAN type_name CLOSEPARAN cast_expression'''
-        p[0] = p[1] + p[2] + p[3] + p[4]
+        #p[0] = p[1] + p[2] + p[3] + p[4]
 
     def p_multiplicative_expression_1(self, p):
         '''multiplicative_expression : cast_expression'''
@@ -158,7 +158,7 @@ class Parser(Scanner):
 
     def p_multiplicative_expression_4(self, p):
         '''multiplicative_expression : multiplicative_expression '%' cast_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
 
     def p_additive_expression_1(self, p):
         '''additive_expression : multiplicative_expression'''
@@ -205,10 +205,10 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_shift_expression_2(self, p):
         '''shift_expression : shift_expression LEFT_OP additive_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_shift_expression_3(self, p):
         '''shift_expression : shift_expression RIGHT_OP additive_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_relational_expression_1(self, p):
         '''relational_expression : shift_expression'''
         p[0] = p[1]
@@ -218,13 +218,13 @@ class Parser(Scanner):
 
     def p_relational_expression_3(self, p):
         '''relational_expression : relational_expression '>' shift_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_relational_expression_4(self, p):
         '''relational_expression : relational_expression LE_OP shift_expression'''
         #p[0] = p[1] + p[2] + p[3]
     def p_relational_expression_5(self, p):
         '''relational_expression : relational_expression GE_OP shift_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_equality_expression_1(self, p):
         '''equality_expression : relational_expression'''
         p[0] = p[1]
@@ -239,25 +239,25 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_and_expression_2(self, p):
         '''and_expression : and_expression '&' equality_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_exclusive_or_expression_1(self, p):
         '''exclusive_or_expression : and_expression'''
         p[0] = p[1]
     def p_exclusive_or_expression_2(self, p):
         '''exclusive_or_expression : exclusive_or_expression '^' and_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_inclusive_or_expression_1(self, p):
         '''inclusive_or_expression : exclusive_or_expression'''
         p[0] = p[1]
     def p_inclusive_or_expression_2(self, p):
         '''inclusive_or_expression : inclusive_or_expression '|' exclusive_or_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_logical_and_expression_1(self, p):
         '''logical_and_expression : inclusive_or_expression'''
         p[0] = p[1]
     def p_logical_and_expression_2(self, p):
         '''logical_and_expression : logical_and_expression AND_OP inclusive_or_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_logical_or_expression_1(self, p):
         '''logical_or_expression : logical_and_expression'''
         p[0] = p[1]
@@ -270,7 +270,7 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_conditional_expression_2(self, p):
         '''conditional_expression : logical_or_expression '?' expression ':' conditional_expression'''
-        p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
     def p_assignment_expression_1(self, p):
         '''assignment_expression : conditional_expression'''
         p[0] = p[1]
@@ -363,8 +363,9 @@ class Parser(Scanner):
     def p_declaration_specifiers_3(self, p):
         '''declaration_specifiers : type_specifier'''
         locallist = [p[1]]
+        astNode = node(text=p[1])
         self.typelist.append(locallist)
-        p[0] = {"qualifiers" : [], "specifiers" : locallist}
+        p[0] = {"qualifiers" : [], "specifiers" : locallist},astNode
 
     def p_declaration_specifiers_4(self, p):
         '''declaration_specifiers : type_specifier declaration_specifiers'''
@@ -686,7 +687,7 @@ class Parser(Scanner):
 
     def p_parameter_type_list_2(self, p):
         '''parameter_type_list : parameter_list ',' ELLIPSIS'''
-        p[0] = p[1] + p[2] + p[3] # black magic warning...
+        #p[0] = p[1] + p[2] + p[3] # black magic warning...
 
     def p_parameter_list_1(self, p):
         '''parameter_list : parameter_declaration'''
@@ -739,58 +740,58 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_type_name_2(self, p):
         '''type_name : specifier_qualifier_list abstract_declarator'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_abstract_declarator_1(self, p):
         '''abstract_declarator : pointer'''
         p[0] = p[1]
     def p_abstract_declarator_2(self, p):
         '''abstract_declarator : direct_abstract_declarator'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_abstract_declarator_3(self, p):
         '''abstract_declarator : pointer direct_abstract_declarator'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_direct_abstract_declarator_1(self, p):
         '''direct_abstract_declarator : OPENPARAN abstract_declarator CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_direct_abstract_declarator_2(self, p):
         '''direct_abstract_declarator : '[' ']' '''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_direct_abstract_declarator_3(self, p):
         '''direct_abstract_declarator : '[' constant_expression ']' '''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_direct_abstract_declarator_4(self, p):
         '''direct_abstract_declarator : direct_abstract_declarator '[' ']' '''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_direct_abstract_declarator_5(self, p):
         '''direct_abstract_declarator : direct_abstract_declarator '[' constant_expression ']' '''
-        p[0] = p[1] + p[2] + p[3] + p[4]
+        #p[0] = p[1] + p[2] + p[3] + p[4]
     def p_direct_abstract_declarator_6(self, p):
         '''direct_abstract_declarator : OPENPARAN CLOSEPARAN'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_direct_abstract_declarator_7(self, p):
         '''direct_abstract_declarator : OPENPARAN parameter_type_list CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_direct_abstract_declarator_8(self, p):
         '''direct_abstract_declarator : direct_abstract_declarator OPENPARAN CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_direct_abstract_declarator_9(self, p):
         '''direct_abstract_declarator : direct_abstract_declarator OPENPARAN parameter_type_list CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3] + p[4]
+        #p[0] = p[1] + p[2] + p[3] + p[4]
     def p_initializer_1(self, p):
         '''initializer : assignment_expression'''
         p[0] = p[1]
     def p_initializer_2(self, p):
         '''initializer : OPENBRACE initializer_list CLOSEBRACK'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_initializer_3(self, p):
         '''initializer : OPENBRACE initializer_list ',' CLOSEBRACK'''
-        p[0] = p[1] + p[2] + p[3] + p[4]
+        #p[0] = p[1] + p[2] + p[3] + p[4]
     def p_initializer_list_1(self, p):
         '''initializer_list : initializer'''
         p[0] = p[1]
     def p_initializer_list_2(self, p):
         '''initializer_list : initializer_list ',' initializer'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_statement_1(self, p):
         '''statement : labeled_statement'''
         p[0] = p[1]
@@ -811,13 +812,13 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_labeled_statement_1(self, p):
         '''labeled_statement : IDENTIFIER ':' statement'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_labeled_statement_2(self, p):
         '''labeled_statement : CASE constant_expression ':' statement'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_labeled_statement_3(self, p):
         '''labeled_statement : DEFAULT ':' statement'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_1(self, p):
         '''compound_statement : OPENBRACE CLOSEBRACK'''
         self.symbol_table.EndScope()
@@ -881,16 +882,16 @@ class Parser(Scanner):
         #p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
     def p_jump_statement_1(self, p):
         '''jump_statement : GOTO IDENTIFIER SEMI'''
-        p[0] = p[1] + p[2] + p[3] # look up
+        #p[0] = p[1] + p[2] + p[3] # look up
     def p_jump_statement_2(self, p):
         '''jump_statement : CONTINUE SEMI'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_jump_statement_3(self, p):
         '''jump_statement : BREAK SEMI'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_jump_statement_4(self, p):
         '''jump_statement : RETURN SEMI'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_jump_statement_5(self, p):
         '''jump_statement : RETURN expression SEMI'''
         #p[0] = p[1] + p[2] + p[3]
@@ -915,8 +916,11 @@ class Parser(Scanner):
         p[0] = p[2]
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
+        astNode = node(text="Function")
+        astNode.SetChild(p[1][1])
+        astNode.SetChild(p[2][1])
         p[2][1].SetChild(p[3][1])
-        p[0] = p[2]
+        p[0] = p[2][0],astNode
         self.typelist.pop()
     def p_function_definition_3(self, p):
         '''function_definition : declarator declaration_list compound_statement'''

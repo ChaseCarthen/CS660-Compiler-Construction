@@ -3,7 +3,7 @@ from ply import yacc
 import logging
 from symboltable import SymbolTable
 import os
-
+from node import *
 # tokens 'IDENTIFIER', 'CONSTANT', 'STRING_LITERAL', 'SIZEOF', 'PTR_OP', 
 #'INC_OP', 'DEC_OP', 'LEFT_OP', 'RIGHT_OP', 'LE_OP', 'GE_OP', 'EQ_OP', 'NE_OP', 
 #'AND_OP', 'OR_OP', 'MUL_ASSIGN', 'DIV_ASSIGN', 'MOD_ASSIGN', 'ADD_ASSIGN', 'SUB_ASSIGN', 
@@ -87,6 +87,7 @@ class Scanner():
     self.lines = [0]
     for i in data.split('\n'):
       self.lines.append(self.lines[-1]+len(i)+1)
+    self.rootnode = node(text="Root Node")
 
   def logging(self,typed,value):
       self.source += value + " " 
@@ -111,7 +112,8 @@ class Scanner():
       out = self.yacc.parse(self.input_data,debug=self.log)
     else:
       out = self.yacc.parse(self.input_data)
-    print out[1].ParseTree()
+    graph = open("graph.dot",'w')
+    graph.write("digraph parse_tree {" + out.ParseTree() + "}")
 
   def scan(self,string):
     self.lexer.input(string)

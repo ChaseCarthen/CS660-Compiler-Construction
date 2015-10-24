@@ -3,7 +3,7 @@ from cscanner import reserved
 import sys
 from symboltable import *
 from CompilerExceptions import *
-from container import *
+
 from node import *
 start = 'translation_unit'
 class Parser(Scanner):
@@ -704,10 +704,6 @@ class Parser(Scanner):
 
     def p_parameter_declaration_1(self, p):
         '''parameter_declaration : declaration_specifiers declarator'''
-        #self.symbol_table.Insert(var = p[1],name=p[2],value=0,line=0,line_loc=0 )
-        #print(p[1])
-        #self.symbol_table.Retrieve(p[2])
-        #self.symbol_table.SetType(p[1])
         self.typelist.pop()
         p[2].SetType(p[1]["specifiers"])
         p[2].SetQualifiers(p[1]["qualifiers"])
@@ -897,18 +893,22 @@ class Parser(Scanner):
         #p[0] = p[1] + p[2] + p[3]
     def p_translation_unit_1(self, p):
         '''translation_unit : external_declaration'''
-        p[0] = p[1]
+        p[0] = self.rootnode
+        self.rootnode.SetChild(p[1])
         #p[0] = p[1]
     def p_translation_unit_2(self, p):
         '''translation_unit : translation_unit external_declaration'''
+        p[0] = self.rootnode
+        self.rootnode.SetChild(p[2])
 
-        #p[0] = p[1] + p[2]
     def p_external_declaration_1(self, p):
         '''external_declaration : function_definition'''
         p[0] = p[1]
+
     def p_external_declaration_2(self, p):
         '''external_declaration : declaration'''
         p[0] = p[1]
+
     def p_function_definition_1(self, p):
         '''function_definition : declaration_specifiers declarator declaration_list compound_statement'''
         # int test(a,b) int a,b; {}
@@ -919,8 +919,8 @@ class Parser(Scanner):
         astNode = node(text="Function")
         astNode.SetChild(p[1][1])
         astNode.SetChild(p[2][1])
-        p[2][1].SetChild(p[3][1])
-        p[0] = p[2][0],astNode
+        astNode.SetChild(p[3][1])
+        p[0] = astNode
         self.typelist.pop()
     def p_function_definition_3(self, p):
         '''function_definition : declarator declaration_list compound_statement'''

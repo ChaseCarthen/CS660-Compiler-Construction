@@ -94,7 +94,7 @@ class RawNode(object):
 	            code += (
 	                '        for i, child in enumerate(self.%(child)s or []):\n'
 	                '            nodelist.append(("%(child)s[%%d]" %% i, child))\n') % (
-	                    dict(child=sequence))
+	                    dict(child=seq))
 
 	        code += '        return tuple(nodelist)\n'
 	    else:
@@ -131,51 +131,29 @@ class Node(object):
     __slots__ = ()
     """ Base class for AST nodes. Auto-Generated.
     """
+    text = ""
 
     def children(self):
         """ A sequence of all children that are Nodes
         """
         pass
 
-    def show(self, buf=sys.stdout, offset=0, attrnames=False, nodenames=False, showcoord=False, _my_node_name=None):
-        """ buf:
-                Open IO buffer into which the Node is printed.
-            offset:
-                Initial offset (amount of leading spaces)
-            attrnames:
-                True if you want to see the attribute names in
-                name=value pairs. False to only see the values.
-            nodenames:
-                True if you want to see the actual node names
-                within their parents.
-            showcoord:
-                Do you want the coordinates of each Node to be
-                displayed.
-        """
-        lead = ' ' * offset
-        if nodenames and _my_node_name is not None:
-            buf.write(lead + self.__class__.__name__+ ' <' + _my_node_name + '>: ')
-        else:
-            buf.write(lead + self.__class__.__name__+ ': ')
-        if self.attr_names:
-            if attrnames:
-                nvlist = [(n, getattr(self,n)) for n in self.attr_names]
-                attrstr = ', '.join('%s=%s' % nv for nv in nvlist)
-            else:
-                vlist = [getattr(self, n) for n in self.attr_names]
-                attrstr = ', '.join('%s' % v for v in vlist)
-            buf.write(attrstr)
-        if showcoord:
-            buf.write(' (at %s)' % self.coord)
-        buf.write('\n')
-        for (child_name, child) in self.children():
-            child.show(
-                buf,
-                offset=offset + 2,
-                attrnames=attrnames,
-                nodenames=nodenames,
-                showcoord=showcoord,
-                _my_node_name=child_name)
+	def ParseTree(self):
+		parent = self.text
+		string = ""
+		for i in self.children:
+			string += '"'+ parent + '"' + "->" + '"'+ i.text + '"' + "\n"
+			string += i.ParseTree()
+		return string
+
+	def generateTAC(self):
+		pass
+
+	def SetText(self,text):
+		self.text = text
+
+	def SetChild(self,node):
+		self.children.append(node)
 
 '''
 

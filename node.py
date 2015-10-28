@@ -9,7 +9,7 @@ class node(object):
 	def SetChild(self,node):
 		self.children.append(node)
 	def ParseTree(self):
-		parent = self.__class__.__name__ + " " + self.text
+		parent = self.text
 		string = ""
 		for i in self.children:
 			string += '"'+ parent + '"' + "->" + '"'+ i.text + '"' + "\n"

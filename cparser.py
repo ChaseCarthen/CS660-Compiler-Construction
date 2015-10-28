@@ -5,6 +5,8 @@ from symboltable import *
 from CompilerExceptions import *
 
 from node import *
+def makeParserDict(symboltablenode,astnode):
+    return {"symbolNode" : symboltablenode,"astNode" : astnode}
 start = 'translation_unit'
 class Parser(Scanner):
     start = 'translation_unit'
@@ -340,14 +342,22 @@ class Parser(Scanner):
         p[0] = p[2]
         self.typelist.pop()
         # lookup and insert
-
+        print (p[2])
+        n = node(text="declaration")
         for i in p[2]:
             if i != None:
-                i.SetType(p[1]["specifiers"])
-                i.SetQualifiers(p[1]["qualifiers"])
-        #   self.symbol_table.SetValue(i[1])
-        #    #self.symbol_table.Insert(name=i[0],var=p[1],value=i[1],line=0,line_loc=0) 
-        #print(p[2])
+                print(i)
+                i["symbolNode"].SetType(p[1]["symbolNode"]["specifiers"]) # Dictionary ouch right here ..
+                i["symbolNode"].SetQualifiers(p[1]["symbolNode"]["qualifiers"]) # Dictionary ouch right here .. a potential bug to fix
+                n.SetChild(i["astNode"])
+        string = ""
+        for j in p[1]["symbolNode"]["specifiers"]:
+            string += " " + j
+        for j in p[1]["symbolNode"]["qualifiers"]:
+            string += " " + j
+        n.SetChild(node(text=string))
+        p[0] = makeParserDict(p[2],n)
+
 
     def p_declaration_specifiers_1(self, p):
         '''declaration_specifiers : storage_class_specifier'''
@@ -365,13 +375,14 @@ class Parser(Scanner):
         locallist = [p[1]]
         astNode = node(text=p[1])
         self.typelist.append(locallist)
-        p[0] = {"qualifiers" : [], "specifiers" : locallist},astNode
+        p[0] = {"symbolNode" : {"qualifiers" : [], "specifiers" : locallist},"astNode" : astNode}
 
     def p_declaration_specifiers_4(self, p):
         '''declaration_specifiers : type_specifier declaration_specifiers'''
         #p[0] = [p[1]] + p[2]
-        p[0] = {"qualifiers" : p[2]["qualifiers"], "specifiers" : [p[1]] + p[2]["specifiers"]}
-        self.typelist[-1] = [p[1]] + p[2]["specifiers"]
+        p[2]["symbolNode"]["specifiers"] = [p[1]] + p[2]["symbolNode"]["specifiers"]
+        p[2]["astNode"].text += " " + p[1]
+        p[0] = p[2]
     def p_declaration_specifiers_5(self, p):
         '''declaration_specifiers : type_qualifier'''
         #p[0] = p[1]
@@ -391,21 +402,23 @@ class Parser(Scanner):
         
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
-        astnode = p[1][1]
-        astnode.SetChild(node(text="Declarator"))
-        p[1] = p[1][0]
+        astnode = node(text="init_declarator")
+        astnode.SetChild(p[1]["astNode"])
+        print("TEST: " + p[1]["astNode"].text)
         if not self.typelist[-1][0] == "typedef":
             try:
-                self.symbol_table.InsertNode(p[1])
+                self.symbol_table.InsertNode(p[1]["symbolNode"])
             except SymbolTableWarning, e:
                 print(e)
             except SymbolTableError, e:
                 print(e)
-            p[0] = p[1],astnode
+            #p[0] = p[1],astnode
         else:
-            self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1][1:])
+            self.symbol_table.InsertNewType(p[1]["symbolNode"].GetName(),self.typelist[-1][1:])
             p[0] = None
-        p[0] = p[0],astnode
+        print "HERE: !!!" + str(p[1])
+        p[1]["astNode"] = astnode
+        p[0] = p[1]
         
 
     def p_init_declarator_2(self, p):
@@ -560,9 +573,14 @@ class Parser(Scanner):
 
     def p_declarator_1(self, p):
         '''declarator : pointer direct_declarator'''
-        p[1].SetName(p[2].GetName())
-        p[1].SetLine(p[2].GetLine())
-        p[1].SetCharacterLocation(p[2].GetCharacterLocation())
+        print p[2]
+        p[1]["symbolNode"].SetName(p[2]["symbolNode"].GetName())
+        p[1]["symbolNode"].SetLine(p[2]["symbolNode"].GetLine())
+        p[1]["symbolNode"].SetCharacterLocation(p[2]["symbolNode"].GetCharacterLocation())
+        n = node(text="Declarator")
+        n.SetChild(p[1]["astNode"])
+        n.SetChild(p[2]["astNode"])
+        p[1]["astNode"] = n
         p[0] = p[1]
 
     def p_declarator_2(self, p):
@@ -571,8 +589,11 @@ class Parser(Scanner):
 
     def p_direct_declarator_1(self, p):
         '''direct_declarator : IDENTIFIER'''
+        n = node(text="Declarator")
         out = node(text=p[1])
-        p[0] = VariableNode(name=p[1], type_var="", line=p.lineno(1), line_loc=p.lexpos(1) - self.lines[p.lineno(1)-1]),out
+        n.SetChild(out)
+        out = n
+        p[0] = makeParserDict(VariableNode(name=p[1], type_var="", line=p.lineno(1), line_loc=p.lexpos(1) - self.lines[p.lineno(1)-1]),  out)
         
     def p_direct_declarator_2(self, p):
         '''direct_declarator : OPENPARAN declarator CLOSEPARAN'''
@@ -639,9 +660,10 @@ class Parser(Scanner):
 
     def p_direct_declarator_7(self, p):
         '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN'''
-        astnode = p[1][1]
+        print "HERE"
+        astnode = p[1]["astNode"]
         astnode.text += p[2] + p[3]
-        p[1] = p[1][0]
+        p[1] = p[1]["symbolNode"]
         p[0] = FunctionNode(type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
@@ -654,19 +676,22 @@ class Parser(Scanner):
         except SymbolTableError, e:
             print(e)
 
-        p[0] = p[0],astnode
+        p[0] = makeParserDict(p[0],astnode)
 
     def p_pointer_1(self, p):
         '''pointer : '*' '''
-        p[0] = PointerNode(None)
+        p[0] = makeParserDict(PointerNode(None),node(text="*"))
 
     def p_pointer_2(self, p):
         '''pointer : '*' type_qualifier_list'''
-        p[0] = PointerNode(p[2])
+        n = node(text="*")
+        p[2]["astNode"].SetParent(n)
+        p[0] = makeParserDict(PointerNode(p[2]),n)
 
     def p_pointer_3(self, p):
         '''pointer : '*' pointer'''
-        p[2].AddIndirection()
+        p[2]["symbolNode"].AddIndirection()
+        p[2]["astNode"].text = "*" + p[2]["astNode"].text
         p[0] = p[2]
 
     def p_pointer_4(self, p):
@@ -818,7 +843,7 @@ class Parser(Scanner):
     def p_compound_statement_1(self, p):
         '''compound_statement : OPENBRACE CLOSEBRACK'''
         self.symbol_table.EndScope()
-        p[0] = None,node(text=p[1]+p[2])
+        p[0] = makeParserDict(None,node(text=p[1]+p[2]))
         #print ("Found a scope")
         #p[0] = p[1] + p[2]
     def p_compound_statement_2(self, p):
@@ -828,6 +853,10 @@ class Parser(Scanner):
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_3(self, p):
         '''compound_statement : OPENBRACE declaration_list CLOSEBRACK'''
+        n = node(text=p[1]+p[3])
+        for i in p[2]:
+            n.SetChild(i["astNode"])
+        p[0] = makeParserDict(None,n)
         self.symbol_table.EndScope()
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_4(self, p):
@@ -837,10 +866,10 @@ class Parser(Scanner):
         #p[0] = p[1] + p[2] + p[3] + p[4]
     def p_declaration_list_1(self, p):
         '''declaration_list : declaration'''
-        p[0] = p[1]
+        p[0] = [p[1]]
     def p_declaration_list_2(self, p):
         '''declaration_list : declaration_list declaration'''
-        p[0] = p[1] + p[2]
+        p[0] = p[1] + [p[2]]
     def p_statement_list_1(self, p):
         '''statement_list : statement'''
         p[0] = p[1]
@@ -894,12 +923,12 @@ class Parser(Scanner):
     def p_translation_unit_1(self, p):
         '''translation_unit : external_declaration'''
         p[0] = self.rootnode
-        self.rootnode.SetChild(p[1])
+        self.rootnode.SetChild(p[1]["astNode"])
         #p[0] = p[1]
     def p_translation_unit_2(self, p):
         '''translation_unit : translation_unit external_declaration'''
         p[0] = self.rootnode
-        self.rootnode.SetChild(p[2])
+        self.rootnode.SetChild(p[2]["astNode"])
 
     def p_external_declaration_1(self, p):
         '''external_declaration : function_definition'''
@@ -917,10 +946,11 @@ class Parser(Scanner):
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
         astNode = node(text="Function")
-        astNode.SetChild(p[1][1])
-        astNode.SetChild(p[2][1])
-        astNode.SetChild(p[3][1])
-        p[0] = astNode
+        astNode.SetChild(p[1]["astNode"])
+        astNode.SetChild(p[2]["astNode"])
+        astNode.SetChild(p[3]["astNode"])
+        p[1]["astNode"] = astNode
+        p[0] = p[1]
         self.typelist.pop()
     def p_function_definition_3(self, p):
         '''function_definition : declarator declaration_list compound_statement'''

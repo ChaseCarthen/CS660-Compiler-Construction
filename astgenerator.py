@@ -41,6 +41,7 @@ class RawNode(object):
 
 		for i in params:
 			clean = i.rstrip('*')
+			clean = clean.strip(' ')
 			if i is not '':
 				self.entries.append(clean)
 
@@ -70,40 +71,40 @@ class RawNode(object):
 			slots = "'coord', '__weakref__'"
 			arglist = '(self, coord=None)'
 
-		code += "	__slots__ = (%s)\n\n" % slots
-		code += "	def __init__%s:\n" %arglist
+		code += "\t__slots__ = (%s)\n\n" % slots
+		code += "\tdef __init__%s:\n" %arglist
 
 		for name in self.entries + ['coord']:
-			code += "        self.%s = %s\n" % (name, name)
+			code += "\t\tself.%s = %s\n" % (name, name)
 
 		return code
 
 	def makeBabies(self):
-	    code = '    def children(self):\n'
+	    code = '\tdef children(self):\n'
 
 	    if self.entries:
-	        code += '        nodelist = []\n'
+	        code += '\t\tnodelist = []\n'
 
 	        for child in self.child:
 	            code += (
-	                '        if self.%(child)s is not None:' +
-	                ' nodelist.append(("%(child)s", self.%(child)s))\n') % (
+	                '\t\tif self.%(child)s is not None:\n' +
+	                '\t\t\tnodelist.append(("%(child)s", self.%(child)s))\n') % (
 	                    dict(child=child))
 
 	        for seq in self.sequence:
 	            code += (
-	                '        for i, child in enumerate(self.%(child)s or []):\n'
-	                '            nodelist.append(("%(child)s[%%d]" %% i, child))\n') % (
+	                '\t\tfor i, child in enumerate(self.%(child)s or []):\n'
+	                '\t\t\tnodelist.append(("%(child)s[%%d]" %% i, child))\n') % (
 	                    dict(child=seq))
 
-	        code += '        return tuple(nodelist)\n'
+	        code += '\t\treturn tuple(nodelist)\n'
 	    else:
-	        code += '        return ()\n'
+	        code += '\t\treturn ()\n'
 
 	    return code
 
 	def generateAttributes(self):
-		code = "    attr_names = (" + ''.join("%r, " % nm for nm in self.attribute) + ')'
+		code = "\tattr_names = (" + ''.join("%r, " % nm for nm in self.attribute) + ')'
 		return code	
 
 	def generateTAC(self, tac):
@@ -141,8 +142,8 @@ class Node(object):
 	def ParseTree(self):
 		parent = self.text
 		string = ""
-		for i in self.children:
-			string += '"'+ parent + '"' + "->" + '"'+ i.text + '"' + "\n"
+		for name,node in self.children():
+			string += '"'+ parent + '"' + "->" + '"'+ node.text + '"' + "\n"
 			string += i.ParseTree()
 		return string
 
@@ -151,9 +152,6 @@ class Node(object):
 
 	def SetText(self,text):
 		self.text = text
-
-	def SetChild(self,node):
-		self.children.append(node)
 
 '''
 

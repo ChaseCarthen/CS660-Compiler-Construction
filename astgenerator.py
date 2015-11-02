@@ -3,6 +3,7 @@ import sys
 import re
 import pprint
 from string import Template
+from ticketcounter import *
 
 class Generator(object):
 	def __init__(self,cfgfile):
@@ -127,13 +128,16 @@ r'''#-----------------------------------------------------------------
 
 _PROLOGUE_CODE = r'''
 import sys
-
+from ticketcounter import *
 class Node(object):
     __slots__ = ()
+
     """ Base class for AST nodes. Auto-Generated.
     """
     text = ""
-
+    floatTicketCounter = TicketCounter("float")
+    intTicketCounter = TicketCounter("int")
+    charTicketCounter = TicketCounter("char")
     def children(self):
         """ A sequence of all children that are Nodes
         """
@@ -158,4 +162,4 @@ class Node(object):
 
 if __name__ == "__main__":
 	astgen = Generator("ast.cfg")
-	astgen.generate(open('ast.py', 'w'))
+	astgen.generate(open('asttree.py', 'w'))

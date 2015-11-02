@@ -342,11 +342,9 @@ class Parser(Scanner):
         p[0] = p[2]
         self.typelist.pop()
         # lookup and insert
-        print (p[2])
         n = node(text="declaration")
         for i in p[2]:
             if i != None:
-                print(i)
                 i["symbolNode"].SetType(p[1]["symbolNode"]["specifiers"]) # Dictionary ouch right here ..
                 i["symbolNode"].SetQualifiers(p[1]["symbolNode"]["qualifiers"]) # Dictionary ouch right here .. a potential bug to fix
                 n.SetChild(i["astNode"])
@@ -404,7 +402,6 @@ class Parser(Scanner):
         '''init_declarator : declarator'''
         astnode = node(text="init_declarator")
         astnode.SetChild(p[1]["astNode"])
-        print("TEST: " + p[1]["astNode"].text)
         if not self.typelist[-1][0] == "typedef":
             try:
                 self.symbol_table.InsertNode(p[1]["symbolNode"])
@@ -416,7 +413,6 @@ class Parser(Scanner):
         else:
             self.symbol_table.InsertNewType(p[1]["symbolNode"].GetName(),self.typelist[-1][1:])
             p[0] = None
-        print "HERE: !!!" + str(p[1])
         p[1]["astNode"] = astnode
         p[0] = p[1]
         
@@ -573,7 +569,6 @@ class Parser(Scanner):
 
     def p_declarator_1(self, p):
         '''declarator : pointer direct_declarator'''
-        print p[2]
         p[1]["symbolNode"].SetName(p[2]["symbolNode"].GetName())
         p[1]["symbolNode"].SetLine(p[2]["symbolNode"].GetLine())
         p[1]["symbolNode"].SetCharacterLocation(p[2]["symbolNode"].GetCharacterLocation())
@@ -617,13 +612,14 @@ class Parser(Scanner):
 
     def p_direct_declarator_5(self, p):
         '''direct_declarator : direct_declarator OPENPARAN parameter_type_list CLOSEPARAN'''
+
         # This is where we create a ast with function parameters?
-        p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
+        p[1]["symbolNode"] = FunctionNode(parameters = [param["symbolNode"] for param in p[3]], type_var = self.typelist[-1], name = p[1]["symbolNode"].GetName(), line = p[1]["symbolNode"].GetLine(), line_loc = p[1]["symbolNode"].GetCharacterLocation())
         try:
             if len(self.symbol_table.stack) > 1:
-                self.symbol_table.InsertNodePreviousStack(p[0])
+                self.symbol_table.InsertNodePreviousStack(p[1]["symbolNode"])
             else:
-                self.symbol_table.InsertNode(p[0])
+                self.symbol_table.InsertNode(p[1]["symbolNode"])
         except SymbolTableWarning, e:
             print(e)
         except SymbolTableError, e:
@@ -633,14 +629,14 @@ class Parser(Scanner):
             if len(self.symbol_table.stack) > 1:
                 self.loginfo("INSERTING INTO STACK")
                 try:
-                    self.symbol_table.InsertNode(i)
+                    self.symbol_table.InsertNode(i["symbolNode"])
                     #pass
                 except SymbolTableWarning, e:
                     print(e)
                 except SymbolTableError, e:
                     print(e)
 
-        #p[0] = p[1]
+        p[0] = p[1]
 
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
@@ -660,7 +656,6 @@ class Parser(Scanner):
 
     def p_direct_declarator_7(self, p):
         '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN'''
-        print "HERE"
         astnode = p[1]["astNode"]
         astnode.text += p[2] + p[3]
         p[1] = p[1]["symbolNode"]
@@ -730,8 +725,8 @@ class Parser(Scanner):
     def p_parameter_declaration_1(self, p):
         '''parameter_declaration : declaration_specifiers declarator'''
         self.typelist.pop()
-        p[2].SetType(p[1]["specifiers"])
-        p[2].SetQualifiers(p[1]["qualifiers"])
+        p[2]["symbolNode"].SetType(p[1]["symbolNode"]["specifiers"])
+        p[2]["symbolNode"].SetQualifiers(p[1]["symbolNode"]["qualifiers"])
         p[0] = p[2]
 
     def p_parameter_declaration_2(self, p):

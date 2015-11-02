@@ -1,0 +1,25 @@
+char
+signed char
+unsigned char
+short
+short int
+signed short
+signed short int
+unsigned short
+unsigned short int
+unsigned
+unsigned int
+long
+long int
+signed long int
+signed long
+unsigned long
+unsigned long int
+long long
+long long int
+signed long long
+singed long long int
+unsigned long long int
+unsigned long long
+float
+double

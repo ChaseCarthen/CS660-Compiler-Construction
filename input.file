@@ -1,7 +1,1 @@
-
-void main() {
-char* apples;
-int** apples2;
-long dapple2;
-long long dapple3;
-}
+long long long a;

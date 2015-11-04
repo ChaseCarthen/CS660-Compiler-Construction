@@ -1,3 +1,1 @@
-int a;
-char b;
-long long ab;
+int a = 1;

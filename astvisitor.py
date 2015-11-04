@@ -74,6 +74,10 @@ class GraphVizVisitor(NodeVisitor):
         return
     def visit_ParamList(self,node):
         return 
+    def visit_Constant(self,node):
+        string = "Constant->"+ node.value + ",Type;\n"
+        string += self.visit(node.type)
+        return string
 
 class ThreeAddressCode(NodeVisitor):
     def visit_ID(self,node):

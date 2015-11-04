@@ -6,6 +6,7 @@ from CompilerExceptions import *
 from termcolor import colored
 from node import *
 from asttree import *
+import strconv
 
 def makeParserDict(symboltablenode,astnode):
     return {"symbolNode" : symboltablenode,"astNode" : astnode}
@@ -22,7 +23,10 @@ class Parser(Scanner):
 
     def p_primary_expression_2(self, p):
         '''primary_expression : CONSTANT'''
-        p[0] = p[1]
+        cType = strconv.infer(p[1])
+        tNode = Type([cType],[],[])
+        p[0] = Constant(tNode,p[1],None)
+        #p[0] = p[1]
 
     def p_primary_expression_3(self, p):
         '''primary_expression : STRING_LITERAL'''
@@ -431,7 +435,7 @@ class Parser(Scanner):
             print(e)
         except SymbolTableError, e:
             print(e)
-
+            
         p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,p[3]))
 
     def p_storage_class_specifier_1(self, p):

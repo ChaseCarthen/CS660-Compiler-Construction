@@ -130,32 +130,18 @@ _PROLOGUE_CODE = r'''
 import sys
 from ticketcounter import *
 class Node(object):
-    __slots__ = ()
+	__slots__ = ()
 
-    """ Base class for AST nodes. Auto-Generated.
-    """
-    text = ""
-    floatTicketCounter = TicketCounter("float")
-    intTicketCounter = TicketCounter("int")
-    charTicketCounter = TicketCounter("char")
-    def children(self):
-        """ A sequence of all children that are Nodes
-        """
-        pass
-
-	def ParseTree(self):
-		parent = self.text
-		string = ""
-		for name,node in self.children():
-			string += '"'+ parent + '"' + "->" + '"'+ node.text + '"' + "\n"
-			string += i.ParseTree()
-		return string
-
-	def generateTAC(self):
+	""" Base class for AST nodes. Auto-Generated.
+	"""
+	text = ""
+	floatTicketCounter = TicketCounter("float")
+	intTicketCounter = TicketCounter("int")
+	charTicketCounter = TicketCounter("char")
+	def children(self):
+		""" A sequence of all children that are Nodes
+		"""
 		pass
-
-	def SetText(self,text):
-		self.text = text
 
 '''
 

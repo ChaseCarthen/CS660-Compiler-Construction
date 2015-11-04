@@ -3,8 +3,10 @@ from cscanner import reserved
 import sys
 from symboltable import *
 from CompilerExceptions import *
-
+from termcolor import colored
 from node import *
+from asttree import *
+
 def makeParserDict(symboltablenode,astnode):
     return {"symbolNode" : symboltablenode,"astNode" : astnode}
 start = 'translation_unit'
@@ -331,6 +333,7 @@ class Parser(Scanner):
         '''constant_expression : conditional_expression'''
         p[0] = p[1]
 
+    # Pushing a dictionary here.
     def p_declaration_1(self, p):
         '''declaration : declaration_specifiers SEMI'''
         p[0] = p[1]
@@ -341,53 +344,60 @@ class Parser(Scanner):
         '''declaration : declaration_specifiers init_declarator_list SEMI'''
         p[0] = p[2]
         self.typelist.pop()
+        astList = []
         # lookup and insert
-        n = node(text="declaration")
-        for i in p[2]:
-            if i != None:
-                i["symbolNode"].SetType(p[1]["symbolNode"]["specifiers"]) # Dictionary ouch right here ..
-                i["symbolNode"].SetQualifiers(p[1]["symbolNode"]["qualifiers"]) # Dictionary ouch right here .. a potential bug to fix
-                n.SetChild(i["astNode"])
+        for declarator in p[2]:
+            if declarator != None:
+                declarator["symbolNode"].SetType(p[1].type) 
+                declarator["symbolNode"].SetQualifiers(p[1].qualifer) # Dictionary ouch right here .. a potential bug to fix
+                declarator["astNode"].type = p[1]
+                astList.append(declarator["astNode"])
         string = ""
-        for j in p[1]["symbolNode"]["specifiers"]:
+        for j in p[1].type:
             string += " " + j
-        for j in p[1]["symbolNode"]["qualifiers"]:
+        for j in p[1].qualifer:
             string += " " + j
-        n.SetChild(node(text=string))
-        p[0] = makeParserDict(p[2],n)
+        p[0] = DeclList(astList)
 
 
     def p_declaration_specifiers_1(self, p):
         '''declaration_specifiers : storage_class_specifier'''
-        locallist = [p[1]]
-        self.typelist.append(locallist)
-        p[0] = {"qualifiers" : [], "specifiers" : locallist}
+        p[0] = Type([],[],[p[1]]) 
+        self.typelist.append(p[0])
+
     def p_declaration_specifiers_2(self, p):
         '''declaration_specifiers : storage_class_specifier declaration_specifiers'''
         #p[0] = p[1] + p[2]
-        self.typelist[-1] = [p[1]] + p[2]["specifiers"]
+        self.typelist[-1].storage.append(p[2])
         p[0] = p[2]
 
     def p_declaration_specifiers_3(self, p):
         '''declaration_specifiers : type_specifier'''
-        locallist = [p[1]]
-        astNode = node(text=p[1])
-        self.typelist.append(locallist)
-        p[0] = {"symbolNode" : {"qualifiers" : [], "specifiers" : locallist},"astNode" : astNode}
+        p[0] = Type([p[1]],[],[]) #{"qualifiers" : [], "specifiers" : [p[1]],"storage" : []}
+        self.typelist.append(p[0])
 
     def p_declaration_specifiers_4(self, p):
         '''declaration_specifiers : type_specifier declaration_specifiers'''
         #p[0] = [p[1]] + p[2]
-        p[2]["symbolNode"]["specifiers"] = [p[1]] + p[2]["symbolNode"]["specifiers"]
-        p[2]["astNode"].text += " " + p[1]
+        # specifiers is a list
+        p[2].type = [p[1]] + p[2].type
+        checkstring = ""
+        for i in p[2].type:
+            checkstring += i + " "
+        checkstring = checkstring.strip()
+        if not checkstring in self.supportedtypes:
+            print "ERROR INVALID TYPE SPECIFIER: " + str(p.lineno(1)) + " starting at Character: "+ str(p.lexpos(1)) 
+            sys.exit()
         p[0] = p[2]
     def p_declaration_specifiers_5(self, p):
         '''declaration_specifiers : type_qualifier'''
         #p[0] = p[1]
+        p[0] = Type([],[p[1]],[]) #{"specifiers" : [], "qualifiers" : [p[1]],"storage" : []}
 
     def p_declaration_specifiers_6(self, p):
         '''declaration_specifiers : type_qualifier declaration_specifiers'''
-        p[0] = {"qualifiers" : p[1] + p[2]["qualifiers"], "specifiers" : p[2]["specifiers"]}
+        p[2].qualifier.append(p[1])
+        p[0] = p[2]#{"qualifiers" : p[1] + p[2]["qualifiers"], "specifiers" : p[2]["specifiers"]}
 
     def p_init_declarator_list_1(self, p):
         '''init_declarator_list : init_declarator'''
@@ -400,21 +410,17 @@ class Parser(Scanner):
         
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
-        astnode = node(text="init_declarator")
-        astnode.SetChild(p[1]["astNode"])
-        if not self.typelist[-1][0] == "typedef":
+        if not "typedef" in self.typelist[-1].storage:
             try:
-                self.symbol_table.InsertNode(p[1]["symbolNode"])
+                self.symbol_table.InsertNode(p[1])
             except SymbolTableWarning, e:
                 print(e)
             except SymbolTableError, e:
                 print(e)
             #p[0] = p[1],astnode
         else:
-            self.symbol_table.InsertNewType(p[1]["symbolNode"].GetName(),self.typelist[-1][1:])
-            p[0] = None
-        p[1]["astNode"] = astnode
-        p[0] = p[1]
+            self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1][1:].type)
+        p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,None) )
         
 
     def p_init_declarator_2(self, p):
@@ -426,7 +432,7 @@ class Parser(Scanner):
         except SymbolTableError, e:
             print(e)
 
-        p[0] = p[1]
+        p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,p[3]))
 
     def p_storage_class_specifier_1(self, p):
         '''storage_class_specifier : TYPEDEF'''
@@ -478,11 +484,11 @@ class Parser(Scanner):
         '''type_specifier : enum_specifier'''
         p[0] = p[1]
     def p_struct_or_union_specifier_1(self, p):
-        '''struct_or_union_specifier : struct_or_union IDENTIFIER OPENBRACE struct_declaration_list CLOSEBRACK'''
+        '''struct_or_union_specifier : struct_or_union IDENTIFIER OPENBRACE struct_declaration_list CLOSEBRACE'''
         p[0] = p[1] + p[2] + p[3] + p[4] + p[5] # insert this guy
 
     def p_struct_or_union_specifier_2(self, p):
-        '''struct_or_union_specifier : struct_or_union OPENBRACE struct_declaration_list CLOSEBRACK'''
+        '''struct_or_union_specifier : struct_or_union OPENBRACE struct_declaration_list CLOSEBRACE'''
         p[0] = p[1] + p[2] + p[3] + p[4] # insert this guy???
 
     def p_struct_or_union_specifier_3(self, p):
@@ -538,10 +544,10 @@ class Parser(Scanner):
         '''struct_declarator : declarator ':' constant_expression'''
         p[0] = p[1] + p[2] + p[3]
     def p_enum_specifier_1(self, p):
-        '''enum_specifier : ENUM OPENBRACE enumerator_list CLOSEBRACK'''
+        '''enum_specifier : ENUM OPENBRACE enumerator_list CLOSEBRACE'''
         p[0] = p[1] + p[2] + p[3] + p[4]
     def p_enum_specifier_2(self, p):
-        '''enum_specifier : ENUM IDENTIFIER OPENBRACE enumerator_list CLOSEBRACK'''
+        '''enum_specifier : ENUM IDENTIFIER OPENBRACE enumerator_list CLOSEBRACE'''
         p[0] = p[1] + p[2] + p[3] + p[4] + p[5] # lookup
     def p_enum_specifier_3(self, p):
         '''enum_specifier : ENUM IDENTIFIER'''
@@ -584,11 +590,7 @@ class Parser(Scanner):
 
     def p_direct_declarator_1(self, p):
         '''direct_declarator : IDENTIFIER'''
-        n = node(text="Declarator")
-        out = node(text=p[1])
-        n.SetChild(out)
-        out = n
-        p[0] = makeParserDict(VariableNode(name=p[1], type_var="", line=p.lineno(1), line_loc=p.lexpos(1) - self.lines[p.lineno(1)-1]),  out)
+        p[0] = VariableNode(name=p[1], type_var="", line=p.lineno(1), line_loc=p.lexpos(1) - self.lines[p.lineno(1)-1])
         
     def p_direct_declarator_2(self, p):
         '''direct_declarator : OPENPARAN declarator CLOSEPARAN'''
@@ -614,7 +616,7 @@ class Parser(Scanner):
         '''direct_declarator : direct_declarator OPENPARAN parameter_type_list CLOSEPARAN'''
 
         # This is where we create a ast with function parameters?
-        p[1]["symbolNode"] = FunctionNode(parameters = [param["symbolNode"] for param in p[3]], type_var = self.typelist[-1], name = p[1]["symbolNode"].GetName(), line = p[1]["symbolNode"].GetLine(), line_loc = p[1]["symbolNode"].GetCharacterLocation())
+        p[1]["symbolNode"] = FunctionNode(parameters = [param["symbolNode"] for param in p[3]], type_var = self.typelist[-1]["specifiers"], name = p[1]["symbolNode"].GetName(), line = p[1]["symbolNode"].GetLine(), line_loc = p[1]["symbolNode"].GetCharacterLocation())
         try:
             if len(self.symbol_table.stack) > 1:
                 self.symbol_table.InsertNodePreviousStack(p[1]["symbolNode"])
@@ -640,7 +642,7 @@ class Parser(Scanner):
 
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
-        p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
+        p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1]["specifiers"], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
             if len(self.symbol_table.stack) > 1:
@@ -725,8 +727,8 @@ class Parser(Scanner):
     def p_parameter_declaration_1(self, p):
         '''parameter_declaration : declaration_specifiers declarator'''
         self.typelist.pop()
-        p[2]["symbolNode"].SetType(p[1]["symbolNode"]["specifiers"])
-        p[2]["symbolNode"].SetQualifiers(p[1]["symbolNode"]["qualifiers"])
+        p[2].SetType(p[1]["specifiers"])
+        p[2].SetQualifiers(p[1]["qualifiers"])
         p[0] = p[2]
 
     def p_parameter_declaration_2(self, p):
@@ -797,10 +799,10 @@ class Parser(Scanner):
         '''initializer : assignment_expression'''
         p[0] = p[1]
     def p_initializer_2(self, p):
-        '''initializer : OPENBRACE initializer_list CLOSEBRACK'''
+        '''initializer : OPENBRACE initializer_list CLOSEBRACE'''
         #p[0] = p[1] + p[2] + p[3]
     def p_initializer_3(self, p):
-        '''initializer : OPENBRACE initializer_list ',' CLOSEBRACK'''
+        '''initializer : OPENBRACE initializer_list ',' CLOSEBRACE'''
         #p[0] = p[1] + p[2] + p[3] + p[4]
     def p_initializer_list_1(self, p):
         '''initializer_list : initializer'''
@@ -836,18 +838,18 @@ class Parser(Scanner):
         '''labeled_statement : DEFAULT ':' statement'''
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_1(self, p):
-        '''compound_statement : OPENBRACE CLOSEBRACK'''
+        '''compound_statement : OPENBRACE CLOSEBRACE'''
         self.symbol_table.EndScope()
         p[0] = makeParserDict(None,node(text=p[1]+p[2]))
         #print ("Found a scope")
         #p[0] = p[1] + p[2]
     def p_compound_statement_2(self, p):
-        '''compound_statement : OPENBRACE statement_list CLOSEBRACK'''
+        '''compound_statement : OPENBRACE statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_3(self, p):
-        '''compound_statement : OPENBRACE declaration_list CLOSEBRACK'''
+        '''compound_statement : OPENBRACE declaration_list CLOSEBRACE'''
         n = node(text=p[1]+p[3])
         for i in p[2]:
             n.SetChild(i["astNode"])
@@ -855,7 +857,7 @@ class Parser(Scanner):
         self.symbol_table.EndScope()
         #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_4(self, p):
-        '''compound_statement : OPENBRACE declaration_list statement_list CLOSEBRACK'''
+        '''compound_statement : OPENBRACE declaration_list statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3] + p[4]
@@ -917,13 +919,15 @@ class Parser(Scanner):
         #p[0] = p[1] + p[2] + p[3]
     def p_translation_unit_1(self, p):
         '''translation_unit : external_declaration'''
+        self.rootnode.append(p[1])
         p[0] = self.rootnode
-        self.rootnode.SetChild(p[1]["astNode"])
+        #self.rootnode.SetChild(p[1]["astNode"])
         #p[0] = p[1]
     def p_translation_unit_2(self, p):
         '''translation_unit : translation_unit external_declaration'''
+        self.rootnode.append(p[2])
         p[0] = self.rootnode
-        self.rootnode.SetChild(p[2]["astNode"])
+        #self.rootnode.SetChild(p[2]["astNode"])
 
     def p_external_declaration_1(self, p):
         '''external_declaration : function_definition'''
@@ -941,9 +945,9 @@ class Parser(Scanner):
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
         astNode = node(text="Function")
-        astNode.SetChild(p[1]["astNode"])
-        astNode.SetChild(p[2]["astNode"])
-        astNode.SetChild(p[3]["astNode"])
+        #astNode.SetChild(p[1]["astNode"])
+        #stNode.SetChild(p[2]["astNode"])
+        #astNode.SetChild(p[3]["astNode"])
         p[1]["astNode"] = astNode
         p[0] = p[1]
         self.typelist.pop()
@@ -958,7 +962,7 @@ class Parser(Scanner):
 
     def p_error(self,p):
         print("Syntax error in input at " + str(self.lexer.lexpos-self.lines[self.lexer.lineno-1]) + " on line: " + str(self.lexer.lineno))
-        self.highlightstring(self.lexer.lexdata.split('\n')[self.lexer.lineno-1],self.lexer.lexpos-self.lines[self.lexer.lineno-1])
+        self.highlightstring(self.lexer.lineno,self.lexer.lexpos)
         sys.exit()
 
 

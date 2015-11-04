@@ -1,1 +1,3 @@
-long long long a;
+int a;
+char b;
+long long ab;

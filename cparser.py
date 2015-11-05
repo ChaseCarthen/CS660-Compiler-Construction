@@ -721,7 +721,7 @@ class Parser(Scanner):
             paramlist = []
             for param in p[1].GetParameters():
                 paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
-            p[0] = makeParserDict(p[1], FuncDecl(ParamList(paramlist),Type(p[1].GetType(),[],[] ) ) )
+            p[0] = makeParserDict(p[1], FuncDecl(ParamList(paramlist),Type(p[1].GetType(),[],[] ), p[1].GetName()) )
         
 
     def p_init_declarator_2(self, p):

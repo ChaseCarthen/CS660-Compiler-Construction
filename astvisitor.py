@@ -79,6 +79,35 @@ class GraphVizVisitor(NodeVisitor):
         typelabel = self.StringifyLabel(string,ticket2)
         return self.AddBrackets(label) + "->" + self.AddBrackets(typelabel) + ";\n", label
 
+    # IterStatement: [init*, cond*, next*, stmt*,isdowhile,name] {}
+    def visit_IterStatement(self,node):
+        IterStmt = self.StringifyLabel("Iteration Statement", self.ticket.GetNextTicket())
+        string = ""
+        if node.init != None:
+            initstring,initlabel = self.visit(node.init)
+            string = self.AddBrackets(IterStmt) + "->" + self.AddBrackets(initlabel) + ";\n"
+            string += initstring
+        if node.cond != None:
+            condstring, condlabel = self.visit(node.cond)
+            string += self.AddBrackets(IterStmt) + "->" + self.AddBrackets(condlabel) + ";\n"
+            string += condstring
+        if node.next != None:
+            nextstring, nextlabel = self.visit(node.next)
+            string += self.AddBrackets(IterStmt) + "->" + self.AddBrackets(nextlabel) + ";\n"
+            string += nextstring
+        if node.stmt != None:
+            print "===================="
+            print node.stmt
+            stmtstring, stmtlabel = self.visit(node.stmt)
+            string += self.AddBrackets(IterStmt) + "->" + self.AddBrackets(stmtlabel) + ";\n"
+            string += stmtstring
+        string += self.AddBrackets(self.StringifyLabel("Iter Type",self.ticket.GetNextTicket())) + "->" + self.AddBrackets(self.StringifyLabel(node.name,self.ticket.GetNextTicket())) + "\n;"
+
+        
+
+        
+
+        return string + typestring + paramstring + compoundlabel + compoundstring, FuncDefLabel
     def visit_Decl(self,node):
         initticket = self.ticket.GetNextTicket()
         declticket = self.ticket.GetNextTicket()
@@ -86,7 +115,7 @@ class GraphVizVisitor(NodeVisitor):
         typestring,typelabel = self.visit(node.type)
 
         decllabel = self.StringifyLabel("Declaration",declticket,True) 
-        string = decllabel + "->" + self.AddBrackets(node.name, init, typelabel) + ';\n'
+        string = decllabel + "->" + self.AddBrackets(self.StringifyLabel(node.name,self.ticket.GetNextTicket()), init, typelabel) + ';\n'
 
         if node.init:
             initstring,initlabel = self.visit(node.init)
@@ -115,6 +144,7 @@ class GraphVizVisitor(NodeVisitor):
             string += value
         return string, labels.strip()
     def visit_EmptyStatement(self,node):
+        print "!!!!!!!!!!!!!!!!"
         emptyticket = self.ticket.GetNextTicket()
         emptylabel = self.StringifyLabel("Empty Statment",emptyticket)
         return "",emptylabel
@@ -124,8 +154,16 @@ class GraphVizVisitor(NodeVisitor):
         return ""
 
     def visit_FuncDecl(self,node):
-        #print "FuncDecl!!!!!!!!!!!!!!!"
-        return ""
+        typestring,typelabel = self.visit(node.type)
+        paramstring, paramlabel = self.visit(node.ParamList)
+
+        FuncDeclLabel = self.StringifyLabel("Function Declaration", self.ticket.GetNextTicket())
+        string = self.AddBrackets(FuncDeclLabel) + "->"
+
+        string += self.AddBrackets(self.StringifyLabel(node.name, self.ticket.GetNextTicket()), typelabel, paramlabel) + ";\n"
+
+        return string + typestring + paramstring, FuncDeclLabel
+        return "",""
     def visit_If(self,node):
         return "",""
     def visit_FuncDef(self,node):
@@ -200,8 +238,6 @@ class GraphVizVisitor(NodeVisitor):
         string += TypeString
         return string, constantlabel
 
-    def visit_IterStatement(self,node):
-        return "",""
     def visit_Program(self,node):
         string = ""
         programticket = self.ticket.GetNextTicket()

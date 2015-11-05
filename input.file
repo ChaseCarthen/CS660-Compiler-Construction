@@ -1,8 +1,13 @@
 int a;
 const int b = 1;
+int foo(int a),foo2(int a);
 void main()
 {
 	a = 1.1 + a >> 2 && 1;
+	for (a = 0; a < 10; a++)
+	{
+	
+	}
 }
 
 

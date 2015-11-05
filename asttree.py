@@ -174,14 +174,15 @@ class DeclList(Node):
 
 
 class IterStatement(Node):
-	__slots__ = ('init', 'cond', 'next', 'stmt', 'isdowhile', 'coord', '__weakref__')
+	__slots__ = ('init', 'cond', 'next', 'stmt', 'isdowhile', 'name', 'coord', '__weakref__')
 
-	def __init__(self, init, cond, next, stmt, isdowhile, coord=None):
+	def __init__(self, init, cond, next, stmt, isdowhile, name, coord=None):
 		self.init = init
 		self.cond = cond
 		self.next = next
 		self.stmt = stmt
 		self.isdowhile = isdowhile
+		self.name = name
 		self.coord = coord
 
 	def children(self):
@@ -196,7 +197,7 @@ class IterStatement(Node):
 			nodelist.append(("stmt", self.stmt))
 		return tuple(nodelist)
 
-	attr_names = ('isdowhile', )
+	attr_names = ('isdowhile', 'name', )
 
 
 class Break(Node):
@@ -449,6 +450,138 @@ class If(Node):
 			nodelist.append(("truecond", self.truecond))
 		if self.falsecond is not None:
 			nodelist.append(("falsecond", self.falsecond))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class NEqualOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class GEqualOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class LEqualOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class EqualOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class GreatOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class LessOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
 	attr_names = ()

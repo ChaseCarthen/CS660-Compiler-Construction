@@ -309,7 +309,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(1 if p[1].value < p[3].value else 0))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = LessOp(one,two,Typed)  
 
     def p_relational_expression_3(self, p):
@@ -331,7 +331,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(1 if p[1].value > p[3].value else 0))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = GreatOp(one,two,Typed) 
     def p_relational_expression_4(self, p):
         '''relational_expression : relational_expression LE_OP shift_expression'''
@@ -352,7 +352,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(1 if p[1].value <= p[3].value else 0))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = LEqualOp(one,two,Typed) 
     def p_relational_expression_5(self, p):
         '''relational_expression : relational_expression GE_OP shift_expression'''
@@ -397,7 +397,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(1 if p[1].value == p[3].value else 0))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = EqualOp(one,two,Typed) 
     def p_equality_expression_3(self, p):
         '''equality_expression : equality_expression NE_OP relational_expression'''
@@ -1185,13 +1185,14 @@ class Parser(Scanner):
         '''expression_statement : expression SEMI'''
         p[0] = p[1] 
 
+    # This will do the last if first
     def p_selection_statement_1(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement'''
-        pass
-
+        p[0] = If(p[3], p[4],None) # May need to check types here 
+    # Will iterate up through the ifs
     def p_selection_statement_2(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement ELSE statement'''
-        pass
+        p[0] = If(p[3],p[5],p[7]) # May need to check types
 
     def p_selection_statement_3(self, p):
         '''selection_statement : SWITCH OPENPARAN expression CLOSEPARAN statement'''
@@ -1199,19 +1200,19 @@ class Parser(Scanner):
 
     def p_iteration_statement_1(self, p):
         '''iteration_statement : WHILE OPENPARAN expression CLOSEPARAN statement'''
-        pass
+        p[0] = IterStatement(None,p[3],None,p[5],False,"While")# IterStatement: [init*, cond*, next*, stmt*,isdowhile,name]
 
     def p_iteration_statement_2(self, p):
         '''iteration_statement : DO statement WHILE OPENPARAN expression CLOSEPARAN SEMI'''
-        pass
+        p[0] = IterStatement(None,p[5],None,p[1],True,"Do While")
 
     def p_iteration_statement_3(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement CLOSEPARAN statement'''
-        pass
+        p[0] = IterStatement(p[3],p[4],None,p[6],False,"For")
 
     def p_iteration_statement_4(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement expression CLOSEPARAN statement'''
-        pass
+        p[0] = IterStatement(p[3],p[4],p[5],p[7],False,"For")
 
     def p_jump_statement_1(self, p):
         '''jump_statement : GOTO IDENTIFIER SEMI'''

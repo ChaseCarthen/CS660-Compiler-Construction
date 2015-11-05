@@ -121,7 +121,8 @@ class GraphVizVisitor(NodeVisitor):
     def visit_FuncDecl(self,node):
         #print "FuncDecl!!!!!!!!!!!!!!!"
         return ""
-
+    def visit_If(self,node):
+        return "",""
     def visit_FuncDef(self,node):
         typestring,typelabel = self.visit(node.type)
         paramstring, paramlabel = self.visit(node.ParamList)
@@ -130,6 +131,9 @@ class GraphVizVisitor(NodeVisitor):
         compoundstring = ""
         compoundlabel = self.AddBrackets(comlabel) + "->{"
         for i in node.expression:
+            if(i == None):
+                continue
+            print i
             cs, cl = self.visit(i)
             compoundstring += cs
             compoundlabel += cl + " "
@@ -184,6 +188,8 @@ class GraphVizVisitor(NodeVisitor):
         string = "Constant->"+ node.value + ",Type;\n"
         string += self.visit(node.type)[1]
         return string
+    def visit_IterStatement(self,node):
+        return "",""
 
 
 class ThreeAddressCode(NodeVisitor):

@@ -43,7 +43,7 @@ class Parser(Scanner):
 
     def p_postfix_expression_2(self, p):
         '''postfix_expression : postfix_expression '[' expression ']' '''
-        p[0] = p[1] #+ p[2] + p[3] + p[4]
+        p[0] = p[1] #array checking gos here
 
     def p_postfix_expression_3(self, p):
         '''postfix_expression : postfix_expression OPENPARAN CLOSEPARAN'''
@@ -171,7 +171,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(p[1].value / p[3].value))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = DivOp(one,two,Typed)
 
     def p_multiplicative_expression_4(self, p):
@@ -216,7 +216,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(p[1].value + p[3].value))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = AddOp(one,two,Typed)
 
     def p_additive_expression_3(self, p):
@@ -238,7 +238,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(p[1].value - p[3].value))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = SubOp(one,two,Typed)
 
     def p_shift_expression_1(self, p):
@@ -263,7 +263,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(p[1].value << p[3].value))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = LeftOp(one,two,Typed) 
         #p[0] = p[1] + p[2] + p[3]
     def p_shift_expression_3(self, p):
@@ -285,7 +285,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(p[1].value >> p[3].value))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = RightOp(one,two,Typed) 
     def p_relational_expression_1(self, p):
         '''relational_expression : shift_expression'''
@@ -373,7 +373,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(1 if p[1].value >= p[3].value else 0))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = GEqualOp(one,two,Typed) 
     def p_equality_expression_1(self, p):
         '''equality_expression : relational_expression'''
@@ -418,7 +418,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(1 if p[1].value != p[3].value else 0))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = NEqualOp(one,two,Typed) 
     def p_and_expression_1(self, p):
         '''and_expression : equality_expression'''
@@ -442,7 +442,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(p[1].value & p[3].value))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = AndOp(one,two,Typed) 
     def p_exclusive_or_expression_1(self, p):
         '''exclusive_or_expression : and_expression'''
@@ -466,7 +466,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(p[1].value ^ p[3].value))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = XorOp(one,two,Typed) 
     def p_inclusive_or_expression_1(self, p):
         '''inclusive_or_expression : exclusive_or_expression'''
@@ -490,7 +490,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(p[1].value | p[3].value))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = OrOp(one,two,Typed) 
     def p_logical_and_expression_1(self, p):
         '''logical_and_expression : inclusive_or_expression'''
@@ -514,7 +514,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(1 if p[1].value != 0 and p[3].value != 0 else 0))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = LandOp(one,two,Typed) 
     def p_logical_or_expression_1(self, p):
         '''logical_or_expression : logical_and_expression'''
@@ -538,7 +538,7 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0]= Constant(rType,str(1 if p[1].value != 0 or p[3].value != 0 else 0))
         else:
-            one,two,Typed = self.StrongestType(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = LorOp(one,two,Typed) 
     def p_conditional_expression_1(self, p):
         '''conditional_expression : logical_or_expression'''
@@ -1142,7 +1142,7 @@ class Parser(Scanner):
     def p_compound_statement_1(self, p):
         '''compound_statement : OPENBRACE CLOSEBRACE'''
         self.symbol_table.EndScope()
-        p[0] = makeParserDict(None,node(text=p[1]+p[2]))
+        p[0] = [EmptyStatement()] #makeParserDict(None,EmptyStatement())
         #print ("Found a scope")
         #p[0] = p[1] + p[2]
 
@@ -1153,7 +1153,7 @@ class Parser(Scanner):
 
     def p_compound_statement_3(self, p):
         '''compound_statement : OPENBRACE declaration_list CLOSEBRACE'''
-        p[0] = makeParserDict(None,p[2])
+        p[0] = p[2]#makeParserDict(None,p[2])
         self.symbol_table.EndScope()
 
     def p_compound_statement_4(self, p):
@@ -1268,7 +1268,6 @@ class Parser(Scanner):
         paramlist = []
         for param in p[2].GetParameters():
             paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
-
         p[0] = FuncDef(ParamList(paramlist), p[1], p[2].GetName(), p[3])
         self.typelist.pop()
 

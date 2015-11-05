@@ -88,6 +88,22 @@ class FuncCall(Node):
 	attr_names = ()
 
 
+class Program(Node):
+	__slots__ = ('NodeList', 'coord', '__weakref__')
+
+	def __init__(self, NodeList, coord=None):
+		self.NodeList = NodeList
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		for i, child in enumerate(self.NodeList or []):
+			nodelist.append(("NodeList[%d]" % i, child))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
 class Return(Node):
 	__slots__ = ('expr', 'coord', '__weakref__')
 
@@ -411,6 +427,50 @@ class XorOp(Node):
 	attr_names = ()
 
 
+class LandOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class LorOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
 class TernaryOp(Node):
 	__slots__ = ('cond', 'truecond', 'falsecond', 'coord', '__weakref__')
 
@@ -588,11 +648,12 @@ class LessOp(Node):
 
 
 class RefOp(Node):
-	__slots__ = ('left', 'right', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
 
-	def __init__(self, left, right, coord=None):
+	def __init__(self, left, right, type, coord=None):
 		self.left = left
 		self.right = right
+		self.type = type
 		self.coord = coord
 
 	def children(self):
@@ -601,17 +662,20 @@ class RefOp(Node):
 			nodelist.append(("left", self.left))
 		if self.right is not None:
 			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
 	attr_names = ()
 
 
 class MultOp(Node):
-	__slots__ = ('left', 'right', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
 
-	def __init__(self, left, right, coord=None):
+	def __init__(self, left, right, type, coord=None):
 		self.left = left
 		self.right = right
+		self.type = type
 		self.coord = coord
 
 	def children(self):
@@ -620,17 +684,20 @@ class MultOp(Node):
 			nodelist.append(("left", self.left))
 		if self.right is not None:
 			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
 	attr_names = ()
 
 
 class AddOp(Node):
-	__slots__ = ('left', 'right', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
 
-	def __init__(self, left, right, coord=None):
+	def __init__(self, left, right, type, coord=None):
 		self.left = left
 		self.right = right
+		self.type = type
 		self.coord = coord
 
 	def children(self):
@@ -639,17 +706,20 @@ class AddOp(Node):
 			nodelist.append(("left", self.left))
 		if self.right is not None:
 			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
 	attr_names = ()
 
 
 class SubOp(Node):
-	__slots__ = ('left', 'right', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
 
-	def __init__(self, left, right, coord=None):
+	def __init__(self, left, right, type, coord=None):
 		self.left = left
 		self.right = right
+		self.type = type
 		self.coord = coord
 
 	def children(self):
@@ -658,17 +728,20 @@ class SubOp(Node):
 			nodelist.append(("left", self.left))
 		if self.right is not None:
 			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
 	attr_names = ()
 
 
 class DivOp(Node):
-	__slots__ = ('left', 'right', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
 
-	def __init__(self, left, right, coord=None):
+	def __init__(self, left, right, type, coord=None):
 		self.left = left
 		self.right = right
+		self.type = type
 		self.coord = coord
 
 	def children(self):
@@ -677,17 +750,20 @@ class DivOp(Node):
 			nodelist.append(("left", self.left))
 		if self.right is not None:
 			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
 	attr_names = ()
 
 
 class ModOp(Node):
-	__slots__ = ('left', 'right', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
 
-	def __init__(self, left, right, coord=None):
+	def __init__(self, left, right, type, coord=None):
 		self.left = left
 		self.right = right
+		self.type = type
 		self.coord = coord
 
 	def children(self):
@@ -696,17 +772,20 @@ class ModOp(Node):
 			nodelist.append(("left", self.left))
 		if self.right is not None:
 			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
 	attr_names = ()
 
 
 class BitNotOp(Node):
-	__slots__ = ('left', 'right', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
 
-	def __init__(self, left, right, coord=None):
+	def __init__(self, left, right, type, coord=None):
 		self.left = left
 		self.right = right
+		self.type = type
 		self.coord = coord
 
 	def children(self):
@@ -715,17 +794,20 @@ class BitNotOp(Node):
 			nodelist.append(("left", self.left))
 		if self.right is not None:
 			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
 	attr_names = ()
 
 
 class LogNotOp(Node):
-	__slots__ = ('left', 'right', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
 
-	def __init__(self, left, right, coord=None):
+	def __init__(self, left, right, type, coord=None):
 		self.left = left
 		self.right = right
+		self.type = type
 		self.coord = coord
 
 	def children(self):
@@ -734,6 +816,8 @@ class LogNotOp(Node):
 			nodelist.append(("left", self.left))
 		if self.right is not None:
 			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
 	attr_names = ()

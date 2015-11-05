@@ -125,7 +125,7 @@ class Scanner():
     if string != string2:
       print "Warning casting to another type!"
       if "float" in string:
-        return expr,Cast(Type(["float"],[],[]),expr2),Type(["float"],[],[])
+        return expr1,Cast(Type(["float"],[],[]),expr2),Type(["float"],[],[])
       elif "float" in string2:
         return Cast(Type(["float"],[],[]),expr1),expr2,Type(["float"],[],[])
     return expr1,expr2,expr1.type
@@ -153,8 +153,10 @@ class Scanner():
     # call node visitor
     graphVisitor = GraphVizVisitor()
 
-    for i in out:
-      string += graphVisitor.visit(i)[0]
+    out = Program(out)
+    string += graphVisitor.visit(out)
+    #for i in out:
+    #  string += graphVisitor.visit(i)[0]
     string += "}"
     print string
     graph.write(string)

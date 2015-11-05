@@ -89,7 +89,9 @@ class GraphVizVisitor(NodeVisitor):
         string = decllabel + "->" + self.AddBrackets(node.name, init, typelabel) + ';\n'
 
         if node.init:
-            string += self.AddBrackets(init) + "->"+self.visit(node.init)
+            initstring,initlabel = self.visit(node.init)
+            string += self.AddBrackets(init) + "->" + self.AddBrackets(initlabel) + ";\n"
+            string += initstring
         else:
             string += self.AddBrackets(init) + "->" 
             string += self.AddBrackets(self.StringifyLabel("None",self.ticket.GetNextTicket())) + ";\n"
@@ -112,7 +114,10 @@ class GraphVizVisitor(NodeVisitor):
             labels += label + " "
             string += value
         return string, labels.strip()
-
+    def visit_EmptyStatement(self,node):
+        emptyticket = self.ticket.GetNextTicket()
+        emptylabel = self.StringifyLabel("Empty Statment",emptyticket)
+        return "",emptylabel
     def visit_Func(self,node):
         #print "Func"
         self.visit(node.function)
@@ -139,11 +144,12 @@ class GraphVizVisitor(NodeVisitor):
             compoundlabel += cl + " "
 
         compoundlabel = compoundlabel.strip() + "};\n"
-        string = self.AddBrackets(self.StringifyLabel("Function Definition", self.ticket.GetNextTicket())) + "->"
+        FuncDefLabel = self.StringifyLabel("Function Definition", self.ticket.GetNextTicket())
+        string = self.AddBrackets(FuncDefLabel) + "->"
 
         string += self.AddBrackets(self.StringifyLabel(node.name, self.ticket.GetNextTicket()), typelabel, paramlabel, comlabel) + ";\n"
 
-        return string + typestring + paramstring + compoundlabel + compoundstring, None
+        return string + typestring + paramstring + compoundlabel + compoundstring, FuncDefLabel
 
     def visit_FuncCall(self,node):
         return "" 
@@ -185,11 +191,95 @@ class GraphVizVisitor(NodeVisitor):
         return string, string
 
     def visit_Constant(self,node):
-        string = "Constant->"+ node.value + ",Type;\n"
-        string += self.visit(node.type)[1]
-        return string
+        constantticket = self.ticket.GetNextTicket()
+        constantlabel = self.StringifyLabel("Constant",constantticket) 
+        string = self.AddBrackets(constantlabel) + "->"+ self.AddBrackets(self.StringifyLabel(node.value,self.ticket.GetNextTicket())) + ";\n"
+        TypeString,TypeLabel = self.visit(node.type)
+        #string += TypeString
+        string += self.AddBrackets(constantlabel) + "->"+self.AddBrackets(TypeLabel)
+        string += TypeString
+        return string, constantlabel
+
     def visit_IterStatement(self,node):
         return "",""
+    def visit_Program(self,node):
+        string = ""
+        programticket = self.ticket.GetNextTicket()
+        programlabel = self.StringifyLabel("Program",programticket)
+        for nodes in node.NodeList:
+
+            nodeString,nodeLabel = self.visit(nodes)
+            print "+++++++++++++++++++++++"
+            print nodeLabel
+            print nodeString
+            string +=  self.AddBrackets(programlabel) + "->" + self.AddBrackets(nodeLabel)
+            string += nodeString
+        return string
+# &,|,<<,>>,^ 
+    def visit_Cast(self,node):
+        nodename = node.__class__.__name__
+        castticket = self.ticket.GetNextTicket()
+        castlabel = self.StringifyLabel(nodename,castticket)
+        expr,exprlabel = self.visit(node.expr)
+        Type,TypeLabel = self.visit(node.to_type)
+        string = self.AddBrackets(castlabel) + "->" +  self.AddBrackets(exprlabel,TypeLabel) + "\n;"
+        string += expr + Type
+        return string,castlabel
+    def generateOpOutput(self,node):
+        nodename = node.__class__.__name__
+        opticket = self.ticket.GetNextTicket()
+        oplabel = self.StringifyLabel(nodename,opticket)
+        left,leftlabel = self.visit(node.left)
+        right,rightlabel = self.visit(node.right)
+        Type,TypeLabel = self.visit(node.type)
+        string = self.AddBrackets(oplabel) + "->" +  self.AddBrackets(leftlabel,rightlabel,TypeLabel) + "\n;"
+        string += left + right + Type
+        return string,oplabel
+    def visit_AndOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_OrOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_LeftOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_RightOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_XorOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_LandOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_LorOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_TernaryOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_NEqualOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_GEqualOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_LEqualOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_EqualOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_GreatOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_LessOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_RefOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_MultOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_AddOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_SubOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_DivOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_ModOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_BitNotOp(self,node):
+        return self.generateOpOutput(node)
+    def visit_LogNotOp(self,node):
+        return self.generateOpOutput(node)
+
 
 
 class ThreeAddressCode(NodeVisitor):

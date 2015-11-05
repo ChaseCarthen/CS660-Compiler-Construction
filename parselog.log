@@ -1,189 +1,95 @@
-cscanner.py: 110:==============================Starting    LINE NUMBER: 1======================
+cscanner.py: 109:==============================Starting    LINE NUMBER: 1======================
    yacc.py: 360:PLY: PARSE DEBUG START
-cscanner.py: 106:Line Number: 1 Token: CONST Value: const
-cscanner.py: 106:Line Number: 1 Token: INT Value: int
+cscanner.py: 105:Line Number: 1 Token: CONST Value: const
+cscanner.py: 105:Line Number: 1 Token: INT Value: int
    yacc.py: 469:Action : Reduce rule [type_qualifier -> CONST] with ['const'] and goto state 32
-   yacc.py: 503:Result : <list @ 0x10fdec248> (['const'])
-cscanner.py: 106:Line Number: 1 Token: IDENTIFIER Value: b
+   yacc.py: 503:Result : <list @ 0x101137cb0> (['const'])
+cscanner.py: 105:Line Number: 1 Token: IDENTIFIER Value: b
    yacc.py: 469:Action : Reduce rule [type_specifier -> INT] with ['int'] and goto state 13
-   yacc.py: 503:Result : <str @ 0x10fd9b6e8> ('int')
+   yacc.py: 503:Result : <str @ 0x1010e47b0> ('int')
    yacc.py: 469:Action : Reduce rule [declaration_specifiers -> type_specifier] with ['int'] and goto state 55
-   yacc.py: 503:Result : <Type @ 0x110078100> (<asttree.Type object at 0x110078100>)
-   yacc.py: 469:Action : Reduce rule [declaration_specifiers -> type_qualifier declaration_specifiers] with [['const'],<Type @ 0x110078100>] and goto state 25
-   yacc.py: 503:Result : <Type @ 0x110078100> (<asttree.Type object at 0x110078100>)
-cscanner.py: 106:Line Number: 1 Token: SEMI Value: ;
+   yacc.py: 503:Result : <Type @ 0x10114ec00> (<asttree.Type object at 0x10114ec00>)
+   yacc.py: 469:Action : Reduce rule [declaration_specifiers -> type_qualifier declaration_specifiers] with [['const'],<Type @ 0x10114ec00>] and goto state 25
+   yacc.py: 503:Result : <Type @ 0x10114ec00> (<asttree.Type object at 0x10114ec00>)
+cscanner.py: 105:Line Number: 1 Token: SEMI Value: ;
    yacc.py: 469:Action : Reduce rule [direct_declarator -> IDENTIFIER] with ['b'] and goto state 24
-   yacc.py: 503:Result : <VariableNode @ 0x10fdd0bd0> (<symboltable.VariableNode object at 0x10 ...)
-   yacc.py: 469:Action : Reduce rule [declarator -> direct_declarator] with [<VariableNode @ 0x10fdd0bd0>] and goto state 54
-   yacc.py: 503:Result : <VariableNode @ 0x10fdd0bd0> (<symboltable.VariableNode object at 0x10 ...)
-   yacc.py: 469:Action : Reduce rule [init_declarator -> declarator] with [<VariableNode @ 0x10fdd0bd0>] and goto state 53
-   yacc.py: 503:Result : <dict @ 0x10fa545c8> ({'symbolNode': <symboltable.VariableNode ...)
-   yacc.py: 469:Action : Reduce rule [init_declarator_list -> init_declarator] with [<dict @ 0x10fa545c8>] and goto state 52
-   yacc.py: 503:Result : <list @ 0x10fde2d40> ([{'symbolNode': <symboltable.VariableNod ...)
-cscanner.py: 110:tokens : CONST INT IDENTIFIER SEMI 
-cscanner.py: 110:source : const int b ; 
-cscanner.py: 110:==============================Completed LINE NUMBER: 1======================
-cscanner.py: 110:==============================Starting    LINE NUMBER: 2======================
-cscanner.py: 106:Line Number: 2 Token: INT Value: int
-   yacc.py: 469:Action : Reduce rule [declaration -> declaration_specifiers init_declarator_list SEMI] with [<Type @ 0x110078100>,<list @ 0x10fde2d40>,';'] and goto state 26
-   yacc.py: 503:Result : <DeclList @ 0x10fde09e0> (<asttree.DeclList object at 0x10fde09e0>)
-   yacc.py: 469:Action : Reduce rule [external_declaration -> declaration] with [<DeclList @ 0x10fde09e0>] and goto state 12
-   yacc.py: 503:Result : <DeclList @ 0x10fde09e0> (<asttree.DeclList object at 0x10fde09e0>)
-   yacc.py: 469:Action : Reduce rule [translation_unit -> external_declaration] with [<DeclList @ 0x10fde09e0>] and goto state 20
-   yacc.py: 503:Result : <list @ 0x10fdeac20> ([<asttree.DeclList object at 0x10fde09e0 ...)
-cscanner.py: 106:Line Number: 2 Token: IDENTIFIER Value: a
+   yacc.py: 503:Result : <VariableNode @ 0x1011236d0> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [declarator -> direct_declarator] with [<VariableNode @ 0x1011236d0>] and goto state 54
+   yacc.py: 503:Result : <VariableNode @ 0x1011236d0> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator -> declarator] with [<VariableNode @ 0x1011236d0>] and goto state 53
+   yacc.py: 503:Result : <dict @ 0x100cf65c8> ({'symbolNode': <symboltable.VariableNode ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator_list -> init_declarator] with [<dict @ 0x100cf65c8>] and goto state 52
+   yacc.py: 503:Result : <list @ 0x10112e7e8> ([{'symbolNode': <symboltable.VariableNod ...)
+cscanner.py: 109:tokens : CONST INT IDENTIFIER SEMI 
+cscanner.py: 109:source : const int b ; 
+cscanner.py: 109:==============================Completed LINE NUMBER: 1======================
+cscanner.py: 109:==============================Starting    LINE NUMBER: 2======================
+cscanner.py: 105:Line Number: 2 Token: INT Value: int
+   yacc.py: 469:Action : Reduce rule [declaration -> declaration_specifiers init_declarator_list SEMI] with [<Type @ 0x10114ec00>,<list @ 0x10112e7e8>,';'] and goto state 26
+   yacc.py: 503:Result : <DeclList @ 0x10112c8c0> (<asttree.DeclList object at 0x10112c8c0>)
+   yacc.py: 469:Action : Reduce rule [external_declaration -> declaration] with [<DeclList @ 0x10112c8c0>] and goto state 12
+   yacc.py: 503:Result : <DeclList @ 0x10112c8c0> (<asttree.DeclList object at 0x10112c8c0>)
+   yacc.py: 469:Action : Reduce rule [translation_unit -> external_declaration] with [<DeclList @ 0x10112c8c0>] and goto state 20
+   yacc.py: 503:Result : <list @ 0x1011376c8> ([<asttree.DeclList object at 0x10112c8c0 ...)
+cscanner.py: 105:Line Number: 2 Token: IDENTIFIER Value: a
    yacc.py: 469:Action : Reduce rule [type_specifier -> INT] with ['int'] and goto state 13
-   yacc.py: 503:Result : <str @ 0x10fd9b710> ('int')
+   yacc.py: 503:Result : <str @ 0x1010e47d8> ('int')
    yacc.py: 469:Action : Reduce rule [declaration_specifiers -> type_specifier] with ['int'] and goto state 25
-   yacc.py: 503:Result : <Type @ 0x110078260> (<asttree.Type object at 0x110078260>)
-cscanner.py: 106:Line Number: 2 Token: = Value: =
+   yacc.py: 503:Result : <Type @ 0x10114ed08> (<asttree.Type object at 0x10114ed08>)
+cscanner.py: 105:Line Number: 2 Token: = Value: =
    yacc.py: 469:Action : Reduce rule [direct_declarator -> IDENTIFIER] with ['a'] and goto state 24
-   yacc.py: 503:Result : <VariableNode @ 0x10fdb1750> (<symboltable.VariableNode object at 0x10 ...)
-   yacc.py: 469:Action : Reduce rule [declarator -> direct_declarator] with [<VariableNode @ 0x10fdb1750>] and goto state 54
-   yacc.py: 503:Result : <VariableNode @ 0x10fdb1750> (<symboltable.VariableNode object at 0x10 ...)
-cscanner.py: 106:Line Number: 2 Token: IDENTIFIER Value: b
-cscanner.py: 106:Line Number: 2 Token: SEMI Value: ;
+   yacc.py: 503:Result : <VariableNode @ 0x101100250> (<symboltable.VariableNode object at 0x10 ...)
+   yacc.py: 469:Action : Reduce rule [declarator -> direct_declarator] with [<VariableNode @ 0x101100250>] and goto state 54
+   yacc.py: 503:Result : <VariableNode @ 0x101100250> (<symboltable.VariableNode object at 0x10 ...)
+cscanner.py: 105:Line Number: 2 Token: IDENTIFIER Value: b
+cscanner.py: 105:Line Number: 2 Token: SEMI Value: ;
    yacc.py: 469:Action : Reduce rule [primary_expression -> IDENTIFIER] with ['b'] and goto state 99
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [postfix_expression -> primary_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 106
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [unary_expression -> postfix_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 123
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [cast_expression -> unary_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 96
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [multiplicative_expression -> cast_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 107
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [additive_expression -> multiplicative_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 98
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [shift_expression -> additive_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 102
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [relational_expression -> shift_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 94
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [equality_expression -> relational_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 103
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [and_expression -> equality_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 87
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [exclusive_or_expression -> and_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 85
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [inclusive_or_expression -> exclusive_or_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 90
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [logical_and_expression -> inclusive_or_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 100
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [logical_or_expression -> logical_and_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 97
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [conditional_expression -> logical_or_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 144
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [assignment_expression -> conditional_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 209
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [initializer -> assignment_expression] with [<VariableCall @ 0x10fdd8dc0>] and goto state 208
-   yacc.py: 503:Result : <VariableCall @ 0x10fdd8dc0> (<asttree.VariableCall object at 0x10fdd8 ...)
-   yacc.py: 469:Action : Reduce rule [init_declarator -> declarator = initializer] with [<VariableNode @ 0x10fdb1750>,'=',<VariableCall @ 0x10fdd8dc0>] and goto state 53
-   yacc.py: 503:Result : <dict @ 0x110084168> ({'symbolNode': <symboltable.VariableNode ...)
-   yacc.py: 469:Action : Reduce rule [init_declarator_list -> init_declarator] with [<dict @ 0x110084168>] and goto state 52
-   yacc.py: 503:Result : <list @ 0x10fde7440> ([{'symbolNode': <symboltable.VariableNod ...)
-cscanner.py: 110:tokens : INT IDENTIFIER = IDENTIFIER SEMI 
-cscanner.py: 110:source : int a = b ; 
-cscanner.py: 110:==============================Completed LINE NUMBER: 2======================
-cscanner.py: 110:==============================Starting    LINE NUMBER: 3======================
-cscanner.py: 106:Line Number: 3 Token: VOID Value: void
-   yacc.py: 469:Action : Reduce rule [declaration -> declaration_specifiers init_declarator_list SEMI] with [<Type @ 0x110078260>,<list @ 0x10fde7440>,';'] and goto state 26
-   yacc.py: 503:Result : <DeclList @ 0x10fde0998> (<asttree.DeclList object at 0x10fde0998>)
-   yacc.py: 469:Action : Reduce rule [external_declaration -> declaration] with [<DeclList @ 0x10fde0998>] and goto state 46
-   yacc.py: 503:Result : <DeclList @ 0x10fde0998> (<asttree.DeclList object at 0x10fde0998>)
-   yacc.py: 469:Action : Reduce rule [translation_unit -> translation_unit external_declaration] with [<list @ 0x10fdeac20>,<DeclList @ 0x10fde0998>] and goto state 20
-   yacc.py: 503:Result : <list @ 0x10fdeac20> ([<asttree.DeclList object at 0x10fde09e0 ...)
-cscanner.py: 106:Line Number: 3 Token: IDENTIFIER Value: main
-   yacc.py: 469:Action : Reduce rule [type_specifier -> VOID] with ['void'] and goto state 13
-   yacc.py: 503:Result : <str @ 0x10fdf9d80> ('void')
-   yacc.py: 469:Action : Reduce rule [declaration_specifiers -> type_specifier] with ['void'] and goto state 25
-   yacc.py: 503:Result : <Type @ 0x1100783c0> (<asttree.Type object at 0x1100783c0>)
-cscanner.py: 106:Line Number: 3 Token: OPENPARAN Value: (
-   yacc.py: 469:Action : Reduce rule [direct_declarator -> IDENTIFIER] with ['main'] and goto state 24
-   yacc.py: 503:Result : <VariableNode @ 0x110072f90> (<symboltable.VariableNode object at 0x11 ...)
-cscanner.py: 106:Line Number: 3 Token: CLOSEPARAN Value: )
-cscanner.py: 110:tokens : VOID IDENTIFIER OPENPARAN CLOSEPARAN 
-cscanner.py: 110:source : void main ( ) 
-cscanner.py: 110:==============================Completed LINE NUMBER: 3======================
-cscanner.py: 110:==============================Starting    LINE NUMBER: 4======================
-cscanner.py: 106:Line Number: 4 Token: OPENBRACE Value: {
-   yacc.py: 469:Action : Reduce rule [direct_declarator -> direct_declarator OPENPARAN CLOSEPARAN] with [<VariableNode @ 0x110072f90>,'(',')'] and goto state 24
-   yacc.py: 503:Result : <FunctionNode @ 0x110072fd0> (<symboltable.FunctionNode object at 0x11 ...)
-   yacc.py: 469:Action : Reduce rule [declarator -> direct_declarator] with [<FunctionNode @ 0x110072fd0>] and goto state 54
-   yacc.py: 503:Result : <FunctionNode @ 0x110072fd0> (<symboltable.FunctionNode object at 0x11 ...)
-cscanner.py: 110:tokens : OPENBRACE 
-cscanner.py: 110:source : { 
-cscanner.py: 110:==============================Completed LINE NUMBER: 4======================
-cscanner.py: 110:==============================Starting    LINE NUMBER: 5======================
-cscanner.py: 106:Line Number: 5 Token: IDENTIFIER Value: a
-cscanner.py: 106:Line Number: 5 Token: = Value: =
-   yacc.py: 469:Action : Reduce rule [primary_expression -> IDENTIFIER] with ['a'] and goto state 99
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfb40> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [postfix_expression -> primary_expression] with [<VariableCall @ 0x10fddfb40>] and goto state 106
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfb40> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [unary_expression -> postfix_expression] with [<VariableCall @ 0x10fddfb40>] and goto state 123
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfb40> (<asttree.VariableCall object at 0x10fddf ...)
-cscanner.py: 106:Line Number: 5 Token: IDENTIFIER Value: b
-   yacc.py: 469:Action : Reduce rule [assignment_operator -> =] with ['='] and goto state 227
-   yacc.py: 503:Result : <str @ 0x10fa6aee0> ('=')
-cscanner.py: 106:Line Number: 5 Token: SEMI Value: ;
-   yacc.py: 469:Action : Reduce rule [primary_expression -> IDENTIFIER] with ['b'] and goto state 99
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [postfix_expression -> primary_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 106
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [unary_expression -> postfix_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 123
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [cast_expression -> unary_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 96
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [multiplicative_expression -> cast_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 107
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [additive_expression -> multiplicative_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 98
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [shift_expression -> additive_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 102
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [relational_expression -> shift_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 94
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [equality_expression -> relational_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 103
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [and_expression -> equality_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 87
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [exclusive_or_expression -> and_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 85
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [inclusive_or_expression -> exclusive_or_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 90
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [logical_and_expression -> inclusive_or_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 100
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [logical_or_expression -> logical_and_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 97
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [conditional_expression -> logical_or_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 144
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [assignment_expression -> conditional_expression] with [<VariableCall @ 0x10fddfaf0>] and goto state 297
-   yacc.py: 503:Result : <VariableCall @ 0x10fddfaf0> (<asttree.VariableCall object at 0x10fddf ...)
-   yacc.py: 469:Action : Reduce rule [assignment_expression -> unary_expression assignment_operator assignment_expression] with [<VariableCall @ 0x10fddfb40>,'=',<VariableCall @ 0x10fddfaf0>] and goto state 142
-   yacc.py: 503:Result : <NoneType @ 0x10f8b67f8> (None)
-   yacc.py: 469:Action : Reduce rule [expression -> assignment_expression] with [None] and goto state 129
-   yacc.py: 503:Result : <NoneType @ 0x10f8b67f8> (None)
-cscanner.py: 110:tokens : IDENTIFIER = IDENTIFIER SEMI 
-cscanner.py: 110:source : a = b ; 
-cscanner.py: 110:==============================Completed LINE NUMBER: 5======================
-cscanner.py: 110:==============================Starting    LINE NUMBER: 6======================
-cscanner.py: 106:Line Number: 6 Token: CLOSEBRACE Value: }
-   yacc.py: 469:Action : Reduce rule [expression_statement -> expression SEMI] with [None,';'] and goto state 117
-   yacc.py: 503:Result : <NoneType @ 0x10f8b67f8> (None)
-   yacc.py: 469:Action : Reduce rule [statement -> expression_statement] with [None] and goto state 134
-   yacc.py: 503:Result : <NoneType @ 0x10f8b67f8> (None)
-   yacc.py: 469:Action : Reduce rule [statement_list -> statement] with [None] and goto state 128
-   yacc.py: 503:Result : <NoneType @ 0x10f8b67f8> (None)
-cscanner.py: 110:tokens : CLOSEBRACE 
-cscanner.py: 110:source : } 
-cscanner.py: 110:==============================Completed LINE NUMBER: 6======================
-cscanner.py: 110:==============================Starting    LINE NUMBER: 7======================
-   yacc.py: 469:Action : Reduce rule [compound_statement -> OPENBRACE statement_list CLOSEBRACE] with ['{',None,'}'] and goto state 114
-   yacc.py: 503:Result : <NoneType @ 0x10f8b67f8> (None)
-   yacc.py: 469:Action : Reduce rule [function_definition -> declaration_specifiers declarator compound_statement] with [<Type @ 0x1100783c0>,<FunctionNode @ 0x110072fd0>,None] and goto state 28
-   yacc.py: 503:Result : <Type @ 0x1100783c0> (<asttree.Type object at 0x1100783c0>)
-   yacc.py: 469:Action : Reduce rule [external_declaration -> function_definition] with [<Type @ 0x1100783c0>] and goto state 46
-   yacc.py: 503:Result : <Type @ 0x1100783c0> (<asttree.Type object at 0x1100783c0>)
-   yacc.py: 469:Action : Reduce rule [translation_unit -> translation_unit external_declaration] with [<list @ 0x10fdeac20>,<Type @ 0x1100783c0>] and goto state 20
-   yacc.py: 503:Result : <list @ 0x10fdeac20> ([<asttree.DeclList object at 0x10fde09e0 ...)
-   yacc.py: 564:Done   : Returning <list @ 0x10fdeac20> ([<asttree.DeclList object at 0x10fde09e0 ...)
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [postfix_expression -> primary_expression] with [<VariableCall @ 0x101129780>] and goto state 106
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [unary_expression -> postfix_expression] with [<VariableCall @ 0x101129780>] and goto state 123
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [cast_expression -> unary_expression] with [<VariableCall @ 0x101129780>] and goto state 96
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [multiplicative_expression -> cast_expression] with [<VariableCall @ 0x101129780>] and goto state 107
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [additive_expression -> multiplicative_expression] with [<VariableCall @ 0x101129780>] and goto state 98
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [shift_expression -> additive_expression] with [<VariableCall @ 0x101129780>] and goto state 102
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [relational_expression -> shift_expression] with [<VariableCall @ 0x101129780>] and goto state 94
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [equality_expression -> relational_expression] with [<VariableCall @ 0x101129780>] and goto state 103
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [and_expression -> equality_expression] with [<VariableCall @ 0x101129780>] and goto state 87
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [exclusive_or_expression -> and_expression] with [<VariableCall @ 0x101129780>] and goto state 85
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [inclusive_or_expression -> exclusive_or_expression] with [<VariableCall @ 0x101129780>] and goto state 90
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [logical_and_expression -> inclusive_or_expression] with [<VariableCall @ 0x101129780>] and goto state 100
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [logical_or_expression -> logical_and_expression] with [<VariableCall @ 0x101129780>] and goto state 97
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [conditional_expression -> logical_or_expression] with [<VariableCall @ 0x101129780>] and goto state 144
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [assignment_expression -> conditional_expression] with [<VariableCall @ 0x101129780>] and goto state 209
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [initializer -> assignment_expression] with [<VariableCall @ 0x101129780>] and goto state 208
+   yacc.py: 503:Result : <VariableCall @ 0x101129780> (<asttree.VariableCall object at 0x101129 ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator -> declarator = initializer] with [<VariableNode @ 0x101100250>,'=',<VariableCall @ 0x101129780>] and goto state 53
+   yacc.py: 503:Result : <dict @ 0x1013d0280> ({'symbolNode': <symboltable.VariableNode ...)
+   yacc.py: 469:Action : Reduce rule [init_declarator_list -> init_declarator] with [<dict @ 0x1013d0280>] and goto state 52
+   yacc.py: 503:Result : <list @ 0x101133ea8> ([{'symbolNode': <symboltable.VariableNod ...)
+cscanner.py: 109:tokens : INT IDENTIFIER = IDENTIFIER SEMI 
+cscanner.py: 109:source : int a = b ; 
+cscanner.py: 109:==============================Completed LINE NUMBER: 3======================
+cscanner.py: 109:==============================Starting    LINE NUMBER: 4======================
+   yacc.py: 469:Action : Reduce rule [declaration -> declaration_specifiers init_declarator_list SEMI] with [<Type @ 0x10114ed08>,<list @ 0x101133ea8>,';'] and goto state 26
+   yacc.py: 503:Result : <DeclList @ 0x10112cb48> (<asttree.DeclList object at 0x10112cb48>)
+   yacc.py: 469:Action : Reduce rule [external_declaration -> declaration] with [<DeclList @ 0x10112cb48>] and goto state 46
+   yacc.py: 503:Result : <DeclList @ 0x10112cb48> (<asttree.DeclList object at 0x10112cb48>)
+   yacc.py: 469:Action : Reduce rule [translation_unit -> translation_unit external_declaration] with [<list @ 0x1011376c8>,<DeclList @ 0x10112cb48>] and goto state 20
+   yacc.py: 503:Result : <list @ 0x1011376c8> ([<asttree.DeclList object at 0x10112c8c0 ...)
+   yacc.py: 564:Done   : Returning <list @ 0x1011376c8> ([<asttree.DeclList object at 0x10112c8c0 ...)
    yacc.py: 565:PLY: PARSE DEBUG END

@@ -3,7 +3,12 @@ from cscanner import reserved
 import sys
 from symboltable import *
 from CompilerExceptions import *
+from termcolor import colored
+from node import *
+from asttree import *
 
+def makeParserDict(symboltablenode,astnode):
+    return {"symbolNode" : symboltablenode,"astNode" : astnode}
 start = 'translation_unit'
 class Parser(Scanner):
     start = 'translation_unit'
@@ -11,9 +16,11 @@ class Parser(Scanner):
         '''primary_expression : IDENTIFIER'''
         try:
             p[0] = self.symbol_table.Retrieve(p[1])
+            p[0] = VariableCall( Type(p[0].GetType(), p[0].GetQualifiers(), None), p[0].GetName())
         except SymbolTableError, e:
             print("We need to fail(this output on line 14): " + str(e))
             p[0] = 0
+            sys.exit()
 
     def p_primary_expression_2(self, p):
         '''primary_expression : CONSTANT'''
@@ -45,11 +52,11 @@ class Parser(Scanner):
 
     def p_postfix_expression_5(self, p):
         '''postfix_expression : postfix_expression '.' IDENTIFIER'''
-        p[0] = p[1] + p[2] + p[3] # Do a look on identfier
+        #p[0] = p[1] + p[2] + p[3] # Do a look on identfier
 
     def p_postfix_expression_6(self, p):
         '''postfix_expression : postfix_expression PTR_OP IDENTIFIER'''
-        p[0] = p[1] + p[2] + p[3] # Do a look up
+        #p[0] = p[1] + p[2] + p[3] # Do a look up
 
     def p_postfix_expression_7(self, p):
         '''postfix_expression : postfix_expression INC_OP'''
@@ -57,7 +64,7 @@ class Parser(Scanner):
 
     def p_postfix_expression_8(self, p):
         '''postfix_expression : postfix_expression DEC_OP'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
 
     def p_argument_expression_list_1(self, p):
         '''argument_expression_list : assignment_expression'''
@@ -73,21 +80,21 @@ class Parser(Scanner):
 
     def p_unary_expression_2(self, p):
         '''unary_expression : INC_OP unary_expression'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
 
     def p_unary_expression_3(self, p):
         '''unary_expression : DEC_OP unary_expression'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
 
     def p_unary_expression_4(self, p):
         '''unary_expression : unary_operator cast_expression'''
         #p[0] = p[1] + p[2]
     def p_unary_expression_5(self, p):
         '''unary_expression : SIZEOF unary_expression'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_unary_expression_6(self, p):
         '''unary_expression : SIZEOF OPENPARAN type_name CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
 
     def p_unary_operator_1(self, p):
         '''unary_operator : '&' '''
@@ -113,7 +120,7 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_cast_expression_2(self, p):
         '''cast_expression : OPENPARAN type_name CLOSEPARAN cast_expression'''
-        p[0] = p[1] + p[2] + p[3] + p[4]
+        #p[0] = p[1] + p[2] + p[3] + p[4]
 
     def p_multiplicative_expression_1(self, p):
         '''multiplicative_expression : cast_expression'''
@@ -157,7 +164,7 @@ class Parser(Scanner):
 
     def p_multiplicative_expression_4(self, p):
         '''multiplicative_expression : multiplicative_expression '%' cast_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
 
     def p_additive_expression_1(self, p):
         '''additive_expression : multiplicative_expression'''
@@ -204,10 +211,10 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_shift_expression_2(self, p):
         '''shift_expression : shift_expression LEFT_OP additive_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_shift_expression_3(self, p):
         '''shift_expression : shift_expression RIGHT_OP additive_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_relational_expression_1(self, p):
         '''relational_expression : shift_expression'''
         p[0] = p[1]
@@ -217,13 +224,13 @@ class Parser(Scanner):
 
     def p_relational_expression_3(self, p):
         '''relational_expression : relational_expression '>' shift_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_relational_expression_4(self, p):
         '''relational_expression : relational_expression LE_OP shift_expression'''
         #p[0] = p[1] + p[2] + p[3]
     def p_relational_expression_5(self, p):
         '''relational_expression : relational_expression GE_OP shift_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_equality_expression_1(self, p):
         '''equality_expression : relational_expression'''
         p[0] = p[1]
@@ -238,25 +245,25 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_and_expression_2(self, p):
         '''and_expression : and_expression '&' equality_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_exclusive_or_expression_1(self, p):
         '''exclusive_or_expression : and_expression'''
         p[0] = p[1]
     def p_exclusive_or_expression_2(self, p):
         '''exclusive_or_expression : exclusive_or_expression '^' and_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_inclusive_or_expression_1(self, p):
         '''inclusive_or_expression : exclusive_or_expression'''
         p[0] = p[1]
     def p_inclusive_or_expression_2(self, p):
         '''inclusive_or_expression : inclusive_or_expression '|' exclusive_or_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_logical_and_expression_1(self, p):
         '''logical_and_expression : inclusive_or_expression'''
         p[0] = p[1]
     def p_logical_and_expression_2(self, p):
         '''logical_and_expression : logical_and_expression AND_OP inclusive_or_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_logical_or_expression_1(self, p):
         '''logical_or_expression : logical_and_expression'''
         p[0] = p[1]
@@ -269,7 +276,7 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_conditional_expression_2(self, p):
         '''conditional_expression : logical_or_expression '?' expression ':' conditional_expression'''
-        p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
     def p_assignment_expression_1(self, p):
         '''assignment_expression : conditional_expression'''
         p[0] = p[1]
@@ -278,8 +285,8 @@ class Parser(Scanner):
         '''assignment_expression : unary_expression assignment_operator assignment_expression'''
         if p[1] == None or p[1] == 0: # A PATCH
             pass
-        elif p[1].IsConstant():
-            print("This is not allowed since the variable is constant.")
+        #elif p[1].IsConstant():
+        #    print("This is not allowed since the variable is constant.")
 
         #p[0] = p[1] + p[2] + p[3]
 
@@ -328,6 +335,7 @@ class Parser(Scanner):
         '''constant_expression : conditional_expression'''
         p[0] = p[1]
 
+    # Pushing a dictionary here.
     def p_declaration_1(self, p):
         '''declaration : declaration_specifiers SEMI'''
         p[0] = p[1]
@@ -338,45 +346,59 @@ class Parser(Scanner):
         '''declaration : declaration_specifiers init_declarator_list SEMI'''
         p[0] = p[2]
         self.typelist.pop()
+        astList = []
         # lookup and insert
+        for declarator in p[2]:
+            if declarator != None:
+                declarator["symbolNode"].SetType(p[1].type) 
+                declarator["symbolNode"].SetQualifiers(p[1].qualifier) # Dictionary ouch right here .. a potential bug to fix
+                declarator["astNode"].type = p[1]
+                astList.append(declarator["astNode"])
 
-        for i in p[2]:
-            if i != None:
-                i.SetType(p[1]["specifiers"])
-                i.SetQualifiers(p[1]["qualifiers"])
-        #   self.symbol_table.SetValue(i[1])
-        #    #self.symbol_table.Insert(name=i[0],var=p[1],value=i[1],line=0,line_loc=0) 
-        #print(p[2])
+
+        p[0] = DeclList(astList)
+
 
     def p_declaration_specifiers_1(self, p):
         '''declaration_specifiers : storage_class_specifier'''
-        locallist = [p[1]]
-        self.typelist.append(locallist)
-        p[0] = {"qualifiers" : [], "specifiers" : locallist}
+        p[0] = Type([],[],[p[1]]) 
+        self.typelist.append(p[0])
+
     def p_declaration_specifiers_2(self, p):
         '''declaration_specifiers : storage_class_specifier declaration_specifiers'''
         #p[0] = p[1] + p[2]
-        self.typelist[-1] = [p[1]] + p[2]["specifiers"]
+        self.typelist[-1].storage.append(p[2])
         p[0] = p[2]
 
     def p_declaration_specifiers_3(self, p):
         '''declaration_specifiers : type_specifier'''
-        locallist = [p[1]]
-        self.typelist.append(locallist)
-        p[0] = {"qualifiers" : [], "specifiers" : locallist}
+        p[0] = Type([p[1]],[],[]) #{"qualifiers" : [], "specifiers" : [p[1]],"storage" : []}
+        self.typelist.append(p[0])
 
     def p_declaration_specifiers_4(self, p):
         '''declaration_specifiers : type_specifier declaration_specifiers'''
         #p[0] = [p[1]] + p[2]
-        p[0] = {"qualifiers" : p[2]["qualifiers"], "specifiers" : [p[1]] + p[2]["specifiers"]}
-        self.typelist[-1] = [p[1]] + p[2]["specifiers"]
+        # specifiers is a list
+        p[2].type = [p[1]] + p[2].type
+        checkstring = ""
+        for i in p[2].type:
+            checkstring += i + " "
+        checkstring = checkstring.strip()
+        if not checkstring in self.supportedtypes:
+            print "ERROR INVALID TYPE SPECIFIER: " + str(p.lineno(1)) + " starting at Character: "+ str(p.lexpos(1)) 
+            sys.exit()
+        p[0] = p[2]
     def p_declaration_specifiers_5(self, p):
         '''declaration_specifiers : type_qualifier'''
         #p[0] = p[1]
+        p[0] = Type([],[p[1]],[]) #{"specifiers" : [], "qualifiers" : [p[1]],"storage" : []}
 
     def p_declaration_specifiers_6(self, p):
         '''declaration_specifiers : type_qualifier declaration_specifiers'''
-        p[0] = {"qualifiers" : p[1] + p[2]["qualifiers"], "specifiers" : p[2]["specifiers"]}
+
+        for qual in p[1]:
+            p[2].qualifier.append(qual)
+        p[0] = p[2] #{"qualifiers" : p[1] + p[2]["qualifiers"], "specifiers" : p[2]["specifiers"]}
 
     def p_init_declarator_list_1(self, p):
         '''init_declarator_list : init_declarator'''
@@ -389,19 +411,17 @@ class Parser(Scanner):
         
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
-        #print "TYPE: " + str(self.typelist[-1])
-        if not self.typelist[-1][0] == "typedef":
+        if not "typedef" in self.typelist[-1].storage:
             try:
                 self.symbol_table.InsertNode(p[1])
             except SymbolTableWarning, e:
                 print(e)
             except SymbolTableError, e:
                 print(e)
-            p[0] = p[1]
+            #p[0] = p[1],astnode
         else:
-            self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1][1:])
-            p[0] = None
-
+            self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1][1:].type)
+        p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,None) )
         
 
     def p_init_declarator_2(self, p):
@@ -413,7 +433,7 @@ class Parser(Scanner):
         except SymbolTableError, e:
             print(e)
 
-        p[0] = p[1]
+        p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,p[3]))
 
     def p_storage_class_specifier_1(self, p):
         '''storage_class_specifier : TYPEDEF'''
@@ -465,11 +485,11 @@ class Parser(Scanner):
         '''type_specifier : enum_specifier'''
         p[0] = p[1]
     def p_struct_or_union_specifier_1(self, p):
-        '''struct_or_union_specifier : struct_or_union IDENTIFIER OPENBRACK struct_declaration_list CLOSEBRACK'''
+        '''struct_or_union_specifier : struct_or_union IDENTIFIER OPENBRACE struct_declaration_list CLOSEBRACE'''
         p[0] = p[1] + p[2] + p[3] + p[4] + p[5] # insert this guy
 
     def p_struct_or_union_specifier_2(self, p):
-        '''struct_or_union_specifier : struct_or_union OPENBRACK struct_declaration_list CLOSEBRACK'''
+        '''struct_or_union_specifier : struct_or_union OPENBRACE struct_declaration_list CLOSEBRACE'''
         p[0] = p[1] + p[2] + p[3] + p[4] # insert this guy???
 
     def p_struct_or_union_specifier_3(self, p):
@@ -525,10 +545,10 @@ class Parser(Scanner):
         '''struct_declarator : declarator ':' constant_expression'''
         p[0] = p[1] + p[2] + p[3]
     def p_enum_specifier_1(self, p):
-        '''enum_specifier : ENUM OPENBRACK enumerator_list CLOSEBRACK'''
+        '''enum_specifier : ENUM OPENBRACE enumerator_list CLOSEBRACE'''
         p[0] = p[1] + p[2] + p[3] + p[4]
     def p_enum_specifier_2(self, p):
-        '''enum_specifier : ENUM IDENTIFIER OPENBRACK enumerator_list CLOSEBRACK'''
+        '''enum_specifier : ENUM IDENTIFIER OPENBRACE enumerator_list CLOSEBRACE'''
         p[0] = p[1] + p[2] + p[3] + p[4] + p[5] # lookup
     def p_enum_specifier_3(self, p):
         '''enum_specifier : ENUM IDENTIFIER'''
@@ -556,9 +576,13 @@ class Parser(Scanner):
 
     def p_declarator_1(self, p):
         '''declarator : pointer direct_declarator'''
-        p[1].SetName(p[2].GetName())
-        p[1].SetLine(p[2].GetLine())
-        p[1].SetCharacterLocation(p[2].GetCharacterLocation())
+        p[1]["symbolNode"].SetName(p[2]["symbolNode"].GetName())
+        p[1]["symbolNode"].SetLine(p[2]["symbolNode"].GetLine())
+        p[1]["symbolNode"].SetCharacterLocation(p[2]["symbolNode"].GetCharacterLocation())
+        n = node(text="Declarator")
+        n.SetChild(p[1]["astNode"])
+        n.SetChild(p[2]["astNode"])
+        p[1]["astNode"] = n
         p[0] = p[1]
 
     def p_declarator_2(self, p):
@@ -591,13 +615,14 @@ class Parser(Scanner):
 
     def p_direct_declarator_5(self, p):
         '''direct_declarator : direct_declarator OPENPARAN parameter_type_list CLOSEPARAN'''
+
         # This is where we create a ast with function parameters?
-        p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
+        p[1]["symbolNode"] = FunctionNode(parameters = [param["symbolNode"] for param in p[3]], type_var = self.typelist[-1]["specifiers"], name = p[1]["symbolNode"].GetName(), line = p[1]["symbolNode"].GetLine(), line_loc = p[1]["symbolNode"].GetCharacterLocation())
         try:
             if len(self.symbol_table.stack) > 1:
-                self.symbol_table.InsertNodePreviousStack(p[0])
+                self.symbol_table.InsertNodePreviousStack(p[1]["symbolNode"])
             else:
-                self.symbol_table.InsertNode(p[0])
+                self.symbol_table.InsertNode(p[1]["symbolNode"])
         except SymbolTableWarning, e:
             print(e)
         except SymbolTableError, e:
@@ -607,18 +632,18 @@ class Parser(Scanner):
             if len(self.symbol_table.stack) > 1:
                 self.loginfo("INSERTING INTO STACK")
                 try:
-                    self.symbol_table.InsertNode(i)
+                    self.symbol_table.InsertNode(i["symbolNode"])
                     #pass
                 except SymbolTableWarning, e:
                     print(e)
                 except SymbolTableError, e:
                     print(e)
 
-        #p[0] = p[1]
+        p[0] = p[1]
 
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
-        p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
+        p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1]["specifiers"], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
             if len(self.symbol_table.stack) > 1:
@@ -634,6 +659,7 @@ class Parser(Scanner):
 
     def p_direct_declarator_7(self, p):
         '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN'''
+
         p[0] = FunctionNode(type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
@@ -646,19 +672,20 @@ class Parser(Scanner):
         except SymbolTableError, e:
             print(e)
 
-        p[0] = p[1]
-
     def p_pointer_1(self, p):
         '''pointer : '*' '''
-        p[0] = PointerNode(None)
+        p[0] = makeParserDict(PointerNode(None),node(text="*"))
 
     def p_pointer_2(self, p):
         '''pointer : '*' type_qualifier_list'''
-        p[0] = PointerNode(p[2])
+        n = node(text="*")
+        p[2]["astNode"].SetParent(n)
+        p[0] = makeParserDict(PointerNode(p[2]),n)
 
     def p_pointer_3(self, p):
         '''pointer : '*' pointer'''
-        p[2].AddIndirection()
+        p[2]["symbolNode"].AddIndirection()
+        p[2]["astNode"].text = "*" + p[2]["astNode"].text
         p[0] = p[2]
 
     def p_pointer_4(self, p):
@@ -679,7 +706,7 @@ class Parser(Scanner):
 
     def p_parameter_type_list_2(self, p):
         '''parameter_type_list : parameter_list ',' ELLIPSIS'''
-        p[0] = p[1] + p[2] + p[3] # black magic warning...
+        #p[0] = p[1] + p[2] + p[3] # black magic warning...
 
     def p_parameter_list_1(self, p):
         '''parameter_list : parameter_declaration'''
@@ -696,10 +723,6 @@ class Parser(Scanner):
 
     def p_parameter_declaration_1(self, p):
         '''parameter_declaration : declaration_specifiers declarator'''
-        #self.symbol_table.Insert(var = p[1],name=p[2],value=0,line=0,line_loc=0 )
-        #print(p[1])
-        #self.symbol_table.Retrieve(p[2])
-        #self.symbol_table.SetType(p[1])
         self.typelist.pop()
         p[2].SetType(p[1]["specifiers"])
         p[2].SetQualifiers(p[1]["qualifiers"])
@@ -732,58 +755,58 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_type_name_2(self, p):
         '''type_name : specifier_qualifier_list abstract_declarator'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_abstract_declarator_1(self, p):
         '''abstract_declarator : pointer'''
         p[0] = p[1]
     def p_abstract_declarator_2(self, p):
         '''abstract_declarator : direct_abstract_declarator'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_abstract_declarator_3(self, p):
         '''abstract_declarator : pointer direct_abstract_declarator'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_direct_abstract_declarator_1(self, p):
         '''direct_abstract_declarator : OPENPARAN abstract_declarator CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_direct_abstract_declarator_2(self, p):
         '''direct_abstract_declarator : '[' ']' '''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_direct_abstract_declarator_3(self, p):
         '''direct_abstract_declarator : '[' constant_expression ']' '''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_direct_abstract_declarator_4(self, p):
         '''direct_abstract_declarator : direct_abstract_declarator '[' ']' '''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_direct_abstract_declarator_5(self, p):
         '''direct_abstract_declarator : direct_abstract_declarator '[' constant_expression ']' '''
-        p[0] = p[1] + p[2] + p[3] + p[4]
+        #p[0] = p[1] + p[2] + p[3] + p[4]
     def p_direct_abstract_declarator_6(self, p):
         '''direct_abstract_declarator : OPENPARAN CLOSEPARAN'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_direct_abstract_declarator_7(self, p):
         '''direct_abstract_declarator : OPENPARAN parameter_type_list CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_direct_abstract_declarator_8(self, p):
         '''direct_abstract_declarator : direct_abstract_declarator OPENPARAN CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_direct_abstract_declarator_9(self, p):
         '''direct_abstract_declarator : direct_abstract_declarator OPENPARAN parameter_type_list CLOSEPARAN'''
-        p[0] = p[1] + p[2] + p[3] + p[4]
+        #p[0] = p[1] + p[2] + p[3] + p[4]
     def p_initializer_1(self, p):
         '''initializer : assignment_expression'''
         p[0] = p[1]
     def p_initializer_2(self, p):
-        '''initializer : OPENBRACK initializer_list CLOSEBRACK'''
-        p[0] = p[1] + p[2] + p[3]
+        '''initializer : OPENBRACE initializer_list CLOSEBRACE'''
+        #p[0] = p[1] + p[2] + p[3]
     def p_initializer_3(self, p):
-        '''initializer : OPENBRACK initializer_list ',' CLOSEBRACK'''
-        p[0] = p[1] + p[2] + p[3] + p[4]
+        '''initializer : OPENBRACE initializer_list ',' CLOSEBRACE'''
+        #p[0] = p[1] + p[2] + p[3] + p[4]
     def p_initializer_list_1(self, p):
         '''initializer_list : initializer'''
         p[0] = p[1]
     def p_initializer_list_2(self, p):
         '''initializer_list : initializer_list ',' initializer'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_statement_1(self, p):
         '''statement : labeled_statement'''
         p[0] = p[1]
@@ -804,38 +827,46 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_labeled_statement_1(self, p):
         '''labeled_statement : IDENTIFIER ':' statement'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_labeled_statement_2(self, p):
         '''labeled_statement : CASE constant_expression ':' statement'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_labeled_statement_3(self, p):
         '''labeled_statement : DEFAULT ':' statement'''
-        p[0] = p[1] + p[2] + p[3]
+        #p[0] = p[1] + p[2] + p[3]
     def p_compound_statement_1(self, p):
-        '''compound_statement : OPENBRACK CLOSEBRACK'''
+        '''compound_statement : OPENBRACE CLOSEBRACE'''
         self.symbol_table.EndScope()
+        p[0] = makeParserDict(None,node(text=p[1]+p[2]))
         #print ("Found a scope")
         #p[0] = p[1] + p[2]
     def p_compound_statement_2(self, p):
-        '''compound_statement : OPENBRACK statement_list CLOSEBRACK'''
+        '''compound_statement : OPENBRACE statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3]
+
     def p_compound_statement_3(self, p):
-        '''compound_statement : OPENBRACK declaration_list CLOSEBRACK'''
+        '''compound_statement : OPENBRACE declaration_list CLOSEBRACE'''
+        #n = node(text=p[1]+p[3])
+        for i in p[2]:
+            #n.SetChild(i["astNode"])
+            print(i)
+        p[0] = makeParserDict(None,p[2])
         self.symbol_table.EndScope()
         #p[0] = p[1] + p[2] + p[3]
+
     def p_compound_statement_4(self, p):
-        '''compound_statement : OPENBRACK declaration_list statement_list CLOSEBRACK'''
+        '''compound_statement : OPENBRACE declaration_list statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3] + p[4]
     def p_declaration_list_1(self, p):
         '''declaration_list : declaration'''
-        p[0] = p[1]
+        p[0] = [p[1]]
     def p_declaration_list_2(self, p):
         '''declaration_list : declaration_list declaration'''
-        p[0] = p[1] + p[2]
+        p[0] = p[1] + [p[2]]
     def p_statement_list_1(self, p):
         '''statement_list : statement'''
         p[0] = p[1]
@@ -873,42 +904,52 @@ class Parser(Scanner):
         #p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
     def p_jump_statement_1(self, p):
         '''jump_statement : GOTO IDENTIFIER SEMI'''
-        p[0] = p[1] + p[2] + p[3] # look up
+        #p[0] = p[1] + p[2] + p[3] # look up
     def p_jump_statement_2(self, p):
         '''jump_statement : CONTINUE SEMI'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_jump_statement_3(self, p):
         '''jump_statement : BREAK SEMI'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_jump_statement_4(self, p):
         '''jump_statement : RETURN SEMI'''
-        p[0] = p[1] + p[2]
+        #p[0] = p[1] + p[2]
     def p_jump_statement_5(self, p):
         '''jump_statement : RETURN expression SEMI'''
         #p[0] = p[1] + p[2] + p[3]
     def p_translation_unit_1(self, p):
         '''translation_unit : external_declaration'''
-
+        self.rootnode.append(p[1])
+        p[0] = self.rootnode
+        #self.rootnode.SetChild(p[1]["astNode"])
         #p[0] = p[1]
     def p_translation_unit_2(self, p):
         '''translation_unit : translation_unit external_declaration'''
+        self.rootnode.append(p[2])
+        p[0] = self.rootnode
+        #self.rootnode.SetChild(p[2]["astNode"])
 
-        #p[0] = p[1] + p[2]
     def p_external_declaration_1(self, p):
         '''external_declaration : function_definition'''
         p[0] = p[1]
+
     def p_external_declaration_2(self, p):
         '''external_declaration : declaration'''
         p[0] = p[1]
+
     def p_function_definition_1(self, p):
         '''function_definition : declaration_specifiers declarator declaration_list compound_statement'''
         # int test(a,b) int a,b; {}
         self.typelist.pop()
         p[0] = p[2]
+
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
-        p[0] = p[2]
+
+        #p[1]["astNode"] = astNode
+        p[0] = p[1]
         self.typelist.pop()
+
     def p_function_definition_3(self, p):
         '''function_definition : declarator declaration_list compound_statement'''
         # Function implementation with no type but with params test(a,b)int a,b;{}
@@ -920,7 +961,7 @@ class Parser(Scanner):
 
     def p_error(self,p):
         print("Syntax error in input at " + str(self.lexer.lexpos-self.lines[self.lexer.lineno-1]) + " on line: " + str(self.lexer.lineno))
-        self.highlightstring(self.lexer.lexdata.split('\n')[self.lexer.lineno-1],self.lexer.lexpos-self.lines[self.lexer.lineno-1])
+        self.highlightstring(self.lexer.lineno,self.lexer.lexpos)
         sys.exit()
 
 

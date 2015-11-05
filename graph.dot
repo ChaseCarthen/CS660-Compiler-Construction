@@ -1,0 +1,8 @@
+digraph parse_tree {
+Declaration->b,Init,Type;
+Init->None;
+Type->"int";
+Declaration->a,Init,Type;
+Init->Type->"int";
+Type->"void";
+}

@@ -309,6 +309,9 @@ class VariableNode(SymbolTreeNode):
   def SetQualifiers(self, tq):
     self.typequalifiers += tq
 
+  def GetQualifiers(self):
+    return self.typequalifiers
+
   def IsConstant(self):
     if 'const' in self.typequalifiers:
       return True
@@ -326,6 +329,9 @@ class ArrayNode(SymbolTreeNode):
 
   def SetQualifiers(self, tq):
     self.typequalifiers += tq
+
+  def GetQualifiers(self):
+    return self.typequalifiers
 
   def __str__(self):
     string = super(ArrayNode, self).__str__()

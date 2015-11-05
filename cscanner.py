@@ -3,7 +3,9 @@ from ply import yacc
 import logging
 from symboltable import SymbolTable
 import os
-
+from node import *
+from termcolor import colored
+from astvisitor import *
 # tokens 'IDENTIFIER', 'CONSTANT', 'STRING_LITERAL', 'SIZEOF', 'PTR_OP', 
 #'INC_OP', 'DEC_OP', 'LEFT_OP', 'RIGHT_OP', 'LE_OP', 'GE_OP', 'EQ_OP', 'NE_OP', 
 #'AND_OP', 'OR_OP', 'MUL_ASSIGN', 'DIV_ASSIGN', 'MOD_ASSIGN', 'ADD_ASSIGN', 'SUB_ASSIGN', 
@@ -30,12 +32,12 @@ class Scanner():
             'XOR_ASSIGN', 'OR_ASSIGN', 'TYPEDEF', 'EXTERN', 'STATIC', 'AUTO', 'REGISTER', 
             'CHAR', 'SHORT', 'INT', 'LONG', 'SIGNED', 'UNSIGNED', 'FLOAT', 'DOUBLE', 'CONST', 'VOLATILE', 
             'VOID', 'STRUCT', 'UNION', 'ENUM', 'ELLIPSIS', 'CASE', 'DEFAULT', 'IF', 'ELSE', 'SWITCH', 
-            'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACK','CLOSEBRACK','SEMI','OPENPARAN','CLOSEPARAN', 'COMMENT','DUMPSYMBOL']
+            'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACE','CLOSEBRACE','SEMI','OPENPARAN','CLOSEPARAN', 'COMMENT','DUMPSYMBOL']
 
   precedence =  []
   literals = ['=',']','[','&','+','-','.','?','!',',',':','*','<','>','^','|','%']
   def __init__(self,data,parselog,parsefile,tokenfile):
-    
+    data = data.replace("\t","    ")
     # To enable a more verbose logger -- this is so we can see all of the production that were taken in the grammar.
     self.parselog = parselog
 
@@ -87,6 +89,15 @@ class Scanner():
     self.lines = [0]
     for i in data.split('\n'):
       self.lines.append(self.lines[-1]+len(i)+1)
+    self.rootnode = []
+    self.supportedtypes = self.GetSupportedTypes()
+  def GetSupportedTypes(self,typefile="types.txt"):
+    typeFile = open(typefile,'r')
+    string = typeFile.read().split('\n')
+    typeFile.close()
+    del(string[-1])
+    print string
+    return string
 
   def logging(self,typed,value):
       self.source += value + " " 
@@ -108,9 +119,22 @@ class Scanner():
   def run(self):
     self.loginfo("==============================Starting    LINE NUMBER: " + str(1) + "======================")
     if self.parselog:
-      self.yacc.parse(self.input_data,debug=self.log)
+      out = self.yacc.parse(self.input_data,debug=self.log,tracking=True)
     else:
-      self.yacc.parse(self.input_data)
+      out = self.yacc.parse(self.input_data,tracking=True)
+
+    graph = open("graph.dot",'w')
+    #graph.write("digraph parse_tree {" +  + "}")
+    string = "digraph parse_tree {\n"
+    # call node visitor
+    graphVisitor = GraphVizVisitor()
+    for i in out:
+      string += graphVisitor.visit(i)
+    string += "}"
+    print string
+    graph.write(string)
+    graph.close()
+    os.system("dot -Tpng graph.dot > tree.png")
 
   def scan(self,string):
     self.lexer.input(string)
@@ -283,20 +307,22 @@ class Scanner():
     self.loginfo("==============================Completed LINE NUMBER: " + str(t.lexer.lineno-1) + "======================")
     self.loginfo("==============================Starting    LINE NUMBER: " + str(t.lexer.lineno) + "======================")
 
-  def highlightstring(self,string,position): 
+  def highlightstring(self,line,position):
+    data = self.lexer.lexdata
+    string = data[self.lines[line-1]:self.lines[line]]
+    position -= self.lines[line-1]  
     if position <= len(string):
-      print string
+      print colored(string, 'red')
       a = ""
-      for i in range(position-1):
-        a += ' '
+      for i in range(position):
+       a += ' '
       a += '^'
-      print a
-
+      print colored(a, 'red')
 
   # Lex Error message
   def t_error(self,t):
     print "FOUND LEXICAL ERROR ON LINE: "  + str(t.lineno) + " " + self.lexer.lexdata[t.lexer.lexpos]
-    self.highlightstring(self.lexer.lexdata.split('\n')[self.lexer.lineno-1],t.lexer.lexpos-self.lines[self.lexer.lineno-1]+1)
+    self.highlightstring(self.lexer.lineno,self.lexer.lexpos)#self.lexer.lexdata.split('\n')[self.lexer.lineno-1],t.lexer.lexpos-self.lines[self.lexer.lineno-1]+1)
     t.lexer.skip(1)
 
   def t_requal(self,t):
@@ -389,12 +415,12 @@ class Scanner():
     t.type = "^"
     self.logging(t.type,t.value)
     return t
-  def t_OPENBRACK(self,t):
+  def t_OPENBRACE(self,t):
     r'{'
     self.symbol_table.NewScope()
     self.logging(t.type,t.value)
     return t
-  def t_CLOSEBRACK(self,t):
+  def t_CLOSEBRACE(self,t):
     r'}'
     #print('POP OFF STACK')
     self.logging(t.type,t.value)

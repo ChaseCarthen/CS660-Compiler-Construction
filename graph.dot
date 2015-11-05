@@ -9,6 +9,6 @@ digraph parse_tree {{gv100001[label="Declaration"]}->{b gv100000[label="Init"] g
 {gv100013[label="Init"]}->{gv100017[label="None"]};
 {gv100015[label="Type"]}->{gv100016[label="float"]};
 {gv100019[label="Declaration"]}->{c gv100018[label="Init"] gv100020[label="Type"]};
-{gv100018[label="Init"]}->Generic;
-{gv100020[label="Type"]}->{gv100021[label="int"]};
+{gv100018[label="Init"]}->Constant->1,Type;
+gv100022[label="Type"]{gv100020[label="Type"]}->{gv100021[label="int"]};
 }

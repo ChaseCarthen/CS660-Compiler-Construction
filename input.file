@@ -1,7 +1,7 @@
 const int b;
 int a = b;
 float d;
-int c = 1 * d;
+int c = 1 <= 1;
 void main()
 {
    @

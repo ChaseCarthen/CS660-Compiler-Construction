@@ -156,10 +156,10 @@ class Parser(Scanner):
     def p_multiplicative_expression_3(self, p):
         '''multiplicative_expression : multiplicative_expression '/' cast_expression'''
         rType = ""
-        if self.TypeComparison("char",p[1]) or self.TypeComparison("char",p[3]):
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
             print "Error can't divide these two types together!!"
             sys.exit(0)
-        if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
+        if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
                 rType = Type(['int'],[],[])
                 p[1].value = int(p[1].value)
@@ -200,10 +200,10 @@ class Parser(Scanner):
     def p_additive_expression_2(self, p):
         '''additive_expression : additive_expression '+' multiplicative_expression'''
         rType = ""
-        if self.TypeComparison("char",p[1]) or self.TypeComparison("char",p[3]):
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
             print "Error can't add these two types together!!"
             sys.exit(0)
-        if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
+        if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
                 rType = Type(['int'],[],[])
                 p[1].value = int(p[1].value)
@@ -222,10 +222,10 @@ class Parser(Scanner):
     def p_additive_expression_3(self, p):
         '''additive_expression : additive_expression '-' multiplicative_expression'''
         rType = ""
-        if self.TypeComparison("char",p[1]) or self.TypeComparison("char",p[3]):
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
             print "Error can't subtract these two types together!!"
             sys.exit(0)
-        if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
+        if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
                 rType = Type(['int'],[],[])
                 p[1].value = int(p[1].value)
@@ -246,74 +246,324 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_shift_expression_2(self, p):
         '''shift_expression : shift_expression LEFT_OP additive_expression'''
-        p[0] = LeftOp(p[1],p[3])
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(p[1].value << p[3].value))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = LeftOp(one,two,Typed) 
         #p[0] = p[1] + p[2] + p[3]
     def p_shift_expression_3(self, p):
         '''shift_expression : shift_expression RIGHT_OP additive_expression'''
-        #p[0] = p[1] + p[2] + p[3]
-        p[0] = RightOp(p[1],p[3]) 
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(p[1].value >> p[3].value))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = RightOp(one,two,Typed) 
     def p_relational_expression_1(self, p):
         '''relational_expression : shift_expression'''
         p[0] = p[1]
     def p_relational_expression_2(self, p):
         '''relational_expression : relational_expression '<' shift_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(1 if p[1].value < p[3].value else 0))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = LessOp(one,two,Typed)  
 
     def p_relational_expression_3(self, p):
         '''relational_expression : relational_expression '>' shift_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(1 if p[1].value > p[3].value else 0))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = GreatOp(one,two,Typed) 
     def p_relational_expression_4(self, p):
         '''relational_expression : relational_expression LE_OP shift_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(1 if p[1].value <= p[3].value else 0))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = LEqualOp(one,two,Typed) 
     def p_relational_expression_5(self, p):
         '''relational_expression : relational_expression GE_OP shift_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(1 if p[1].value >= p[3].value else 0))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = GEqualOp(one,two,Typed) 
     def p_equality_expression_1(self, p):
         '''equality_expression : relational_expression'''
         p[0] = p[1]
     def p_equality_expression_2(self, p):
         '''equality_expression : equality_expression EQ_OP relational_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(1 if p[1].value == p[3].value else 0))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = EqualOp(one,two,Typed) 
     def p_equality_expression_3(self, p):
         '''equality_expression : equality_expression NE_OP relational_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(1 if p[1].value != p[3].value else 0))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = NEqualOp(one,two,Typed) 
     def p_and_expression_1(self, p):
         '''and_expression : equality_expression'''
         p[0] = p[1]
     def p_and_expression_2(self, p):
         '''and_expression : and_expression '&' equality_expression'''
-        p[0] = AndOp(p[1],p[3])
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(p[1].value & p[3].value))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = AndOp(one,two,Typed) 
     def p_exclusive_or_expression_1(self, p):
         '''exclusive_or_expression : and_expression'''
         p[0] = p[1]
     def p_exclusive_or_expression_2(self, p):
         '''exclusive_or_expression : exclusive_or_expression '^' and_expression'''
-        p[0] = XorOp(p[1],p[3])
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(p[1].value ^ p[3].value))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = XorOp(one,two,Typed) 
     def p_inclusive_or_expression_1(self, p):
         '''inclusive_or_expression : exclusive_or_expression'''
         p[0] = p[1]
     def p_inclusive_or_expression_2(self, p):
         '''inclusive_or_expression : inclusive_or_expression '|' exclusive_or_expression'''
-        p[0] = OrOp(p[1],p[3])
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(p[1].value | p[3].value))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = OrOp(one,two,Typed) 
     def p_logical_and_expression_1(self, p):
         '''logical_and_expression : inclusive_or_expression'''
         p[0] = p[1]
     def p_logical_and_expression_2(self, p):
         '''logical_and_expression : logical_and_expression AND_OP inclusive_or_expression'''
-        p[0] = AndOp(p[1],p[3])
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(1 if p[1].value != 0 and p[3].value != 0 else 0))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = LandOp(one,two,Typed) 
     def p_logical_or_expression_1(self, p):
         '''logical_or_expression : logical_and_expression'''
         p[0] = p[1]
     def p_logical_or_expression_2(self, p):
         '''logical_or_expression : logical_or_expression OR_OP logical_and_expression'''
-        p[0] = OrOp(p[1],p[3])
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(1 if p[1].value != 0 or p[3].value != 0 else 0))
+        else:
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = LorOp(one,two,Typed) 
     def p_conditional_expression_1(self, p):
         '''conditional_expression : logical_or_expression'''
         #print("Conditional expression" + str(p[1]))
         p[0] = p[1]
     def p_conditional_expression_2(self, p):
         '''conditional_expression : logical_or_expression '?' expression ':' conditional_expression'''
-        p[0] = TernaryOp(p[1],p[3],p[5])
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
+            p[0] = p[3] if p[1].value != 0 else p[5]
+        else:
+            p[0] = TernaryOp(p[1],p[3],p[5]) 
     def p_assignment_expression_1(self, p):
         '''assignment_expression : conditional_expression'''
         p[0] = p[1]
@@ -384,8 +634,6 @@ class Parser(Scanner):
         p[0] = p[2]
         self.typelist.pop()
         astList = []
-        print "++++++++++++++++++++++++++++"
-        print p[1].qualifier
 
         # lookup and insert
         for declarator in p[2]:
@@ -899,74 +1147,85 @@ class Parser(Scanner):
 
     def p_compound_statement_3(self, p):
         '''compound_statement : OPENBRACE declaration_list CLOSEBRACE'''
-        #n = node(text=p[1]+p[3])
-        for i in p[2]:
-            #n.SetChild(i["astNode"])
-            print(i)
+        #for i in p[2]:
+        #    print(i)
         p[0] = makeParserDict(None,p[2])
         self.symbol_table.EndScope()
-        #p[0] = p[1] + p[2] + p[3]
 
     def p_compound_statement_4(self, p):
         '''compound_statement : OPENBRACE declaration_list statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
-        #print ("Found a scope")
-        #p[0] = p[1] + p[2] + p[3] + p[4]
+
     def p_declaration_list_1(self, p):
         '''declaration_list : declaration'''
         p[0] = [p[1]]
+
     def p_declaration_list_2(self, p):
         '''declaration_list : declaration_list declaration'''
         p[0] = p[1] + [p[2]]
+
     def p_statement_list_1(self, p):
         '''statement_list : statement'''
-        p[0] = p[1]
+        p[0] = [p[1]]
+
     def p_statement_list_2(self, p):
         '''statement_list : statement_list statement'''
-        #p[0] = p[1] + p[2]
+        p[0] = p[1] + [p[2]]
+
     def p_expression_statement_1(self, p):
         '''expression_statement : SEMI'''
         p[0] = p[1]
+
     def p_expression_statement_2(self, p):
         '''expression_statement : expression SEMI'''
-        
-        #p[0] = p[1] + p[2]
+        p[0] = p[1] 
 
     def p_selection_statement_1(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement'''
-        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+        pass
+
     def p_selection_statement_2(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement ELSE statement'''
-        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
+        pass
+
     def p_selection_statement_3(self, p):
         '''selection_statement : SWITCH OPENPARAN expression CLOSEPARAN statement'''
-        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+        pass
+
     def p_iteration_statement_1(self, p):
         '''iteration_statement : WHILE OPENPARAN expression CLOSEPARAN statement'''
-        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+        pass
+
     def p_iteration_statement_2(self, p):
         '''iteration_statement : DO statement WHILE OPENPARAN expression CLOSEPARAN SEMI'''
-        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
+        pass
+
     def p_iteration_statement_3(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement CLOSEPARAN statement'''
-        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6]
+        pass
+
     def p_iteration_statement_4(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement expression CLOSEPARAN statement'''
-        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7]
+        pass
+
     def p_jump_statement_1(self, p):
         '''jump_statement : GOTO IDENTIFIER SEMI'''
         #p[0] = p[1] + p[2] + p[3] # look up
     def p_jump_statement_2(self, p):
         '''jump_statement : CONTINUE SEMI'''
+        p[0] = Continue()
         #p[0] = p[1] + p[2]
     def p_jump_statement_3(self, p):
         '''jump_statement : BREAK SEMI'''
+        p[0] = Break()
         #p[0] = p[1] + p[2]
     def p_jump_statement_4(self, p):
         '''jump_statement : RETURN SEMI'''
+        p[0] = Return(None)
         #p[0] = p[1] + p[2]
     def p_jump_statement_5(self, p):
         '''jump_statement : RETURN expression SEMI'''
+        p[0] = Return(p[2])
         #p[0] = p[1] + p[2] + p[3]
     def p_translation_unit_1(self, p):
         '''translation_unit : external_declaration'''
@@ -975,8 +1234,7 @@ class Parser(Scanner):
         print p.lineno(1)
         span = p.lexspan(1)
         print self.input_data[span[0]:span[1]+1]
-        #self.rootnode.SetChild(p[1]["astNode"])
-        #p[0] = p[1]
+
     def p_translation_unit_2(self, p):
         '''translation_unit : translation_unit external_declaration'''
         self.rootnode.append(p[2])
@@ -984,7 +1242,7 @@ class Parser(Scanner):
         print p.lineno(2)
         span = p.lexspan(2)
         print self.input_data[span[0]:span[1]+1]
-        #self.rootnode.SetChild(p[2]["astNode"])
+
 
     def p_external_declaration_1(self, p):
         '''external_declaration : function_definition'''

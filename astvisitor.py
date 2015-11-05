@@ -103,11 +103,11 @@ class GraphVizVisitor(NodeVisitor):
             string += self.visit(i)
         return string
     def visit_Func(self,node):
-        print "Func"
+        #print "Func"
         self.visit(node.function)
         return ""
     def visit_FuncDecl(self,node):
-        print "FuncDecl!!!!!!!!!!!!!!!"
+        #print "FuncDecl!!!!!!!!!!!!!!!"
         return ""
     def visit_FuncDef(self,node):
         return ""

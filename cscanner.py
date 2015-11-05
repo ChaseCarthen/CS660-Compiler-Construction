@@ -153,7 +153,6 @@ class Scanner():
     # call node visitor
     graphVisitor = GraphVizVisitor()
     for i in out:
-      print i
       string += graphVisitor.visit(i)
     string += "}"
     print string

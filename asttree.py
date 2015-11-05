@@ -27,14 +27,17 @@ class Node(object):
 		pass
 
 class FuncDecl(Node):
-	__slots__ = ('ParamList', 'coord', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'coord', '__weakref__')
 
-	def __init__(self, ParamList, coord=None):
+	def __init__(self, ParamList, type, coord=None):
 		self.ParamList = ParamList
+		self.type = type
 		self.coord = coord
 
 	def children(self):
 		nodelist = []
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		for i, child in enumerate(self.ParamList or []):
 			nodelist.append(("ParamList[%d]" % i, child))
 		return tuple(nodelist)
@@ -43,14 +46,17 @@ class FuncDecl(Node):
 
 
 class FuncDef(Node):
-	__slots__ = ('ParamList', 'coord', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'coord', '__weakref__')
 
-	def __init__(self, ParamList, coord=None):
+	def __init__(self, ParamList, type, coord=None):
 		self.ParamList = ParamList
+		self.type = type
 		self.coord = coord
 
 	def children(self):
 		nodelist = []
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		for i, child in enumerate(self.ParamList or []):
 			nodelist.append(("ParamList[%d]" % i, child))
 		return tuple(nodelist)
@@ -59,11 +65,11 @@ class FuncDef(Node):
 
 
 class FuncCall(Node):
-	__slots__ = ('type', 'ParamList', 'coord', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'coord', '__weakref__')
 
-	def __init__(self, type, ParamList, coord=None):
-		self.type = type
+	def __init__(self, ParamList, type, coord=None):
 		self.ParamList = ParamList
+		self.type = type
 		self.coord = coord
 
 	def children(self):
@@ -127,12 +133,13 @@ class ParamList(Node):
 
 
 class Decl(Node):
-	__slots__ = ('name', 'type', 'init', 'coord', '__weakref__')
+	__slots__ = ('name', 'type', 'init', 'typeofdecl', 'coord', '__weakref__')
 
-	def __init__(self, name, type, init, coord=None):
+	def __init__(self, name, type, init, typeofdecl, coord=None):
 		self.name = name
 		self.type = type
 		self.init = init
+		self.typeofdecl = typeofdecl
 		self.coord = coord
 
 	def children(self):
@@ -141,6 +148,8 @@ class Decl(Node):
 			nodelist.append(("type", self.type))
 		if self.init is not None:
 			nodelist.append(("init", self.init))
+		if self.typeofdecl is not None:
+			nodelist.append(("typeofdecl", self.typeofdecl))
 		return tuple(nodelist)
 
 	attr_names = ('name', )
@@ -213,22 +222,17 @@ class Continue(Node):
 
 
 class ArrDecl(Node):
-	__slots__ = ('type', 'dim', 'coord', '__weakref__')
+	__slots__ = ('dim', 'coord', '__weakref__')
 
-	def __init__(self, type, dim, coord=None):
-		self.type = type
+	def __init__(self, dim, coord=None):
 		self.dim = dim
 		self.coord = coord
 
 	def children(self):
 		nodelist = []
-		if self.type is not None:
-			nodelist.append(("type", self.type))
-		if self.dim is not None:
-			nodelist.append(("dim", self.dim))
 		return tuple(nodelist)
 
-	attr_names = ()
+	attr_names = ('dim', )
 
 
 class ArrRef(Node):

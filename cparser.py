@@ -16,9 +16,11 @@ class Parser(Scanner):
         '''primary_expression : IDENTIFIER'''
         try:
             p[0] = self.symbol_table.Retrieve(p[1])
+            p[0] = VariableCall( Type(p[0].GetType(), p[0].GetQualifiers(), None), p[0].GetName())
         except SymbolTableError, e:
             print("We need to fail(this output on line 14): " + str(e))
             p[0] = 0
+            sys.exit()
 
     def p_primary_expression_2(self, p):
         '''primary_expression : CONSTANT'''
@@ -283,8 +285,8 @@ class Parser(Scanner):
         '''assignment_expression : unary_expression assignment_operator assignment_expression'''
         if p[1] == None or p[1] == 0: # A PATCH
             pass
-        elif p[1].IsConstant():
-            print("This is not allowed since the variable is constant.")
+        #elif p[1].IsConstant():
+        #    print("This is not allowed since the variable is constant.")
 
         #p[0] = p[1] + p[2] + p[3]
 
@@ -349,14 +351,11 @@ class Parser(Scanner):
         for declarator in p[2]:
             if declarator != None:
                 declarator["symbolNode"].SetType(p[1].type) 
-                declarator["symbolNode"].SetQualifiers(p[1].qualifer) # Dictionary ouch right here .. a potential bug to fix
+                declarator["symbolNode"].SetQualifiers(p[1].qualifier) # Dictionary ouch right here .. a potential bug to fix
                 declarator["astNode"].type = p[1]
                 astList.append(declarator["astNode"])
-        string = ""
-        for j in p[1].type:
-            string += " " + j
-        for j in p[1].qualifer:
-            string += " " + j
+
+
         p[0] = DeclList(astList)
 
 
@@ -396,8 +395,10 @@ class Parser(Scanner):
 
     def p_declaration_specifiers_6(self, p):
         '''declaration_specifiers : type_qualifier declaration_specifiers'''
-        p[2].qualifier.append(p[1])
-        p[0] = p[2]#{"qualifiers" : p[1] + p[2]["qualifiers"], "specifiers" : p[2]["specifiers"]}
+
+        for qual in p[1]:
+            p[2].qualifier.append(qual)
+        p[0] = p[2] #{"qualifiers" : p[1] + p[2]["qualifiers"], "specifiers" : p[2]["specifiers"]}
 
     def p_init_declarator_list_1(self, p):
         '''init_declarator_list : init_declarator'''
@@ -658,9 +659,7 @@ class Parser(Scanner):
 
     def p_direct_declarator_7(self, p):
         '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN'''
-        astnode = p[1]["astNode"]
-        astnode.text += p[2] + p[3]
-        p[1] = p[1]["symbolNode"]
+
         p[0] = FunctionNode(type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
@@ -672,8 +671,6 @@ class Parser(Scanner):
             print(e)
         except SymbolTableError, e:
             print(e)
-
-        p[0] = makeParserDict(p[0],astnode)
 
     def p_pointer_1(self, p):
         '''pointer : '*' '''
@@ -848,14 +845,17 @@ class Parser(Scanner):
         self.symbol_table.EndScope()
         #print ("Found a scope")
         #p[0] = p[1] + p[2] + p[3]
+
     def p_compound_statement_3(self, p):
         '''compound_statement : OPENBRACE declaration_list CLOSEBRACE'''
-        n = node(text=p[1]+p[3])
+        #n = node(text=p[1]+p[3])
         for i in p[2]:
-            n.SetChild(i["astNode"])
-        p[0] = makeParserDict(None,n)
+            #n.SetChild(i["astNode"])
+            print(i)
+        p[0] = makeParserDict(None,p[2])
         self.symbol_table.EndScope()
         #p[0] = p[1] + p[2] + p[3]
+
     def p_compound_statement_4(self, p):
         '''compound_statement : OPENBRACE declaration_list statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
@@ -942,15 +942,14 @@ class Parser(Scanner):
         # int test(a,b) int a,b; {}
         self.typelist.pop()
         p[0] = p[2]
+
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
-        astNode = node(text="Function")
-        #astNode.SetChild(p[1]["astNode"])
-        #stNode.SetChild(p[2]["astNode"])
-        #astNode.SetChild(p[3]["astNode"])
-        p[1]["astNode"] = astNode
+
+        #p[1]["astNode"] = astNode
         p[0] = p[1]
         self.typelist.pop()
+
     def p_function_definition_3(self, p):
         '''function_definition : declarator declaration_list compound_statement'''
         # Function implementation with no type but with params test(a,b)int a,b;{}

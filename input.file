@@ -1,3 +1,6 @@
-int a;
-char b;
-long long ab;
+const int b;
+int a = b;
+void main()
+{
+a = b;
+}

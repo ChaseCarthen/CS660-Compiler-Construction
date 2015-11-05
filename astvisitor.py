@@ -36,9 +36,13 @@ class NodeVisitor(object):
         """ Called if no explicit visitor function exists for a
             node. Implements preorder visiting of the node.
         """
-        print "Generic Visitor"
-        for c_name, c in node.children():
-            self.visit(c)
+        string = "Generic"
+        print "Generic Visitor On Node: " + str(node)
+        if type(node) == type(GraphVizVisitor):
+            for c_name, c in node.children():
+                string += self.visit(c)
+
+        return string + ";\n"
 
 
 class GraphVizVisitor(NodeVisitor):
@@ -54,7 +58,7 @@ class GraphVizVisitor(NodeVisitor):
     def visit_Decl(self,node):
         string = "Declaration->"+ node.name + ",Init,Type;\n"
         if node.init:
-            string += "Init->"+self.visit(node.init)
+            string += "Init->" + self.visit(node.init)
         else:
             string += "Init->None;\n"
         string += self.visit(node.type)
@@ -74,6 +78,8 @@ class GraphVizVisitor(NodeVisitor):
         return
     def visit_ParamList(self,node):
         return 
+    def visit_VariableCall(self,node):
+        return ""
 
 class ThreeAddressCode(NodeVisitor):
     def visit_ID(self,node):

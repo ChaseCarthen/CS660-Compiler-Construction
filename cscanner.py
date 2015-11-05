@@ -96,7 +96,6 @@ class Scanner():
     string = typeFile.read().split('\n')
     typeFile.close()
     del(string[-1])
-    print string
     return string
 
   def logging(self,typed,value):

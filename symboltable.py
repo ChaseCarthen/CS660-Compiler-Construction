@@ -291,7 +291,8 @@ class FunctionNode(SymbolTreeNode):
     if good:
       self.parameters = params
     return good
-
+  def GetParameters(self):
+    return self.parameters
   def SetQualifiers(self, tq):
     pass
 
@@ -321,11 +322,11 @@ class ArrayNode(SymbolTreeNode):
   """An array node"""
   def __init__(self, tq = [], type_var = '', name = '', line = 0, line_loc = 0, dim = 0):
     super(ArrayNode, self).__init__(type_var, name, line, line_loc)
-    self.dimensions = dim
+    self.dimensions = [dim]
     self.typequalifiers = tq
 
-  def IncrementDimensions(self):
-    self.dimensions += 1
+  def AddDimension(self,number):
+    self.dimensions.append(number)
 
   def SetQualifiers(self, tq):
     self.typequalifiers += tq

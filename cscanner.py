@@ -149,12 +149,13 @@ class Scanner():
 
     graph = open("graph.dot",'w')
     #graph.write("digraph parse_tree {" +  + "}")
-    string = "digraph parse_tree {"
+    string = "digraph parse_tree {\n"
     # call node visitor
     graphVisitor = GraphVizVisitor()
+
     for i in out:
-      print i
-      string += graphVisitor.visit(i)
+      string += graphVisitor.visit(i)[0]
+
     string += "}"
     print string
     graph.write(string)

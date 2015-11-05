@@ -85,8 +85,8 @@ class GraphVizVisitor(NodeVisitor):
         init = self.StringifyLabel('Init',initticket)
         typestring,typelabel = self.visit(node.type)
 
-        string = self.StringifyLabel("Declaration",declticket,True) + "->" 
-        string += self.AddBrackets(node.name, init, typelabel) + ';\n'
+        decllabel = self.StringifyLabel("Declaration",declticket,True) 
+        string = decllabel + "->" + self.AddBrackets(node.name, init, typelabel) + ';\n'
 
         if node.init:
             string += self.AddBrackets(init) + "->"+self.visit(node.init)
@@ -94,16 +94,24 @@ class GraphVizVisitor(NodeVisitor):
             string += self.AddBrackets(init) + "->" 
             string += self.AddBrackets(self.StringifyLabel("None",self.ticket.GetNextTicket())) + ";\n"
 
-        return  string + typestring
+        return  string + typestring, decllabel
 
     def visit_AssignOp(self, node):
-        pass
+        label = self.StringifyLabel("Assignment Operation\n=", self.ticket.GetNextTicket())
+        leftstring, leftlabel = self.visit(node.left)
+        rightstring, rightlabel = self.visit(node.right)
+        string = self.AddBrackets(label) + "->" + self.AddBrackets(leftlabel, rightlabel)
+
+        return string + leftstring + rightstring, label
 
     def visit_DeclList(self,node):
         string = ""
+        labels = ""
         for i in node.decls:
-            string += self.visit(i)
-        return string
+            value, label = self.visit(i)
+            labels += label + " "
+            string += value
+        return string, labels.strip()
 
     def visit_Func(self,node):
         print "Func"
@@ -115,15 +123,46 @@ class GraphVizVisitor(NodeVisitor):
         return ""
 
     def visit_FuncDef(self,node):
-        return ""
+        typestring,typelabel = self.visit(node.type)
+        paramstring, paramlabel = self.visit(node.ParamList)
+        comlabel = self.StringifyLabel("Compound Statement", self.ticket.GetNextTicket())
+
+        compoundstring = ""
+        compoundlabel = self.AddBrackets(comlabel) + "->{"
+        for i in node.expression:
+            cs, cl = self.visit(i)
+            compoundstring += cs
+            compoundlabel += cl + " "
+
+        compoundlabel = compoundlabel.strip() + "};\n"
+        string = self.AddBrackets(self.StringifyLabel("Function Definition", self.ticket.GetNextTicket())) + "->"
+
+        string += self.AddBrackets(self.StringifyLabel(node.name, self.ticket.GetNextTicket()), typelabel, paramlabel, comlabel) + ";\n"
+
+        return string + typestring + paramstring + compoundlabel + compoundstring, None
 
     def visit_FuncCall(self,node):
         return "" 
     def visit_Return(self,node):
         return ""
+
     def visit_ParamList(self,node):
-        string = ""
-        return string
+        label = self.StringifyLabel("Parameter List", self.ticket.GetNextTicket())
+        string = self.AddBrackets(label) + "->{"
+
+        build_string = ""
+        for param in node.params:
+            typestring,typelabel = self.visit(param)
+
+            string += typelabel
+            build_string += typestring
+
+        if not build_string:
+            string += self.StringifyLabel("None", self.ticket.GetNextTicket())
+
+        string += "};\n"
+
+        return string + build_string, label
 
     def visit_VariableCall(self,node):
 
@@ -131,7 +170,7 @@ class GraphVizVisitor(NodeVisitor):
         varname = self.StringifyLabel(node.name, self.ticket.GetNextTicket())
         typestring, typelabel = self.visit(node.type)
 
-        return self.AddBrackets(name) + "->" + self.AddBrackets(varname, typelabel) + ";\n" + typestring
+        return self.AddBrackets(name) + "->" + self.AddBrackets(varname, typelabel) + ";\n" + typestring, name
 
     def visit_ArrDecl(self,node):
         ticket = self.ticket.GetNextTicket()

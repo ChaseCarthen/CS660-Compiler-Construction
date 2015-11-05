@@ -310,8 +310,6 @@ class VariableNode(SymbolTreeNode):
     return string
 
   def SetQualifiers(self, tq):
-    print "OUCH+++++++++++++++++++++++++++++++++++++++++"
-    print tq
     self.typequalifiers += tq
 
   def GetQualifiers(self):

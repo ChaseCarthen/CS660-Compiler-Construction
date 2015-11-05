@@ -391,8 +391,6 @@ class Parser(Scanner):
         '''declaration : declaration_specifiers init_declarator_list SEMI'''
         p[0] = p[2]
         astList = []
-        print "++++++++++++++++++++++++++++"
-        print p[1].qualifier
 
         # lookup and insert
         for declarator in p[2]:
@@ -400,8 +398,6 @@ class Parser(Scanner):
                 declarator["symbolNode"].SetType(p[1].type) 
                 declarator["symbolNode"].SetQualifiers(p[1].qualifier) # Dictionary ouch right here .. a potential bug to fix
                 declarator["astNode"].type = p[1]
-                print(declarator["symbolNode"].GetName())
-                print(declarator["symbolNode"].GetQualifiers())
                 astList.append(declarator["astNode"])
 
         p[0] = DeclList(astList)
@@ -910,9 +906,6 @@ class Parser(Scanner):
     def p_compound_statement_3(self, p):
         '''compound_statement : OPENBRACE declaration_list CLOSEBRACE'''
         #n = node(text=p[1]+p[3])
-        for i in p[2]:
-            #n.SetChild(i["astNode"])
-            print(i)
         p[0] = makeParserDict(None,p[2])
         self.symbol_table.EndScope()
         #p[0] = p[1] + p[2] + p[3]
@@ -920,8 +913,8 @@ class Parser(Scanner):
     def p_compound_statement_4(self, p):
         '''compound_statement : OPENBRACE declaration_list statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
-        #print ("Found a scope")
-        #p[0] = p[1] + p[2] + p[3] + p[4]
+        p[0] = p[2] + p[3]
+
     def p_declaration_list_1(self, p):
         '''declaration_list : declaration'''
         p[0] = [p[1]]
@@ -930,7 +923,7 @@ class Parser(Scanner):
         p[0] = p[1] + [p[2]]
     def p_statement_list_1(self, p):
         '''statement_list : statement'''
-        p[0] = p[1]
+        p[0] = [p[1]]
 
     def p_statement_list_2(self, p):
         '''statement_list : statement_list statement'''
@@ -983,18 +976,18 @@ class Parser(Scanner):
         '''translation_unit : external_declaration'''
         self.rootnode.append(p[1])
         p[0] = self.rootnode
-        print p.lineno(1)
+        #print p.lineno(1)
         span = p.lexspan(1)
-        print self.input_data[span[0]:span[1]+1]
+        #print self.input_data[span[0]:span[1]+1]
         #self.rootnode.SetChild(p[1]["astNode"])
         #p[0] = p[1]
     def p_translation_unit_2(self, p):
         '''translation_unit : translation_unit external_declaration'''
         self.rootnode.append(p[2])
         p[0] = self.rootnode
-        print p.lineno(2)
+        #print p.lineno(2)
         span = p.lexspan(2)
-        print self.input_data[span[0]:span[1]+1]
+        #print self.input_data[span[0]:span[1]+1]
         #self.rootnode.SetChild(p[2]["astNode"])
 
     def p_external_declaration_1(self, p):
@@ -1017,7 +1010,7 @@ class Parser(Scanner):
         for param in p[2].GetParameters():
             paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
 
-        p[0] = FuncDef(ParamList(paramlist), p[1], p[3])
+        p[0] = FuncDef(ParamList(paramlist), p[1], p[2].GetName(), p[3])
         self.typelist.pop()
 
     def p_function_definition_3(self, p):

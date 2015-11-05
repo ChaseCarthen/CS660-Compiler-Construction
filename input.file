@@ -1,13 +1,11 @@
 const int b;
-
 int a;
 
-char c;
-char d;
-const int thing;
 void main()
 {
+int k;
 a = b;
+k = a;
 }
 
 

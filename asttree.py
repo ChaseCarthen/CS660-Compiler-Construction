@@ -27,11 +27,12 @@ class Node(object):
 		pass
 
 class FuncDecl(Node):
-	__slots__ = ('ParamList', 'type', 'coord', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'name', 'coord', '__weakref__')
 
-	def __init__(self, ParamList, type, coord=None):
+	def __init__(self, ParamList, type, name, coord=None):
 		self.ParamList = ParamList
 		self.type = type
+		self.name = name
 		self.coord = coord
 
 	def children(self):
@@ -42,26 +43,30 @@ class FuncDecl(Node):
 			nodelist.append(("ParamList[%d]" % i, child))
 		return tuple(nodelist)
 
-	attr_names = ()
+	attr_names = ('name', )
 
 
 class FuncDef(Node):
-	__slots__ = ('ParamList', 'type', 'coord', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'name', 'expression', 'coord', '__weakref__')
 
-	def __init__(self, ParamList, type, coord=None):
+	def __init__(self, ParamList, type, name, expression, coord=None):
 		self.ParamList = ParamList
 		self.type = type
+		self.name = name
+		self.expression = expression
 		self.coord = coord
 
 	def children(self):
 		nodelist = []
 		if self.type is not None:
 			nodelist.append(("type", self.type))
+		if self.expression is not None:
+			nodelist.append(("expression", self.expression))
 		for i, child in enumerate(self.ParamList or []):
 			nodelist.append(("ParamList[%d]" % i, child))
 		return tuple(nodelist)
 
-	attr_names = ()
+	attr_names = ('name', )
 
 
 class FuncCall(Node):

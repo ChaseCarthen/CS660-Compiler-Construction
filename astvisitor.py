@@ -54,8 +54,7 @@ class GraphVizVisitor(NodeVisitor):
     ticket = TicketCounter("gv")
 
     def StringifyLabel(self,label,ticketlabel,braces=False):
-        #print ticketlabel
-        #print label
+
         if braces:
             #print braces
             return "{"+ticketlabel + "["+"label=" + '"' + label + '"'+ "]"+"}"
@@ -97,20 +96,27 @@ class GraphVizVisitor(NodeVisitor):
 
         return  string + typestring
 
+    def visit_AssignOp(self, node):
+        pass
+
     def visit_DeclList(self,node):
         string = ""
         for i in node.decls:
             string += self.visit(i)
         return string
+
     def visit_Func(self,node):
         print "Func"
         self.visit(node.function)
         return ""
+
     def visit_FuncDecl(self,node):
         print "FuncDecl!!!!!!!!!!!!!!!"
         return ""
+
     def visit_FuncDef(self,node):
         return ""
+
     def visit_FuncCall(self,node):
         return "" 
     def visit_Return(self,node):

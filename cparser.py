@@ -20,7 +20,6 @@ class Parser(Scanner):
             p[0] = VariableCall( Type(p[0].GetType(), p[0].GetQualifiers(), None), p[0].GetName())
         except SymbolTableError, e:
             print("We need to fail(this output on line 14): " + str(e))
-            p[0] = 0
             sys.exit()
 
     def p_primary_expression_2(self, p):
@@ -159,6 +158,7 @@ class Parser(Scanner):
         if self.TypeComparison("char",p[1]) or self.TypeComparison("char",p[3]):
             print "Error can't divide these two types together!!"
             sys.exit(0)
+
         if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
                 rType = Type(['int'],[],[])
@@ -203,6 +203,7 @@ class Parser(Scanner):
         if self.TypeComparison("char",p[1]) or self.TypeComparison("char",p[3]):
             print "Error can't add these two types together!!"
             sys.exit(0)
+
         if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
                 rType = Type(['int'],[],[])
@@ -225,6 +226,7 @@ class Parser(Scanner):
         if self.TypeComparison("char",p[1]) or self.TypeComparison("char",p[3]):
             print "Error can't subtract these two types together!!"
             sys.exit(0)
+
         if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
                 rType = Type(['int'],[],[])
@@ -314,22 +316,26 @@ class Parser(Scanner):
     def p_conditional_expression_2(self, p):
         '''conditional_expression : logical_or_expression '?' expression ':' conditional_expression'''
         p[0] = TernaryOp(p[1],p[3],p[5])
+
     def p_assignment_expression_1(self, p):
         '''assignment_expression : conditional_expression'''
         p[0] = p[1]
 
     def p_assignment_expression_2(self, p):
         '''assignment_expression : unary_expression assignment_operator assignment_expression'''
-        if p[1] == None or p[1] == 0: # A PATCH
-            pass
-        #elif p[1].IsConstant():
-        #    print("This is not allowed since the variable is constant.")
 
-        #p[0] = p[1] + p[2] + p[3]
+        if 'const' in p[1].type.qualifier:
+            print("This is not allowed since the variable is constant.")
+            sys.exit()
+
+        p[2].left = p[1]
+        p[2].right = p[3]
+        p[0] = p[2]
 
     def p_assignment_operator_1(self, p):
         '''assignment_operator : '=' '''
-        p[0] = p[1]
+        p[0] = AssignOp(None, None)
+
     def p_assignment_operator_2(self, p):
         '''assignment_operator : MUL_ASSIGN'''
         p[0] = p[1]
@@ -362,9 +368,11 @@ class Parser(Scanner):
     def p_assignment_operator_11(self, p):
         '''assignment_operator : OR_ASSIGN'''
         p[0] = p[1]
+
     def p_expression_1(self, p):
         '''expression : assignment_expression'''
         p[0] = p[1]
+
     def p_expression_2(self, p):
         '''expression : expression ',' assignment_expression'''
         p[0] = p[1] + p[2] + p[3]
@@ -382,7 +390,6 @@ class Parser(Scanner):
     def p_declaration_2(self, p):
         '''declaration : declaration_specifiers init_declarator_list SEMI'''
         p[0] = p[2]
-        self.typelist.pop()
         astList = []
         print "++++++++++++++++++++++++++++"
         print p[1].qualifier
@@ -393,6 +400,8 @@ class Parser(Scanner):
                 declarator["symbolNode"].SetType(p[1].type) 
                 declarator["symbolNode"].SetQualifiers(p[1].qualifier) # Dictionary ouch right here .. a potential bug to fix
                 declarator["astNode"].type = p[1]
+                print(declarator["symbolNode"].GetName())
+                print(declarator["symbolNode"].GetQualifiers())
                 astList.append(declarator["astNode"])
 
         p[0] = DeclList(astList)
@@ -427,6 +436,7 @@ class Parser(Scanner):
             print "ERROR INVALID TYPE SPECIFIER: " + str(p.lineno(1)) + " starting at Character: "+ str(p.lexpos(1)) 
             sys.exit()
         p[0] = p[2]
+
     def p_declaration_specifiers_5(self, p):
         '''declaration_specifiers : type_qualifier'''
         #p[0] = p[1]
@@ -434,7 +444,6 @@ class Parser(Scanner):
 
     def p_declaration_specifiers_6(self, p):
         '''declaration_specifiers : type_qualifier declaration_specifiers'''
-
         for qual in p[1]:
             p[2].qualifier.append(qual)
         p[0] = p[2] #{"qualifiers" : p[1] + p[2]["qualifiers"], "specifiers" : p[2]["specifiers"]}
@@ -867,6 +876,7 @@ class Parser(Scanner):
     def p_statement_3(self, p):
         '''statement : expression_statement'''
         p[0] = p[1]
+
     def p_statement_4(self, p):
         '''statement : selection_statement'''
         p[0] = p[1]
@@ -891,11 +901,11 @@ class Parser(Scanner):
         p[0] = makeParserDict(None,node(text=p[1]+p[2]))
         #print ("Found a scope")
         #p[0] = p[1] + p[2]
+
     def p_compound_statement_2(self, p):
         '''compound_statement : OPENBRACE statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
-        #print ("Found a scope")
-        #p[0] = p[1] + p[2] + p[3]
+        p[0] = p[2]
 
     def p_compound_statement_3(self, p):
         '''compound_statement : OPENBRACE declaration_list CLOSEBRACE'''
@@ -921,16 +931,17 @@ class Parser(Scanner):
     def p_statement_list_1(self, p):
         '''statement_list : statement'''
         p[0] = p[1]
+
     def p_statement_list_2(self, p):
         '''statement_list : statement_list statement'''
-        #p[0] = p[1] + p[2]
+        p[0] = p[1] + [p[2]]
+
     def p_expression_statement_1(self, p):
         '''expression_statement : SEMI'''
         p[0] = p[1]
     def p_expression_statement_2(self, p):
         '''expression_statement : expression SEMI'''
-        
-        #p[0] = p[1] + p[2]
+        p[0] = p[1]
 
     def p_selection_statement_1(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement'''
@@ -1006,7 +1017,7 @@ class Parser(Scanner):
         for param in p[2].GetParameters():
             paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
 
-        p[0] = FuncDef(ParamList(paramlist),p[1])
+        p[0] = FuncDef(ParamList(paramlist), p[1], p[3])
         self.typelist.pop()
 
     def p_function_definition_3(self, p):

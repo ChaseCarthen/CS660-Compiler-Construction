@@ -1,10 +1,13 @@
 const int b;
-int a = b;
-float d;
-int c = 1 * d;
+
+int a;
+
+char c;
+char d;
+const int thing;
 void main()
 {
-   @
+a = b;
 }
 
 

@@ -132,43 +132,51 @@ class Parser(Scanner):
 
     def p_multiplicative_expression_2(self, p):
         '''multiplicative_expression : multiplicative_expression '*' cast_expression'''
-        if not type(p[1]) == type(VariableNode()) and not type(p[3]) == type(PointerNode()):
-            try:
-                p[3] = int(p[3])
-            except:
-                p[3] = float(p[3])
+        rType = ""
+        if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
+            if p[1].type == 'int' and p[1].type == p[3].type:
+                rType = 'int'
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = 'float'
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
 
-            try:
-                p[1] = int(p[1])
-            except:
-                p[1] = float(p[1])
+            p[0]= Constant(rType,str(p[1].value * p[3].value))
 
-            p[0] = str(p[1] * p[3])
         else:
-            pass
-            #p[0] = p[1] + p[2] + p[3]
+            p[0] = MultOp(p[1],p[2])
+
 
     def p_multiplicative_expression_3(self, p):
         '''multiplicative_expression : multiplicative_expression '/' cast_expression'''
-        if not type(p[1]) == type(VariableNode()) and not type(p[3]) == type(PointerNode()):
-            try:
-                p[3] = int(p[3])
-            except:
-                p[3] = float(p[3])
+         rType = ""
+        if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
+            if p[1].type == 'int' and p[1].type.type == p[3].type.type:
+                rType = 'int'
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = 'float'
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
 
-            try:
-                p[1] = int(p[1])
-            except:
-                p[1] = float(p[1])
+            p[0]= Constant(rType,str(p[1].value / p[3].value))
 
-            p[0] = str(p[1] / p[3])
         else:
-            pass
-            #p[0] = p[1] + p[2] + p[3]
+            p[0] = DivOp(p[1],p[2])
 
     def p_multiplicative_expression_4(self, p):
         '''multiplicative_expression : multiplicative_expression '%' cast_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        rType = "int"
+        if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
+            p[1].value = int(p[1].value)
+            p[3].value = int(p[3].value)
+            p[0]= Constant(rType,str(p[1].value % p[3].value))
+
+        else:
+            p[0] = ModOp(p[1],p[2])
 
     def p_additive_expression_1(self, p):
         '''additive_expression : multiplicative_expression'''
@@ -176,39 +184,39 @@ class Parser(Scanner):
 
     def p_additive_expression_2(self, p):
         '''additive_expression : additive_expression '+' multiplicative_expression'''
-        if not type(p[1]) == type(VariableNode()) and not type(p[3]) == type(PointerNode()):
-            try:
-                p[3] = int(p[3])
-            except:
-                p[3] = float(p[3])
+         rType = ""
+        if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
+            if p[1].type == 'int' and p[1].type == p[3].type:
+                rType = 'int'
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = 'float'
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
 
-            try:
-                p[1] = int(p[1])
-            except:
-                p[1] = float(p[1])
+            p[0]= Constant(rType,str(p[1].value + p[3].value))
 
-            p[0] = str(p[1] + p[3])
         else:
-            pass
-            #p[0] = p[1] + p[2] + p[3]
+            p[0] = AddOp(p[1],p[2])
 
     def p_additive_expression_3(self, p):
         '''additive_expression : additive_expression '-' multiplicative_expression'''
-        if not type(p[1]) == type(VariableNode()) and not type(p[3]) == type(PointerNode()):
-            try:
-                p[3] = int(p[3])
-            except:
-                p[3] = float(p[3])
+         rType = ""
+        if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
+            if p[1].type == 'int' and p[1].type == p[3].type:
+                rType = 'int'
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+            else:
+                rType = 'float'
+                p[1].value = float(p[1].value)
+                p[3].value = float(p[3].value)
 
-            try:
-                p[1] = int(p[1])
-            except:
-                p[1] = float(p[1])
+            p[0]= Constant(rType,str(p[1].value - p[3].value))
 
-            p[0] = str(p[1] - p[3])
         else:
-            pass
-            #p[0] = p[1] + p[2] + p[3]
+            p[0] = SubOp(p[1],p[2])
 
     def p_shift_expression_1(self, p):
         '''shift_expression : additive_expression'''

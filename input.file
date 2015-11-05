@@ -1,7 +1,8 @@
 const int b;
 int a = b;
+int c;
 void main()
 {
-a = b;
+
 }
 

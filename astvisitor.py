@@ -76,20 +76,15 @@ class GraphVizVisitor(NodeVisitor):
         declticket = self.ticket.GetNextTicket()
         typeofdeclticket = self.ticket.GetNextTicket()
         init = self.StringifyLabel('Init',initticket)
-        typeofdecl = self.StringifyLabel('Type of Decl',typeofdeclticket)
         typestring,typelabel = self.visit(node.type)
 
-        string = self.StringifyLabel("Declaration",declticket,True) + "->"+ "{" + node.name + " " + init+ " " + typelabel  + " " + typeofdecl + '};\n'
+        string = self.StringifyLabel("Declaration",declticket,True) + "->"+ "{" + node.name + " " + init+ " " + typelabel  + '};\n'
 
         if node.init:
             string += '{' + init + "}->"+self.visit(node.init)
 
         else:
             string += '{' + init +"}->" + self.AddBrackets(self.StringifyLabel("None",self.ticket.GetNextTicket())) + ";\n"
-        if node.typeofdecl:
-            string += '{' + typeofdecl +'}->' + self.visit(node.typeofdecl)[1]
-        else:
-            string += '{' + typeofdecl+'}->' + self.StringifyLabel("Normal",self.ticket.GetNextTicket()) + ";\n"
         
         string += typestring
          
@@ -104,7 +99,7 @@ class GraphVizVisitor(NodeVisitor):
         self.visit(node.function)
         return ""
     def visit_FuncDecl(self,node):
-        print "FuncDecl"
+        print "FuncDecl!!!!!!!!!!!!!!!"
         return ""
     def visit_FuncDef(self,node):
         return ""

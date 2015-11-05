@@ -215,10 +215,12 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_shift_expression_2(self, p):
         '''shift_expression : shift_expression LEFT_OP additive_expression'''
+        p[0] = LeftOp(p[1],p[3])
         #p[0] = p[1] + p[2] + p[3]
     def p_shift_expression_3(self, p):
         '''shift_expression : shift_expression RIGHT_OP additive_expression'''
         #p[0] = p[1] + p[2] + p[3]
+        p[0] = RightOp(p[1],p[3]) 
     def p_relational_expression_1(self, p):
         '''relational_expression : shift_expression'''
         p[0] = p[1]
@@ -249,38 +251,38 @@ class Parser(Scanner):
         p[0] = p[1]
     def p_and_expression_2(self, p):
         '''and_expression : and_expression '&' equality_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        p[0] = AndOp(p[1],p[3])
     def p_exclusive_or_expression_1(self, p):
         '''exclusive_or_expression : and_expression'''
         p[0] = p[1]
     def p_exclusive_or_expression_2(self, p):
         '''exclusive_or_expression : exclusive_or_expression '^' and_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        p[0] = XorOp(p[1],p[3])
     def p_inclusive_or_expression_1(self, p):
         '''inclusive_or_expression : exclusive_or_expression'''
         p[0] = p[1]
     def p_inclusive_or_expression_2(self, p):
         '''inclusive_or_expression : inclusive_or_expression '|' exclusive_or_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        p[0] = OrOp(p[1],p[3])
     def p_logical_and_expression_1(self, p):
         '''logical_and_expression : inclusive_or_expression'''
         p[0] = p[1]
     def p_logical_and_expression_2(self, p):
         '''logical_and_expression : logical_and_expression AND_OP inclusive_or_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        p[0] = AndOp(p[1],p[3])
     def p_logical_or_expression_1(self, p):
         '''logical_or_expression : logical_and_expression'''
         p[0] = p[1]
     def p_logical_or_expression_2(self, p):
         '''logical_or_expression : logical_or_expression OR_OP logical_and_expression'''
-        #p[0] = p[1] + p[2] + p[3]
+        p[0] = OrOp(p[1],p[3])
     def p_conditional_expression_1(self, p):
         '''conditional_expression : logical_or_expression'''
         #print("Conditional expression" + str(p[1]))
         p[0] = p[1]
     def p_conditional_expression_2(self, p):
         '''conditional_expression : logical_or_expression '?' expression ':' conditional_expression'''
-        #p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+        p[0] = TernaryOp(p[1],p[3],p[5])
     def p_assignment_expression_1(self, p):
         '''assignment_expression : conditional_expression'''
         p[0] = p[1]
@@ -425,14 +427,14 @@ class Parser(Scanner):
         else:
             self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1][1:].type)
         if VariableNode == type(p[1]):
-            p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,None,None) )
+            p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,None) )
         elif ArrayNode == type(p[1]):
-            p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,None,ArrDecl(p[1].dimensions)) )
+            p[0] = makeParserDict(p[1], ArrDecl(p[1].GetName(),None,None,p[1].dimensions) )
         elif FunctionNode == type(p[1]):
             paramlist = []
             for param in p[1].GetParameters():
                 paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
-            p[0] = makeParserDict(p[1], FuncDecl(paramlist,Type(p[1].GetType(),[],[] ) ) )
+            p[0] = makeParserDict(p[1], FuncDecl(ParamList(paramlist),Type(p[1].GetType(),[],[] ) ) )
         
 
     def p_init_declarator_2(self, p):
@@ -966,8 +968,13 @@ class Parser(Scanner):
 
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
+        print "+++++++++++++++++++++++++++++++"
+        print type(p[2])
+        paramlist = []
+        for param in p[2].GetParameters():
+            paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
 
-        p[0] = p[1]
+        p[0] = FuncDef(ParamList(paramlist),p[1])
         self.typelist.pop()
 
     def p_function_definition_3(self, p):

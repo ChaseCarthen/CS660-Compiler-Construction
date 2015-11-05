@@ -27,14 +27,17 @@ class Node(object):
 		pass
 
 class FuncDecl(Node):
-	__slots__ = ('ParamList', 'coord', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'coord', '__weakref__')
 
-	def __init__(self, ParamList, coord=None):
+	def __init__(self, ParamList, type, coord=None):
 		self.ParamList = ParamList
+		self.type = type
 		self.coord = coord
 
 	def children(self):
 		nodelist = []
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		for i, child in enumerate(self.ParamList or []):
 			nodelist.append(("ParamList[%d]" % i, child))
 		return tuple(nodelist)
@@ -43,14 +46,17 @@ class FuncDecl(Node):
 
 
 class FuncDef(Node):
-	__slots__ = ('ParamList', 'coord', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'coord', '__weakref__')
 
-	def __init__(self, ParamList, coord=None):
+	def __init__(self, ParamList, type, coord=None):
 		self.ParamList = ParamList
+		self.type = type
 		self.coord = coord
 
 	def children(self):
 		nodelist = []
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		for i, child in enumerate(self.ParamList or []):
 			nodelist.append(("ParamList[%d]" % i, child))
 		return tuple(nodelist)
@@ -59,11 +65,11 @@ class FuncDef(Node):
 
 
 class FuncCall(Node):
-	__slots__ = ('type', 'ParamList', 'coord', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'coord', '__weakref__')
 
-	def __init__(self, type, ParamList, coord=None):
-		self.type = type
+	def __init__(self, ParamList, type, coord=None):
 		self.ParamList = ParamList
+		self.type = type
 		self.coord = coord
 
 	def children(self):
@@ -213,10 +219,12 @@ class Continue(Node):
 
 
 class ArrDecl(Node):
-	__slots__ = ('type', 'dim', 'coord', '__weakref__')
+	__slots__ = ('name', 'type', 'init', 'dim', 'coord', '__weakref__')
 
-	def __init__(self, type, dim, coord=None):
+	def __init__(self, name, type, init, dim, coord=None):
+		self.name = name
 		self.type = type
+		self.init = init
 		self.dim = dim
 		self.coord = coord
 
@@ -224,11 +232,11 @@ class ArrDecl(Node):
 		nodelist = []
 		if self.type is not None:
 			nodelist.append(("type", self.type))
-		if self.dim is not None:
-			nodelist.append(("dim", self.dim))
+		if self.init is not None:
+			nodelist.append(("init", self.init))
 		return tuple(nodelist)
 
-	attr_names = ()
+	attr_names = ('name', 'dim', )
 
 
 class ArrRef(Node):
@@ -287,13 +295,13 @@ class Assignment(Node):
 	attr_names = ('op', )
 
 
-class BinOp(Node):
-	__slots__ = ('op', 'left', 'right', 'coord', '__weakref__')
+class AndOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
 
-	def __init__(self, op, left, right, coord=None):
-		self.op = op
+	def __init__(self, left, right, type, coord=None):
 		self.left = left
 		self.right = right
+		self.type = type
 		self.coord = coord
 
 	def children(self):
@@ -302,9 +310,99 @@ class BinOp(Node):
 			nodelist.append(("left", self.left))
 		if self.right is not None:
 			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
-	attr_names = ('op', )
+	attr_names = ()
+
+
+class OrOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class LeftOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class RightOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class XorOp(Node):
+	__slots__ = ('left', 'right', 'type', 'coord', '__weakref__')
+
+	def __init__(self, left, right, type, coord=None):
+		self.left = left
+		self.right = right
+		self.type = type
+		self.coord = coord
+
+	def children(self):
+		nodelist = []
+		if self.left is not None:
+			nodelist.append(("left", self.left))
+		if self.right is not None:
+			nodelist.append(("right", self.right))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
 
 
 class TernaryOp(Node):

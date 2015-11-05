@@ -76,7 +76,7 @@ class Scanner():
 
     self.source = "" # this will keep track of what source we have seen so far
     self.tokens = ""  # this will keep track the tokens that we have seen so far
-    self.reduction_list = [] # this will keep track of what tokens we have acquired
+    self.reduction_list = [] # this will keep track of what tokens we have acquiredrm 
     self.typelist = []
 
     # our token log file
@@ -124,10 +124,11 @@ class Scanner():
 
     graph = open("graph.dot",'w')
     #graph.write("digraph parse_tree {" +  + "}")
-    string = "digraph parse_tree {\n"
+    string = "digraph parse_tree {"
     # call node visitor
     graphVisitor = GraphVizVisitor()
     for i in out:
+      print i
       string += graphVisitor.visit(i)
     string += "}"
     print string

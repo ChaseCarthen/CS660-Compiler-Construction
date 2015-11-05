@@ -1,8 +1,9 @@
-digraph parse_tree {
-Declaration->b,Init,Type;
-Init->None;
-Type->"int";
-Declaration->a,Init,Type;
-Init->Type->"int";
-Type->"void";
+digraph parse_tree {{gv100001[label="Declaration"]}->{b gv100000[label="Init"] gv100003[label="Type"]};
+{gv100000[label="Init"]}->{gv100005[label="None"]};
+{gv100003[label="Type"]}->{gv100004[label="int"]};
+{gv100007[label="Declaration"]}->{a gv100006[label="Init"] gv100009[label="Type"]};
+{gv100006[label="Init"]}->{gv100009[label="Type"]}->{gv100010[label="int"]};
+{gv100012[label="Declaration"]}->{c gv100011[label="Init"] gv100014[label="Type"]};
+{gv100011[label="Init"]}->{gv100016[label="None"]};
+{gv100014[label="Type"]}->{gv100015[label="int"]};
 }

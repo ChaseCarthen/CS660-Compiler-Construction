@@ -116,6 +116,11 @@ class GraphVizVisitor(NodeVisitor):
             string += "["+str(i) + "]"
         string = self.StringifyLabel(string,ticket,True)
         return string, string
+    def visit_Constant(self,node):
+        string = "Constant->"+ node.value + ",Type;\n"
+        string += self.visit(node.type)
+        return string
+
 
 class ThreeAddressCode(NodeVisitor):
     def visit_ID(self,node):

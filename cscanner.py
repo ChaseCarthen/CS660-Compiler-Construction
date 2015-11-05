@@ -6,6 +6,7 @@ import os
 from node import *
 from termcolor import colored
 from astvisitor import *
+from asttree import *
 # tokens 'IDENTIFIER', 'CONSTANT', 'STRING_LITERAL', 'SIZEOF', 'PTR_OP', 
 #'INC_OP', 'DEC_OP', 'LEFT_OP', 'RIGHT_OP', 'LE_OP', 'GE_OP', 'EQ_OP', 'NE_OP', 
 #'AND_OP', 'OR_OP', 'MUL_ASSIGN', 'DIV_ASSIGN', 'MOD_ASSIGN', 'ADD_ASSIGN', 'SUB_ASSIGN', 
@@ -103,7 +104,31 @@ class Scanner():
       self.tokens += typed + " "
       if self.parselog:
         self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(typed) + " Value: " + str(value))
-
+  def StrongTypeComparison(self,Type1,Type2):
+    return Type1.type == Type2.type and Type1.qualifier == Type2.qualifier
+  def WeakTypeComparison(self,Type1,Type2):
+    return Type1.type == Type2.type
+  def WeakTypeComparisonWithType(self,Type,Type1,Type2):
+    return Type in Type1.type and Type in Type2.type
+  def TypeComparison(self,Type,Type1):
+    return Type in Type1.type
+  def IsConstant(self,Type):
+    return "Const" in Type.qualifier
+  # Check between int,float,double,long long -- for expressions
+  def StrongestType(self,expr1,expr2):
+    string = ""
+    string2 = ""
+    for i in expr1.type.type:
+      string += i
+    for j in expr2.type.type:
+      string2 += j
+    if string != string2:
+      print "Warning casting to another type!"
+      if "float" in string:
+        return expr,Cast(Type(["float"],[],[]),expr2),Type(["float"],[],[])
+      elif "float" in string2:
+        return Cast(Type(["float"],[],[]),expr1),expr2,Type(["float"],[],[])
+    return expr1,expr2,expr1.type
   def loginfo(self,string):
     if self.parselog:
       self.log.info(string)

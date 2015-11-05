@@ -1,9 +1,10 @@
 const int b;
 int a = b;
-int c;
+float d;
+int c = 1 * d;
 void main()
 {
-
+   @
 }
 
 

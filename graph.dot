@@ -1,22 +1,14 @@
-<<<<<<< HEAD
-digraph parse_tree {{gv100001[label="Declaration"]}->{b gv100000[label="Init"] gv100003[label="Type"]};
-{gv100000[label="Init"]}->{gv100005[label="None"]};
-{gv100003[label="Type"]}->{gv100004[label="int"]};
-{gv100007[label="Declaration"]}->{a gv100006[label="Init"] gv100009[label="Type"]};
-{gv100006[label="Init"]}->{gv100009[label="Type"]}->{gv100010[label="int"]};
-{gv100012[label="Declaration"]}->{c gv100011[label="Init"] gv100014[label="Type"]};
-{gv100011[label="Init"]}->{gv100016[label="None"]};
-{gv100014[label="Type"]}->{gv100015[label="int"]};
-=======
-digraph parse_tree {
-{gv100001[label="Declaration"]}->{b gv100000[label="Init"] gv100003[label="Type"] gv100002[label="Type of Decl"]};
-{gv100000[label="Init"]}->{gv100005[label="None"]};
-{gv100002[label="Type of Decl"]}->{gv100006[label="Normal"]};
-{gv100003[label="Type"]}->{gv100004[label="int"]};
-{gv100008[label="Declaration"]}->{a gv100007[label="Init"] gv100010[label="Type"] gv100009[label="Type of Decl"]};
-{gv100007[label="Init"]}->{gv100012[label="Variable Call"]}->{gv100013[label="b"] gv100014[label="Type"]};
-{gv100014[label="Type"]}->{gv100015[label="int"]};
-{gv100009[label="Type of Decl"]}->{gv100016[label="Normal"]};
-{gv100010[label="Type"]}->{gv100011[label="int"]};
->>>>>>> 8775022ed7675220d8d2f4ef3c47461cc1e8243b
+digraph parse_tree {{gv100001[label="Declaration"]}->{b gv100000[label="Init"] gv100002[label="Type"]};
+{gv100000[label="Init"]}->{gv100004[label="None"]};
+{gv100002[label="Type"]}->{gv100003[label="int"]};
+{gv100006[label="Declaration"]}->{a gv100005[label="Init"] gv100007[label="Type"]};
+{gv100005[label="Init"]}->{gv100009[label="Variable Call"]}->{gv100010[label="b"] gv100011[label="Type"]};
+{gv100011[label="Type"]}->{gv100012[label="int"]};
+{gv100007[label="Type"]}->{gv100008[label="int"]};
+{gv100014[label="Declaration"]}->{d gv100013[label="Init"] gv100015[label="Type"]};
+{gv100013[label="Init"]}->{gv100017[label="None"]};
+{gv100015[label="Type"]}->{gv100016[label="float"]};
+{gv100019[label="Declaration"]}->{c gv100018[label="Init"] gv100020[label="Type"]};
+{gv100018[label="Init"]}->Generic;
+{gv100020[label="Type"]}->{gv100021[label="int"]};
 }

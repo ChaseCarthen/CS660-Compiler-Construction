@@ -133,50 +133,65 @@ class Parser(Scanner):
     def p_multiplicative_expression_2(self, p):
         '''multiplicative_expression : multiplicative_expression '*' cast_expression'''
         rType = ""
-        if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
-            if p[1].type == 'int' and p[1].type == p[3].type:
-                rType = 'int'
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
+            print "Error can't multiply these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
                 p[1].value = int(p[1].value)
                 p[3].value = int(p[3].value)
             else:
-                rType = 'float'
+                rType = Type(['float'],[],[])
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
-
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak Upcast Warning"
             p[0]= Constant(rType,str(p[1].value * p[3].value))
-
         else:
-            p[0] = MultOp(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
+            p[0] = MultOp(one,two,Typed)
 
 
     def p_multiplicative_expression_3(self, p):
         '''multiplicative_expression : multiplicative_expression '/' cast_expression'''
-         rType = ""
+        rType = ""
+        if self.TypeComparison("char",p[1]) or self.TypeComparison("char",p[3]):
+            print "Error can't divide these two types together!!"
+            sys.exit(0)
         if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
-            if p[1].type == 'int' and p[1].type.type == p[3].type.type:
-                rType = 'int'
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
                 p[1].value = int(p[1].value)
                 p[3].value = int(p[3].value)
             else:
-                rType = 'float'
+                rType = Type(['float'],[],[])
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
-
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
             p[0]= Constant(rType,str(p[1].value / p[3].value))
-
         else:
-            p[0] = DivOp(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = DivOp(one,two,Typed)
 
     def p_multiplicative_expression_4(self, p):
         '''multiplicative_expression : multiplicative_expression '%' cast_expression'''
-        rType = "int"
-        if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
-            p[1].value = int(p[1].value)
-            p[3].value = int(p[3].value)
+        rType = ""
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type) or self.TypeComparison("float",p[1].type) or self.TypeComparison("float",p[3].type):
+            print "Error can't modulo these two types together!!"
+            sys.exit(0)
+        if type(p[1]) == Constant and type(p[3]) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                p[3].value = int(p[3].value)
+
             p[0]= Constant(rType,str(p[1].value % p[3].value))
 
         else:
-            p[0] = ModOp(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[3])
+            p[0] = ModOp(one,two,Typed)
 
     def p_additive_expression_1(self, p):
         '''additive_expression : multiplicative_expression'''
@@ -184,39 +199,47 @@ class Parser(Scanner):
 
     def p_additive_expression_2(self, p):
         '''additive_expression : additive_expression '+' multiplicative_expression'''
-         rType = ""
+        rType = ""
+        if self.TypeComparison("char",p[1]) or self.TypeComparison("char",p[3]):
+            print "Error can't add these two types together!!"
+            sys.exit(0)
         if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
-            if p[1].type == 'int' and p[1].type == p[3].type:
-                rType = 'int'
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
                 p[1].value = int(p[1].value)
                 p[3].value = int(p[3].value)
             else:
-                rType = 'float'
+                rType = Type(['float'],[],[])
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
-
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
             p[0]= Constant(rType,str(p[1].value + p[3].value))
-
         else:
-            p[0] = AddOp(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = AddOp(one,two,Typed)
 
     def p_additive_expression_3(self, p):
         '''additive_expression : additive_expression '-' multiplicative_expression'''
-         rType = ""
+        rType = ""
+        if self.TypeComparison("char",p[1]) or self.TypeComparison("char",p[3]):
+            print "Error can't subtract these two types together!!"
+            sys.exit(0)
         if type(p[1]) == type(Constant()) and type(p[3]) == type(Constant()):
-            if p[1].type == 'int' and p[1].type == p[3].type:
-                rType = 'int'
+            if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
+                rType = Type(['int'],[],[])
                 p[1].value = int(p[1].value)
                 p[3].value = int(p[3].value)
             else:
-                rType = 'float'
+                rType = Type(['float'],[],[])
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
-
+                if not self.WeakTypeComparison(p[1].type,p[3].type):
+                    print "Weak upcast warning!"
             p[0]= Constant(rType,str(p[1].value - p[3].value))
-
         else:
-            p[0] = SubOp(p[1],p[2])
+            one,two,Typed = self.StrongestType(p[1],p[2])
+            p[0] = SubOp(one,two,Typed)
 
     def p_shift_expression_1(self, p):
         '''shift_expression : additive_expression'''
@@ -361,6 +384,9 @@ class Parser(Scanner):
         p[0] = p[2]
         self.typelist.pop()
         astList = []
+        print "++++++++++++++++++++++++++++"
+        print p[1].qualifier
+
         # lookup and insert
         for declarator in p[2]:
             if declarator != None:
@@ -610,7 +636,7 @@ class Parser(Scanner):
 
     def p_direct_declarator_1(self, p):
         '''direct_declarator : IDENTIFIER'''
-        p[0] = VariableNode(name=p[1], type_var="", line=p.lineno(1), line_loc=p.lexpos(1) - self.lines[p.lineno(1)-1])
+        p[0] = VariableNode(name=p[1], type_var="", line=p.lineno(1), line_loc=p.lexpos(1) - self.lines[p.lineno(1)-1],tq=[])
         
     def p_direct_declarator_2(self, p):
         '''direct_declarator : OPENPARAN declarator CLOSEPARAN'''
@@ -976,8 +1002,6 @@ class Parser(Scanner):
 
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
-        print "+++++++++++++++++++++++++++++++"
-        print type(p[2])
         paramlist = []
         for param in p[2].GetParameters():
             paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))

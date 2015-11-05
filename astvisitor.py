@@ -54,10 +54,10 @@ class GraphVizVisitor(NodeVisitor):
     ticket = TicketCounter("gv")
 
     def StringifyLabel(self,label,ticketlabel,braces=False):
-        print ticketlabel
-        print label
+        #print ticketlabel
+        #print label
         if braces:
-            print braces
+            #print braces
             return "{"+ticketlabel + "["+"label=" + '"' + label + '"'+ "]"+"}"
         return ticketlabel + "["+"label=" + '"' + label + '"'+ "]"
 
@@ -83,26 +83,18 @@ class GraphVizVisitor(NodeVisitor):
     def visit_Decl(self,node):
         initticket = self.ticket.GetNextTicket()
         declticket = self.ticket.GetNextTicket()
-        typeofdeclticket = self.ticket.GetNextTicket()
         init = self.StringifyLabel('Init',initticket)
         typestring,typelabel = self.visit(node.type)
 
         string = self.StringifyLabel("Declaration",declticket,True) + "->" 
-        string += self.AddBrackets(node.name, init, typelabel, typeofdecl) + ';\n'
+        string += self.AddBrackets(node.name, init, typelabel) + ';\n'
 
         if node.init:
             string += self.AddBrackets(init) + "->"+self.visit(node.init)
         else:
             string += self.AddBrackets(init) + "->" 
             string += self.AddBrackets(self.StringifyLabel("None",self.ticket.GetNextTicket())) + ";\n"
-        
-        if node.typeofdecl:
-            string += self.AddBrackets(typeofdecl) + '->' + self.visit(node.typeofdecl)[1]
-        else:
-            string += self.AddBrackets(typeofdecl) + '->' 
-            string += self.AddBrackets(self.StringifyLabel("Normal",self.ticket.GetNextTicket())) + ";\n"
 
-         
         return  string + typestring
 
     def visit_DeclList(self,node):
@@ -145,7 +137,7 @@ class GraphVizVisitor(NodeVisitor):
 
     def visit_Constant(self,node):
         string = "Constant->"+ node.value + ",Type;\n"
-        string += self.visit(node.type)
+        string += self.visit(node.type)[1]
         return string
 
 

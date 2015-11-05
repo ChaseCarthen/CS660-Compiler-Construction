@@ -298,8 +298,10 @@ class FunctionNode(SymbolTreeNode):
 
 class VariableNode(SymbolTreeNode):
   """A variable node"""
-  def __init__(self, tq = [], type_var = '', name = '', line = 0, line_loc = 0):
+  def __init__(self, tq = None, type_var = '', name = '', line = 0, line_loc = 0):
     super(VariableNode, self).__init__(type_var, name, line, line_loc)
+    if tq is None:
+        tq = []
     self.typequalifiers = tq
 
   def __str__(self):
@@ -308,6 +310,8 @@ class VariableNode(SymbolTreeNode):
     return string
 
   def SetQualifiers(self, tq):
+    print "OUCH+++++++++++++++++++++++++++++++++++++++++"
+    print tq
     self.typequalifiers += tq
 
   def GetQualifiers(self):

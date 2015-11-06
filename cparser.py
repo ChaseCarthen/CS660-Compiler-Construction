@@ -43,7 +43,33 @@ class Parser(Scanner):
 
     def p_postfix_expression_2(self, p):
         '''postfix_expression : postfix_expression '[' expression ']' '''
-        p[0] = p[1] #array checking gos here
+        if type(p[1]) != type(ArrRef(None, None, None, None)):
+            node = self.symbol_table.Retrieve(p[1].name)
+            if type(node) != type(ArrayNode()):
+                print("We Should Fail Because this is not an array access.")
+                sys.exit()
+
+            # ArrRef: [name,subscript*,type*,dim**]
+            typenode = Type([],[],[])
+            for i in node.GetType():
+                typenode.type.append(i)
+
+            for i in node.GetQualifiers():
+                typenode.qualifier.append(i)
+
+            dimension = []
+            for i in node.dimensions:
+                dimension.append(i)
+
+            p[0] = ArrRef(node.GetName(), [p[3]], typenode, dimension)
+        else:
+            p[1].subscript.append(p[3])
+
+            if len(p[1].subscript) > len(p[1].dim):
+                print("We need to fail due to n-array access on an (n-1)-array.")
+                sys.exit()
+
+            p[0] = p[1]
 
     def p_postfix_expression_3(self, p):
         '''postfix_expression : postfix_expression OPENPARAN CLOSEPARAN'''
@@ -907,7 +933,7 @@ class Parser(Scanner):
     def p_direct_declarator_4(self, p):
         '''direct_declarator : direct_declarator '[' ']' '''
         if type(p[1]) == type(VariableNode()):
-            p[1] = ArrayNode(type_var = p[1].GetType(), name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation(), dim = 1)
+            p[1] = ArrayNode(type_var = p[1].GetType(), name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation(), dim = Constant(Type(['int'], [], []), 0))
         else:
             #p[1].IncrementDimensions()
             pass

@@ -56,7 +56,6 @@ class GraphVizVisitor(NodeVisitor):
     def StringifyLabel(self,label,ticketlabel,braces=False):
 
         if braces:
-            #print braces
             return "{"+ticketlabel + "["+"label=" + '"' + label + '"'+ "]"+"}"
         return ticketlabel + "["+"label=" + '"' + label + '"'+ "]"
 
@@ -96,8 +95,6 @@ class GraphVizVisitor(NodeVisitor):
             string += self.AddBrackets(IterStmt) + "->" + self.AddBrackets(nextlabel) + ";\n"
             string += nextstring
         if node.stmt != None:
-            print "===================="
-            print node.stmt
             stmtstring, stmtlabel = self.visit(node.stmt)
             string += self.AddBrackets(IterStmt) + "->" + self.AddBrackets(stmtlabel) + ";\n"
             string += stmtstring
@@ -129,6 +126,7 @@ class GraphVizVisitor(NodeVisitor):
 
     def visit_AssignOp(self, node):
         label = self.StringifyLabel("Assignment Operation\n=", self.ticket.GetNextTicket())
+        print(node.left)
         leftstring, leftlabel = self.visit(node.left)
         rightstring, rightlabel = self.visit(node.right)
         string = self.AddBrackets(label) + "->" + self.AddBrackets(leftlabel, rightlabel)
@@ -143,13 +141,13 @@ class GraphVizVisitor(NodeVisitor):
             labels += label + " "
             string += value
         return string, labels.strip()
+
     def visit_EmptyStatement(self,node):
-        print "!!!!!!!!!!!!!!!!"
         emptyticket = self.ticket.GetNextTicket()
         emptylabel = self.StringifyLabel("Empty Statment",emptyticket)
         return "",emptylabel
+
     def visit_Func(self,node):
-        #print "Func"
         self.visit(node.function)
         return ""
 
@@ -166,6 +164,7 @@ class GraphVizVisitor(NodeVisitor):
         return "",""
     def visit_If(self,node):
         return "",""
+
     def visit_FuncDef(self,node):
         typestring,typelabel = self.visit(node.type)
         paramstring, paramlabel = self.visit(node.ParamList)
@@ -176,7 +175,6 @@ class GraphVizVisitor(NodeVisitor):
         for i in node.expression:
             if(i == None):
                 continue
-            print i
             cs, cl = self.visit(i)
             compoundstring += cs
             compoundlabel += cl + " "
@@ -221,12 +219,62 @@ class GraphVizVisitor(NodeVisitor):
         return self.AddBrackets(name) + "->" + self.AddBrackets(varname, typelabel) + ";\n" + typestring, name
 
     def visit_ArrDecl(self,node):
-        ticket = self.ticket.GetNextTicket()
-        string = 'Array'
-        for i in node.dim:
-            string += "["+str(i) + "]"
-        string = self.StringifyLabel(string,ticket,True)
-        return string, string
+
+        init = self.StringifyLabel('Init', self.ticket.GetNextTicket())
+        typestring, typelabel = self.visit(node.type)
+        dimensionlabel = self.StringifyLabel('Dimensions', self.ticket.GetNextTicket())
+
+
+        decllabel = self.StringifyLabel("Array Declaration", self.ticket.GetNextTicket())
+
+        string = self.AddBrackets(decllabel) + "->" + self.AddBrackets(self.StringifyLabel(node.name,self.ticket.GetNextTicket()), init, typelabel, dimensionlabel) + ';\n'
+        if node.init:
+            initstring,initlabel = self.visit(node.init)
+            string += self.AddBrackets(init) + "->" + self.AddBrackets(initlabel) + ";\n"
+            string += initstring
+        else:
+            string += self.AddBrackets(init) + "->" 
+            string += self.AddBrackets(self.StringifyLabel("None",self.ticket.GetNextTicket())) + ";\n"
+
+        dimlabel = self.AddBrackets(dimensionlabel) + "->{"
+        dimension = ""
+        for dim in node.dim:
+            dimstr, dimlab = self.visit(dim)
+            dimension += dimstr
+            dimlabel += dimlab + " "
+
+        dimlabel += "};\n"
+
+        return  string + typestring + dimension + dimlabel, decllabel
+
+    def visit_ArrRef(self, node):
+        name = self.StringifyLabel('Array Call', self.ticket.GetNextTicket())
+        dimensionlabel = self.StringifyLabel('Dimensions', self.ticket.GetNextTicket())
+        subscriptlabel = self.StringifyLabel('Subscripts', self.ticket.GetNextTicket())
+        varname = self.StringifyLabel(node.name, self.ticket.GetNextTicket())
+        typestring, typelabel = self.visit(node.type)
+
+        string = self.AddBrackets(name) + "->" + self.AddBrackets(varname, typelabel, subscriptlabel, dimensionlabel) + ";\n"
+
+        dimlabel = self.AddBrackets(dimensionlabel) + "->{"
+        dimension = ""
+        for dim in node.dim:
+            dimstr, dimlab = self.visit(dim)
+            dimension += dimstr
+            dimlabel += dimlab + " "
+
+        dimlabel += "};\n"
+
+        sublabel = self.AddBrackets(subscriptlabel) + "->{"
+        subscript = ""
+        for sub in node.subscript:
+            substr, sublab = self.visit(sub)
+            subscript += substr
+            sublabel += sublab + " "
+
+        sublabel += "};\n"
+
+        return string + typestring + dimension + dimlabel + subscript + sublabel, name
 
     def visit_Constant(self,node):
         constantticket = self.ticket.GetNextTicket()
@@ -245,13 +293,11 @@ class GraphVizVisitor(NodeVisitor):
         for nodes in node.NodeList:
 
             nodeString,nodeLabel = self.visit(nodes)
-            print "+++++++++++++++++++++++"
-            print nodeLabel
-            print nodeString
             string +=  self.AddBrackets(programlabel) + "->" + self.AddBrackets(nodeLabel)
             string += nodeString
         return string
-# &,|,<<,>>,^ 
+
+    # &,|,<<,>>,^ 
     def visit_Cast(self,node):
         nodename = node.__class__.__name__
         castticket = self.ticket.GetNextTicket()

@@ -256,28 +256,34 @@ class ArrDecl(Node):
 			nodelist.append(("type", self.type))
 		if self.init is not None:
 			nodelist.append(("init", self.init))
+		for i, child in enumerate(self.dim or []):
+			nodelist.append(("dim[%d]" % i, child))
 		return tuple(nodelist)
 
-	attr_names = ('name', 'dim', )
+	attr_names = ('name', )
 
 
 class ArrRef(Node):
-	__slots__ = ('name', 'subscript', 'coord', '__weakref__')
+	__slots__ = ('name', 'subscript', 'type', 'dim', 'coord', '__weakref__')
 
-	def __init__(self, name, subscript, coord=None):
+	def __init__(self, name, subscript, type, dim, coord=None):
 		self.name = name
 		self.subscript = subscript
+		self.type = type
+		self.dim = dim
 		self.coord = coord
 
 	def children(self):
 		nodelist = []
-		if self.name is not None:
-			nodelist.append(("name", self.name))
-		if self.subscript is not None:
-			nodelist.append(("subscript", self.subscript))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		for i, child in enumerate(self.subscript or []):
+			nodelist.append(("subscript[%d]" % i, child))
+		for i, child in enumerate(self.dim or []):
+			nodelist.append(("dim[%d]" % i, child))
 		return tuple(nodelist)
 
-	attr_names = ()
+	attr_names = ('name', )
 
 
 class PtrDecl(Node):

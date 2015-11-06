@@ -1,13 +1,8 @@
-int a;
-const int b = 1;
-int foo(int a),foo2(int a);
+int a[10][12][1];
 void main()
-{
-	a = 1.1 + a >> 2 && 1;
-	for (a = 0; a < 10; a++)
-	{
-	
-	}
+{ 
+  int b;
+  a[b][b][1] = 10;
 }
 
 

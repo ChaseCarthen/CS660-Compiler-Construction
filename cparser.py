@@ -63,11 +63,51 @@ class Parser(Scanner):
 
     def p_postfix_expression_7(self, p):
         '''postfix_expression : postfix_expression INC_OP'''
-        #p[0] = p[1] + p[2]
+        rType = ""
+        One = Constant(Type(["int"],[],[]),str(1))
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",One.type):
+            print "Error can't add these two types together!!"
+            sys.exit(0)
+
+        if type(p[1]) == Constant and type(One) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,One.type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                One.value = int(One.value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                One.value = float(One.value)
+                if not self.WeakTypeComparison(p[1].type,One.type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(p[1].value + One.value))
+        else:
+            one,two,Typed = self.StrongestType(p[1],One)
+            p[0] = AddOp(one,two,Typed)
 
     def p_postfix_expression_8(self, p):
         '''postfix_expression : postfix_expression DEC_OP'''
-        #p[0] = p[1] + p[2]
+        rType = ""
+        One = Constant(Type(["Int"],[],[]),1)
+        if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",One.type):
+            print "Error can't add these two types together!!"
+            sys.exit(0)
+
+        if type(p[1]) == Constant and type(One) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[1].type,One.type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[1].value)
+                One.value = int(One.value)
+            else:
+                rType = Type(['float'],[],[])
+                p[1].value = float(p[1].value)
+                One.value = float(One.value)
+                if not self.WeakTypeComparison(p[1].type,One.type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(p[1].value - One.value))
+        else:
+            one,two,Typed = self.StrongestType(p[1],One)
+            p[0] = SubOp(one,two,Typed)
 
     def p_argument_expression_list_1(self, p):
         '''argument_expression_list : assignment_expression'''
@@ -83,11 +123,51 @@ class Parser(Scanner):
 
     def p_unary_expression_2(self, p):
         '''unary_expression : INC_OP unary_expression'''
-        #p[0] = p[1] + p[2]
+        rType = ""
+        One = Constant(Type(["int"],[],[]),str(1))
+        if self.TypeComparison("char",p[2].type) or self.TypeComparison("char",One.type):
+            print "Error can't add these two types together!!"
+            sys.exit(0)
+
+        if type(p[2]) == Constant and type(One) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[2].type,One.type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[2].value)
+                One.value = int(One.value)
+            else:
+                rType = Type(['float'],[],[])
+                p[2].value = float(p[2].value)
+                One.value = float(One.value)
+                if not self.WeakTypeComparison(p[2].type,One.type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(p[2].value + One.value))
+        else:
+            one,two,Typed = self.StrongestType(p[2],One)
+            p[0] = AddOp(one,two,Typed)
 
     def p_unary_expression_3(self, p):
         '''unary_expression : DEC_OP unary_expression'''
-        #p[0] = p[1] + p[2]
+        rType = ""
+        One = Constant(Type(["int"],[],[]),str(1))
+        if self.TypeComparison("char",p[2].type) or self.TypeComparison("char",One.type):
+            print "Error can't add these two types together!!"
+            sys.exit(0)
+
+        if type(p[2]) == Constant and type(One) == Constant:
+            if self.WeakTypeComparisonWithType('int',p[2].type,One.type):
+                rType = Type(['int'],[],[])
+                p[1].value = int(p[2].value)
+                One.value = int(One.value)
+            else:
+                rType = Type(['float'],[],[])
+                p[2].value = float(p[2].value)
+                One.value = float(One.value)
+                if not self.WeakTypeComparison(p[2].type,One.type):
+                    print "Weak upcast warning!"
+            p[0]= Constant(rType,str(p[2].value - One.value))
+        else:
+            one,two,Typed = self.StrongestType(p[2],One)
+            p[0] = SubOp(one,two,Typed)
 
     def p_unary_expression_4(self, p):
         '''unary_expression : unary_operator cast_expression'''
@@ -1142,24 +1222,24 @@ class Parser(Scanner):
     def p_compound_statement_1(self, p):
         '''compound_statement : OPENBRACE CLOSEBRACE'''
         self.symbol_table.EndScope()
-        p[0] = [EmptyStatement()] #makeParserDict(None,EmptyStatement())
+        p[0] = CompoundStatement([EmptyStatement()]) #makeParserDict(None,EmptyStatement())
         #print ("Found a scope")
         #p[0] = p[1] + p[2]
 
     def p_compound_statement_2(self, p):
         '''compound_statement : OPENBRACE statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
-        p[0] = p[2]
+        p[0] = CompoundStatement(p[2])
 
     def p_compound_statement_3(self, p):
         '''compound_statement : OPENBRACE declaration_list CLOSEBRACE'''
-        p[0] = p[2]#makeParserDict(None,p[2])
+        p[0] = CompoundStatement(p[2])#makeParserDict(None,p[2])
         self.symbol_table.EndScope()
 
     def p_compound_statement_4(self, p):
         '''compound_statement : OPENBRACE declaration_list statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
-        p[0] = p[2] + p[3]
+        p[0] = CompoundStatement(p[2] + p[3])
 
     def p_declaration_list_1(self, p):
         '''declaration_list : declaration'''
@@ -1188,7 +1268,7 @@ class Parser(Scanner):
     # This will do the last if first
     def p_selection_statement_1(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement'''
-        p[0] = If(p[3], p[4],None) # May need to check types here 
+        p[0] = If(p[3], p[5],None) # May need to check types here 
     # Will iterate up through the ifs
     def p_selection_statement_2(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement ELSE statement'''

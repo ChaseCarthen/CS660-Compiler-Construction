@@ -1,13 +1,25 @@
 int a;
-const int b = 1;
+int b = 1;
 int foo(int a),foo2(int a);
 void main()
 {
-	a = 1.1 + a >> 2 && 1;
-	for (a = 0; a < 10; a++)
+	if(a<1)
 	{
-	
+		a = 1;
 	}
+	else if (b > 1)
+	{
+		b = 1;
+	}
+	else
+	{
+		b++;	
+	}
+	if(b == 1)
+	{
+		b++;
+	}
+
 }
 
 

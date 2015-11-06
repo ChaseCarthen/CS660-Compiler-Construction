@@ -161,7 +161,7 @@ class GraphVizVisitor(NodeVisitor):
         string += self.AddBrackets(self.StringifyLabel(node.name, self.ticket.GetNextTicket()), typelabel, paramlabel) + ";\n"
 
         return string + typestring + paramstring, FuncDeclLabel
-        return "",""
+        
     def visit_If(self,node):
         return "",""
 
@@ -188,7 +188,16 @@ class GraphVizVisitor(NodeVisitor):
         return string + typestring + paramstring + compoundlabel + compoundstring, FuncDefLabel
 
     def visit_FuncCall(self,node):
-        return "" 
+        typestring,typelabel = self.visit(node.type)
+        paramstring, paramlabel = self.visit(node.ParamList)
+
+        FuncDeclLabel = self.StringifyLabel("Function Call", self.ticket.GetNextTicket())
+        string = self.AddBrackets(FuncDeclLabel) + "->"
+
+        string += self.AddBrackets(self.StringifyLabel(node.name, self.ticket.GetNextTicket()), typelabel, paramlabel) + ";\n"
+
+        return string + typestring + paramstring, FuncDeclLabel
+
     def visit_Return(self,node):
         return ""
 

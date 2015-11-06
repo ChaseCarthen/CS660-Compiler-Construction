@@ -17,7 +17,15 @@ class Parser(Scanner):
         '''primary_expression : IDENTIFIER'''
         try:
             p[0] = self.symbol_table.Retrieve(p[1])
-            p[0] = VariableCall( Type(p[0].GetType(), p[0].GetQualifiers(), None), p[0].GetName())
+            if type(p[0]) != type(FunctionNode()):
+                p[0] = VariableCall( Type(p[0].GetType(), p[0].GetQualifiers(), None), p[0].GetName())
+            else:
+                # FuncCall: [ParamList**,type*,name]{}
+                typelist = []
+                for param in p[0].GetParameters():
+                    typelist.append(Type(param.GetType(), param.GetQualifiers(), None))
+                p[0] = FuncCall(typelist, Type(p[0].GetType(), None, None), p[0].GetName())
+
         except SymbolTableError, e:
             print("We need to fail(this output on line 14): " + str(e))
             sys.exit()
@@ -73,10 +81,28 @@ class Parser(Scanner):
 
     def p_postfix_expression_3(self, p):
         '''postfix_expression : postfix_expression OPENPARAN CLOSEPARAN'''
-        p[0] = p[1] #+ p[2] + p[3]
+        if len(p[1].ParamList) > 0:
+            print("We need to fail since a function is called with less parameters than required. 0 given and " + str(len(p[1].ParamList)) + " required.")
+            sys.exit()
+        p[0] = p[1]
 
     def p_postfix_expression_4(self, p):
         '''postfix_expression : postfix_expression OPENPARAN argument_expression_list CLOSEPARAN'''
+        # Check size of parameters
+        if len(p[1].ParamList) != len(p[3]):
+            print("We need to fail since a function is called with less parameters than required. " + len(p[3]) + " given and " + str(len(p[1].ParamList)) + " required.")
+            sys.exit()
+
+        # Check that the types are correct
+        paramlist = ParamList([])
+        for index in range(len(p[3])):
+            if p[1].ParamList[index].type != p[3][index].type.type:
+                print("Needs to fail for improper parameter types at parameter location " + str(index) + ". " 
+                       + str(p[3][index].type.type) + " given and " + str(p[1].ParamList[index].type) + " expected.")
+                sys.exit()
+            else:
+                paramlist.params.append(p[3][index])
+        p[1].ParamList = paramlist
         p[0] = p[1] # do a type check in parameter
 
     def p_postfix_expression_5(self, p):
@@ -97,11 +123,11 @@ class Parser(Scanner):
 
     def p_argument_expression_list_1(self, p):
         '''argument_expression_list : assignment_expression'''
-        p[0] = p[1]
+        p[0] = [p[1]]
 
     def p_argument_expression_list_2(self, p):
         '''argument_expression_list : argument_expression_list ',' assignment_expression'''
-        p[0] = p[1]#+p[2]+p[3]
+        p[0] = p[1] + [p[3]]
 
     def p_unary_expression_1(self, p):
         '''unary_expression : postfix_expression'''

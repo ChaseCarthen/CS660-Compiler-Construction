@@ -1,39 +1,32 @@
 digraph parse_tree {
-{gv100000[label="Program"]}->{gv100005[label="Array Declaration"]}{gv100005[label="Array Declaration"]}->{gv100006[label="a"] gv100001[label="Init"] gv100002[label="Type"] gv100004[label="Dimensions"]};
-{gv100001[label="Init"]}->{gv100007[label="None"]};
-{gv100002[label="Type"]}->{gv100003[label="int"]};
-{gv100008[label="Constant"]}->{gv100009[label="10"]};
-{gv100008[label="Constant"]}->{gv100010[label="Type"]}{gv100010[label="Type"]}->{gv100011[label="int"]};
-{gv100012[label="Constant"]}->{gv100013[label="12"]};
-{gv100012[label="Constant"]}->{gv100014[label="Type"]}{gv100014[label="Type"]}->{gv100015[label="int"]};
-{gv100016[label="Constant"]}->{gv100017[label="1"]};
-{gv100016[label="Constant"]}->{gv100018[label="Type"]}{gv100018[label="Type"]}->{gv100019[label="int"]};
-{gv100004[label="Dimensions"]}->{gv100008[label="Constant"] gv100012[label="Constant"] gv100016[label="Constant"] };
-{gv100000[label="Program"]}->{gv100066[label="Function Definition"]}{gv100066[label="Function Definition"]}->{gv100067[label="main"] gv100020[label="Type"] gv100022[label="Parameter List"] gv100024[label="Compound Statement"]};
-{gv100020[label="Type"]}->{gv100021[label="void"]};
-{gv100022[label="Parameter List"]}->{gv100023[label="None"]};
-{gv100024[label="Compound Statement"]}->{{gv100026[label="Declaration"]} gv100031[label="Assignment Operation
+{gv100000[label="Program"]}->{gv100016[label="Function Declaration"]}{gv100016[label="Function Declaration"]}->{gv100017[label="func"] gv100001[label="Type"] gv100003[label="Parameter List"]};
+{gv100001[label="Type"]}->{gv100002[label="int"]};
+{gv100003[label="Parameter List"]}->{{gv100005[label="Declaration"]}{gv100011[label="Declaration"]}};
+{gv100005[label="Declaration"]}->{gv100008[label="a"] gv100004[label="Init"] gv100006[label="Type"]};
+{gv100004[label="Init"]}->{gv100009[label="None"]};
+{gv100006[label="Type"]}->{gv100007[label="int"]};
+{gv100011[label="Declaration"]}->{gv100014[label="k"] gv100010[label="Init"] gv100012[label="Type"]};
+{gv100010[label="Init"]}->{gv100015[label="None"]};
+{gv100012[label="Type"]}->{gv100013[label="char"]};
+{gv100000[label="Program"]}->{gv100053[label="Function Definition"]}{gv100053[label="Function Definition"]}->{gv100054[label="main"] gv100018[label="Type"] gv100020[label="Parameter List"] gv100022[label="Compound Statement"]};
+{gv100018[label="Type"]}->{gv100019[label="void"]};
+{gv100020[label="Parameter List"]}->{gv100021[label="None"]};
+{gv100022[label="Compound Statement"]}->{{gv100024[label="Declaration"]} {gv100030[label="Declaration"]} gv100035[label="Assignment Operation
 ="]};
-{gv100026[label="Declaration"]}->{gv100029[label="b"] gv100025[label="Init"] gv100027[label="Type"]};
-{gv100025[label="Init"]}->{gv100030[label="None"]};
-{gv100027[label="Type"]}->{gv100028[label="int"]};
-{gv100031[label="Assignment Operation
-="]}->{gv100032[label="Array Call"] gv100062[label="Constant"]}{gv100032[label="Array Call"]}->{gv100035[label="a"] gv100036[label="Type"] gv100034[label="Subscripts"] gv100033[label="Dimensions"]};
-{gv100036[label="Type"]}->{gv100037[label="int"]};
-{gv100038[label="Constant"]}->{gv100039[label="10"]};
-{gv100038[label="Constant"]}->{gv100040[label="Type"]}{gv100040[label="Type"]}->{gv100041[label="int"]};
-{gv100042[label="Constant"]}->{gv100043[label="12"]};
-{gv100042[label="Constant"]}->{gv100044[label="Type"]}{gv100044[label="Type"]}->{gv100045[label="int"]};
-{gv100046[label="Constant"]}->{gv100047[label="1"]};
-{gv100046[label="Constant"]}->{gv100048[label="Type"]}{gv100048[label="Type"]}->{gv100049[label="int"]};
-{gv100033[label="Dimensions"]}->{gv100038[label="Constant"] gv100042[label="Constant"] gv100046[label="Constant"] };
-{gv100050[label="Variable Call"]}->{gv100051[label="b"] gv100052[label="Type"]};
-{gv100052[label="Type"]}->{gv100053[label="int"]};
-{gv100054[label="Variable Call"]}->{gv100055[label="b"] gv100056[label="Type"]};
-{gv100056[label="Type"]}->{gv100057[label="int"]};
-{gv100058[label="Constant"]}->{gv100059[label="1"]};
-{gv100058[label="Constant"]}->{gv100060[label="Type"]}{gv100060[label="Type"]}->{gv100061[label="int"]};
-{gv100034[label="Subscripts"]}->{gv100050[label="Variable Call"] gv100054[label="Variable Call"] gv100058[label="Constant"] };
-{gv100062[label="Constant"]}->{gv100063[label="10"]};
-{gv100062[label="Constant"]}->{gv100064[label="Type"]}{gv100064[label="Type"]}->{gv100065[label="int"]};
+{gv100024[label="Declaration"]}->{gv100027[label="b"] gv100023[label="Init"] gv100025[label="Type"]};
+{gv100023[label="Init"]}->{gv100028[label="None"]};
+{gv100025[label="Type"]}->{gv100026[label="int"]};
+{gv100030[label="Declaration"]}->{gv100033[label="thing"] gv100029[label="Init"] gv100031[label="Type"]};
+{gv100029[label="Init"]}->{gv100034[label="None"]};
+{gv100031[label="Type"]}->{gv100032[label="char"]};
+{gv100035[label="Assignment Operation
+="]}->{gv100036[label="Variable Call"] gv100051[label="Function Call"]}{gv100036[label="Variable Call"]}->{gv100037[label="b"] gv100038[label="Type"]};
+{gv100038[label="Type"]}->{gv100039[label="int"]};
+{gv100051[label="Function Call"]}->{gv100052[label="func"] gv100040[label="Type"] gv100042[label="Parameter List"]};
+{gv100040[label="Type"]}->{gv100041[label="int"]};
+{gv100042[label="Parameter List"]}->{gv100043[label="Variable Call"]gv100047[label="Variable Call"]};
+{gv100043[label="Variable Call"]}->{gv100044[label="b"] gv100045[label="Type"]};
+{gv100045[label="Type"]}->{gv100046[label="int"]};
+{gv100047[label="Variable Call"]}->{gv100048[label="thing"] gv100049[label="Type"]};
+{gv100049[label="Type"]}->{gv100050[label="char"]};
 }

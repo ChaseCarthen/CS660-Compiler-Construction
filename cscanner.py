@@ -38,11 +38,11 @@ class Scanner():
 
   precedence =  []
   literals = ['=',']','[','&','+','-','.','?','!',',',':','*','<','>','^','|','%']
-  def __init__(self,data,parselog,parsefile,tokenfile):
+  def __init__(self,data,parselog,parsefile,tokenfile,graphfile):
     data = data.replace("\t","    ")
     # To enable a more verbose logger -- this is so we can see all of the production that were taken in the grammar.
     self.parselog = parselog
-
+    self.graphfile = graphfile
     # set up the logger to log info... We added a flag for when not to output this info
     if self.parselog:
       logging.basicConfig(
@@ -159,10 +159,10 @@ class Scanner():
     #for i in out:
     #  string += graphVisitor.visit(i)[0]
     string += "}"
-    print string
+    #print string
     graph.write(string)
     graph.close()
-    os.system("dot -Tpng graph.dot > tree.png")
+    os.system("dot -Tpng graph.dot > " + self.graphfile)
 
   def scan(self,string):
     self.lexer.input(string)
@@ -311,6 +311,7 @@ class Scanner():
       if typeval != None:
         t.value = str(typeval)
         t.type = "INT" # Hack to get it through
+        print "HERE"
     self.logging(t.type,t.value)
     return t
 

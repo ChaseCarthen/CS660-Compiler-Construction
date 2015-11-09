@@ -196,6 +196,18 @@ class GraphVizVisitor(NodeVisitor):
             string += cond
 
         return string,iflabel
+    #PtrDecl: [name,type*,numindirections]
+    def visit_PtrDecl(self,node):
+        Pointer = self.StringifyLabel("Pointer", self.ticket.GetNextTicket())
+        name = self.StringifyLabel(node.name, self.ticket.GetNextTicket())
+        TypeString,TypeLabel = self.visit(node.type)
+        NumIndirections = self.StringifyLabel(str(node.numindirections), self.ticket.GetNextTicket())
+        NumIndirectionsLabel = self.StringifyLabel("Pointer Dimension", self.ticket.GetNextTicket())
+        string = ""
+        string += self.AddBrackets(Pointer) + "->" + self.AddBrackets(TypeLabel,name,NumIndirectionsLabel)
+        string += self.AddBrackets(NumIndirectionsLabel) + "->" + self.AddBrackets(NumIndirections)
+        string += TypeString
+        return string,Pointer
     def visit_CompoundStatement(self,node):
         comlabel = self.StringifyLabel("Compound Statement", self.ticket.GetNextTicket())
         compoundstring = ""
@@ -209,7 +221,6 @@ class GraphVizVisitor(NodeVisitor):
             compoundlabel += cl + " "
 
         compoundlabel = compoundlabel.strip() + "};\n"
-        print "HERE"
         return compoundlabel+compoundstring, comlabel
 
     def visit_FuncDef(self,node):
@@ -249,7 +260,7 @@ class GraphVizVisitor(NodeVisitor):
             string += typelabel
             build_string += typestring
 
-        if not build_string:
+        if build_string == "":
             string += self.StringifyLabel("None", self.ticket.GetNextTicket())
 
         string += "};\n"
@@ -337,7 +348,6 @@ class GraphVizVisitor(NodeVisitor):
         programticket = self.ticket.GetNextTicket()
         programlabel = self.StringifyLabel("Program",programticket)
         for nodes in node.NodeList:
-
             nodeString,nodeLabel = self.visit(nodes)
             string +=  self.AddBrackets(programlabel) + "->" + self.AddBrackets(nodeLabel)
             string += nodeString

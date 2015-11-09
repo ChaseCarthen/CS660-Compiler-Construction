@@ -24,7 +24,7 @@ class Parser(Scanner):
                 typelist = []
                 for param in p[0].GetParameters():
                     typelist.append(Type(param.GetType(), param.GetQualifiers(), None))
-                p[0] = FuncCall(typelist, Type(p[0].GetType(), None, None), p[0].GetName())
+                p[0] = FuncCall(ParamList(typelist), Type(p[0].GetType(), None, None), p[0].GetName())
 
         except SymbolTableError, e:
             print("We need to fail(this output on line 14): " + str(e))
@@ -81,7 +81,7 @@ class Parser(Scanner):
 
     def p_postfix_expression_3(self, p):
         '''postfix_expression : postfix_expression OPENPARAN CLOSEPARAN'''
-        if len(p[1].ParamList) > 0:
+        if len(p[1].ParamList.params) > 0:
             print("We need to fail since a function is called with less parameters than required. 0 given and " + str(len(p[1].ParamList)) + " required.")
             sys.exit()
         p[0] = p[1]
@@ -791,7 +791,7 @@ class Parser(Scanner):
     def p_declaration_specifiers_2(self, p):
         '''declaration_specifiers : storage_class_specifier declaration_specifiers'''
         #p[0] = p[1] + p[2]
-        self.typelist[-1].storage.append(p[2])
+        self.typelist[-1].storage.append(p[1])
         p[0] = p[2]
 
     def p_declaration_specifiers_3(self, p):
@@ -844,7 +844,7 @@ class Parser(Scanner):
                 print(e)
             #p[0] = p[1],astnode
         else:
-            self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1][1:].type)
+            self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1].type[1:])
         if VariableNode == type(p[1]):
             p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,None) )
         elif ArrayNode == type(p[1]):
@@ -854,6 +854,11 @@ class Parser(Scanner):
             for param in p[1].GetParameters():
                 paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
             p[0] = makeParserDict(p[1], FuncDecl(ParamList(paramlist),Type(p[1].GetType(),[],[] ), p[1].GetName()) )
+        elif PointerNode == type(p[1]):
+            #PtrDecl: [name,type*]
+            print "HERE"
+            node = PtrDecl(p[1].GetName(), Type(p[1].GetType(),p[1].GetQualifiers(),[]),p[1].GetNumberIndirections())
+            p[0] = makeParserDict(p[1],node)
         
 
     def p_init_declarator_2(self, p):
@@ -1006,13 +1011,10 @@ class Parser(Scanner):
 
     def p_declarator_1(self, p):
         '''declarator : pointer direct_declarator'''
-        p[1]["symbolNode"].SetName(p[2]["symbolNode"].GetName())
-        p[1]["symbolNode"].SetLine(p[2]["symbolNode"].GetLine())
-        p[1]["symbolNode"].SetCharacterLocation(p[2]["symbolNode"].GetCharacterLocation())
-        n = node(text="Declarator")
-        n.SetChild(p[1]["astNode"])
-        n.SetChild(p[2]["astNode"])
-        p[1]["astNode"] = n
+        p[1].SetName(p[2].GetName())
+        p[1].SetLine(p[2].GetLine())
+        p[1].SetCharacterLocation(p[2].GetCharacterLocation())
+        
         p[0] = p[1]
 
     def p_declarator_2(self, p):
@@ -1110,18 +1112,16 @@ class Parser(Scanner):
 
     def p_pointer_1(self, p):
         '''pointer : '*' '''
-        p[0] = makeParserDict(PointerNode(None),node(text="*"))
+        p[0] = PointerNode(None)
 
     def p_pointer_2(self, p):
         '''pointer : '*' type_qualifier_list'''
-        n = node(text="*")
-        p[2]["astNode"].SetParent(n)
-        p[0] = makeParserDict(PointerNode(p[2]),n)
+
+        p[0] = PointerNode(p[2])
 
     def p_pointer_3(self, p):
         '''pointer : '*' pointer'''
-        p[2]["symbolNode"].AddIndirection()
-        p[2]["astNode"].text = "*" + p[2]["astNode"].text
+        p[2].AddIndirection()
         p[0] = p[2]
 
     def p_pointer_4(self, p):
@@ -1156,7 +1156,7 @@ class Parser(Scanner):
         if p[1] != None:
             p[1].append(p[3])
             p[0] = p[1]
-
+    # Need to take care of pointers and arrays here.
     def p_parameter_declaration_1(self, p):
         '''parameter_declaration : declaration_specifiers declarator'''
         self.typelist.pop()
@@ -1172,7 +1172,7 @@ class Parser(Scanner):
         '''parameter_declaration : declaration_specifiers'''
         self.typelist.pop()
         #print( "TYPE: " + str(p[1]))
-        p[0] = VariableNode(type_var = p[1]['specifiers'], tq = p[1]['qualifiers'])
+        p[0] = VariableNode(type_var = p[1].type, tq = p[1].qualifier)
 
     def p_identifier_list_1(self, p):
         '''identifier_list : IDENTIFIER'''
@@ -1320,12 +1320,19 @@ class Parser(Scanner):
     # This will do the last if first
     def p_selection_statement_1(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement'''
-        p[0] = If(p[3], p[5],None) # May need to check types here 
+        p[0] = If(p[3], p[5],None) # May need to check types here
+        span = p.lexspan(1)
+        span2 = p.lexspan(5)
+        print "If"
+        print self.input_data[span[0]:span2[1]+1] 
     # Will iterate up through the ifs
     def p_selection_statement_2(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement ELSE statement'''
         p[0] = If(p[3],p[5],p[7]) # May need to check types
-
+        span = p.lexspan(1)
+        span2 = p.lexspan(6)
+        print "if else"
+        print self.input_data[span[0]:span2[1]+1]
     def p_selection_statement_3(self, p):
         '''selection_statement : SWITCH OPENPARAN expression CLOSEPARAN statement'''
         pass
@@ -1333,19 +1340,33 @@ class Parser(Scanner):
     def p_iteration_statement_1(self, p):
         '''iteration_statement : WHILE OPENPARAN expression CLOSEPARAN statement'''
         p[0] = IterStatement(None,p[3],None,p[5],False,"While")# IterStatement: [init*, cond*, next*, stmt*,isdowhile,name]
+        span = p.lexspan(1)
+        span2 = p.lexspan(5)
+        print "While"
+        print self.input_data[span[0]:span2[1]+1]
 
     def p_iteration_statement_2(self, p):
         '''iteration_statement : DO statement WHILE OPENPARAN expression CLOSEPARAN SEMI'''
-        p[0] = IterStatement(None,p[5],None,p[1],True,"Do While")
-
+        p[0] = IterStatement(None,p[5],None,p[2],True,"Do While")
+        span = p.lexspan(1)
+        span2 = p.lexspan(7)
+        print "Do While"
+        print self.input_data[span[0]:span2[1]+1]        
     def p_iteration_statement_3(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement CLOSEPARAN statement'''
         p[0] = IterStatement(p[3],p[4],None,p[6],False,"For")
+        span = p.lexspan(1)
+        span2 = p.lexspan(6)
+        print "For LOOP"
+        print self.input_data[span[0]:span2[1]+1]
 
     def p_iteration_statement_4(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement expression CLOSEPARAN statement'''
         p[0] = IterStatement(p[3],p[4],p[5],p[7],False,"For")
-
+        span = p.lexspan(1)
+        span2 = p.lexspan(7)
+        print "For LOOP"
+        print self.input_data[span[0]:span2[1]+1]
     def p_jump_statement_1(self, p):
         '''jump_statement : GOTO IDENTIFIER SEMI'''
         #p[0] = p[1] + p[2] + p[3] # look up
@@ -1388,6 +1409,9 @@ class Parser(Scanner):
     def p_external_declaration_2(self, p):
         '''external_declaration : declaration'''
         p[0] = p[1]
+        span = p.lexspan(1)
+        p[1].coord = p.linespan(1)
+        p[1].text =  self.input_data[span[0]:span[1]+1]
 
     def p_function_definition_1(self, p):
         '''function_definition : declaration_specifiers declarator declaration_list compound_statement'''

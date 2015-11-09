@@ -268,6 +268,12 @@ class PointerNode(SymbolTreeNode):
     
   def SetQualifiers(self, tq):
     self.typequalifiers += tq
+    
+  def GetQualifiers(self):
+    return self.typequalifiers
+
+  def GetNumberIndirections(self):
+    return self.numindirection
 
 class FunctionNode(SymbolTreeNode):
   """A function node"""

@@ -1,12 +1,5 @@
 
-int func(int a, char k);
-
-
-void main()
-{ 
-  int b;
-  char thing;
-  b = func(b, thing);
+void main(int* a)
+{
+	int b;
 }
-
-

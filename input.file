@@ -1,9 +1,4 @@
-int foo(int* a)
+void main()
 {
-	
-}
-
-void main(int a)
-{
-	int b = &a;
+	int b = 2;
 }

@@ -865,6 +865,8 @@ class Parser(Scanner):
         span = (p.lexspan(1)[0],p.lexspan(1)[1])
         p[1].lines = (p.linespan(1)[0],p.linespan(1)[1])
         p[1].text =  self.input_data[span[0]:span[1]+1]
+        print(p[1].text)
+        print ("DECLFY")
         
 
     def p_init_declarator_2(self, p):
@@ -876,6 +878,11 @@ class Parser(Scanner):
         except SymbolTableError, e:
             print(e)
         p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,p[3],None))
+        span = (p.lexspan(1)[0],p.lexspan(3)[1])
+        p[0]["astNode"].lines = (p.linespan(1)[0],p.linespan(3)[1])
+        p[0]["astNode"].text =  self.input_data[span[0]:span[1]+2]
+        print ("DECLFY")
+        print(p[0]["astNode"].text)
     def p_storage_class_specifier_1(self, p):
         '''storage_class_specifier : TYPEDEF'''
         p[0] = p[1]

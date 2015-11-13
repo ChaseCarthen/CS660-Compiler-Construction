@@ -1,17 +1,11 @@
 digraph parse_tree {
-{gv100000[label="Program"]}->{gv100012[label="Function Definition"]}{gv100012[label="Function Definition"]}->{gv100013[label="foo"] gv100001[label="Type"] gv100003[label="Parameter List"] gv100010[label="Compound Statement"]};
-{gv100001[label="Type"]}->{gv100002[label="int"]};
-{gv100003[label="Parameter List"]}->{gv100004[label="Pointer"]};
-{gv100004[label="Pointer"]}->{gv100006[label="Type"] gv100005[label="a"] gv100009[label="Pointer Dimension"]}{gv100009[label="Pointer Dimension"]}->{gv100008[label="1"]}{gv100006[label="Type"]}->{gv100007[label="int"]};
-{gv100010[label="Compound Statement"]}->{gv100011[label="Empty Statment"]};
-{gv100000[label="Program"]}->{gv100030[label="Function Definition"]}{gv100030[label="Function Definition"]}->{gv100031[label="main"] gv100014[label="Type"] gv100016[label="Parameter List"] gv100023[label="Compound Statement"]};
-{gv100014[label="Type"]}->{gv100015[label="void"]};
-{gv100016[label="Parameter List"]}->{{gv100018[label="Declaration"]}};
-{gv100018[label="Declaration"]}->{gv100021[label="a"] gv100017[label="Init"] gv100019[label="Type"]};
-{gv100017[label="Init"]}->{gv100022[label="None"]};
-{gv100019[label="Type"]}->{gv100020[label="int"]};
-{gv100023[label="Compound Statement"]}->{{gv100025[label="Declaration"]}};
-{gv100025[label="Declaration"]}->{gv100028[label="b"] gv100024[label="Init"] gv100026[label="Type"]};
-{gv100024[label="Init"]}->{gv100029[label="None"]};
-{gv100026[label="Type"]}->{gv100027[label="int"]};
+{gv100000[label="Program"]}->{gv100015[label="Function Definition"]}{gv100015[label="Function Definition"]}->{gv100016[label="main"] gv100001[label="Type"] gv100003[label="Parameter List"] gv100005[label="Compound Statement"]};
+{gv100001[label="Type"]}->{gv100002[label="void"]};
+{gv100003[label="Parameter List"]}->{gv100004[label="None"]};
+{gv100005[label="Compound Statement"]}->{{gv100007[label="Declaration"]}};
+{gv100007[label="Declaration"]}->{gv100010[label="b"] gv100006[label="Init"] gv100008[label="Type"]};
+{gv100006[label="Init"]}->{gv100011[label="Constant"]};
+{gv100011[label="Constant"]}->{gv100012[label="2"]};
+{gv100011[label="Constant"]}->{gv100013[label="Type"]}{gv100013[label="Type"]}->{gv100014[label="int"]};
+{gv100008[label="Type"]}->{gv100009[label="int"]};
 }

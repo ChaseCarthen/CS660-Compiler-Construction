@@ -27,11 +27,11 @@ class Node(object):
 		pass
 
 class CompoundStatement(Node):
-	__slots__ = ('stmts','text', 'coord', '__weakref__')
+	__slots__ = ('stmts','text', 'lines', '__weakref__')
 
-	def __init__(self, stmts, coord=None,text=""):
+	def __init__(self, stmts, lines=None,text=""):
 		self.stmts = stmts
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -44,13 +44,13 @@ class CompoundStatement(Node):
 
 
 class FuncDecl(Node):
-	__slots__ = ('ParamList', 'type', 'name','text', 'coord', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'name','text', 'lines', '__weakref__')
 
-	def __init__(self, ParamList, type, name, coord=None,text=""):
+	def __init__(self, ParamList, type, name, lines=None,text=""):
 		self.ParamList = ParamList
 		self.type = type
 		self.name = name
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -65,14 +65,14 @@ class FuncDecl(Node):
 
 
 class FuncDef(Node):
-	__slots__ = ('ParamList', 'type', 'name', 'expression','text', 'coord', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'name', 'expression','text', 'lines', '__weakref__')
 
-	def __init__(self, ParamList, type, name, expression, coord=None,text=""):
+	def __init__(self, ParamList, type, name, expression, lines=None,text=""):
 		self.ParamList = ParamList
 		self.type = type
 		self.name = name
 		self.expression = expression
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -89,13 +89,13 @@ class FuncDef(Node):
 
 
 class FuncCall(Node):
-	__slots__ = ('ParamList', 'type', 'name','text', 'coord', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'name','text', 'lines', '__weakref__')
 
-	def __init__(self, ParamList, type, name, coord=None,text=""):
+	def __init__(self, ParamList, type, name, lines=None,text=""):
 		self.ParamList = ParamList
 		self.type = type
 		self.name = name
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -110,11 +110,11 @@ class FuncCall(Node):
 
 
 class Program(Node):
-	__slots__ = ('NodeList','text', 'coord', '__weakref__')
+	__slots__ = ('NodeList','text', 'lines', '__weakref__')
 
-	def __init__(self, NodeList, coord=None,text=""):
+	def __init__(self, NodeList, lines=None,text=""):
 		self.NodeList = NodeList
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -127,11 +127,11 @@ class Program(Node):
 
 
 class Return(Node):
-	__slots__ = ('expr','text', 'coord', '__weakref__')
+	__slots__ = ('expr','text', 'lines', '__weakref__')
 
-	def __init__(self, expr, coord=None,text=""):
+	def __init__(self, expr, lines=None,text=""):
 		self.expr = expr
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -144,12 +144,12 @@ class Return(Node):
 
 
 class VariableCall(Node):
-	__slots__ = ('type', 'name','text', 'coord', '__weakref__')
+	__slots__ = ('type', 'name','text', 'lines', '__weakref__')
 
-	def __init__(self, type, name, coord=None,text=""):
+	def __init__(self, type, name, lines=None,text=""):
 		self.type = type
 		self.name = name
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -162,11 +162,11 @@ class VariableCall(Node):
 
 
 class ParamList(Node):
-	__slots__ = ('params','text', 'coord', '__weakref__')
+	__slots__ = ('params','text', 'lines', '__weakref__')
 
-	def __init__(self, params, coord=None,text=""):
+	def __init__(self, params, lines=None,text=""):
 		self.params = params
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -179,13 +179,13 @@ class ParamList(Node):
 
 
 class Decl(Node):
-	__slots__ = ('name', 'type', 'init','text', 'coord', '__weakref__')
+	__slots__ = ('name', 'type', 'init','text', 'lines', '__weakref__')
 
-	def __init__(self, name, type, init, coord=None,text=""):
+	def __init__(self, name, type, init, lines=None,text=""):
 		self.name = name
 		self.type = type
 		self.init = init
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -200,11 +200,11 @@ class Decl(Node):
 
 
 class DeclList(Node):
-	__slots__ = ('decls','text', 'coord', '__weakref__')
+	__slots__ = ('decls','text', 'lines', '__weakref__')
 
-	def __init__(self, decls, coord=None,text=""):
+	def __init__(self, decls, lines=None,text=""):
 		self.decls = decls
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -217,16 +217,16 @@ class DeclList(Node):
 
 
 class IterStatement(Node):
-	__slots__ = ('init', 'cond', 'next', 'stmt', 'isdowhile', 'name','text', 'coord', '__weakref__')
+	__slots__ = ('init', 'cond', 'next', 'stmt', 'isdowhile', 'name','text', 'lines', '__weakref__')
 
-	def __init__(self, init, cond, next, stmt, isdowhile, name, coord=None,text=""):
+	def __init__(self, init, cond, next, stmt, isdowhile, name, lines=None,text=""):
 		self.init = init
 		self.cond = cond
 		self.next = next
 		self.stmt = stmt
 		self.isdowhile = isdowhile
 		self.name = name
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -245,10 +245,10 @@ class IterStatement(Node):
 
 
 class Break(Node):
-	__slots__ = ('coord', '__weakref__')
+	__slots__ = ('lines', '__weakref__', 'text')
 
-	def __init__(self, coord=None,text=""):
-		self.coord = coord
+	def __init__(self, lines=None,text=""):
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -258,10 +258,10 @@ class Break(Node):
 
 
 class Continue(Node):
-	__slots__ = ('coord', '__weakref__')
+	__slots__ = ('lines', '__weakref__', 'text')
 
-	def __init__(self, coord=None,text=""):
-		self.coord = coord
+	def __init__(self, lines=None,text=""):
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -271,14 +271,14 @@ class Continue(Node):
 
 
 class ArrDecl(Node):
-	__slots__ = ('name', 'type', 'init', 'dim','text', 'coord', '__weakref__')
+	__slots__ = ('name', 'type', 'init', 'dim','text', 'lines', '__weakref__')
 
-	def __init__(self, name, type, init, dim, coord=None,text=""):
+	def __init__(self, name, type, init, dim, lines=None,text=""):
 		self.name = name
 		self.type = type
 		self.init = init
 		self.dim = dim
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -295,14 +295,14 @@ class ArrDecl(Node):
 
 
 class ArrRef(Node):
-	__slots__ = ('name', 'subscript', 'type', 'dim','text', 'coord', '__weakref__')
+	__slots__ = ('name', 'subscript', 'type', 'dim','text', 'lines', '__weakref__')
 
-	def __init__(self, name, subscript, type, dim, coord=None,text=""):
+	def __init__(self, name, subscript, type, dim, lines=None,text=""):
 		self.name = name
 		self.subscript = subscript
 		self.type = type
 		self.dim = dim
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -319,13 +319,13 @@ class ArrRef(Node):
 
 
 class PtrDecl(Node):
-	__slots__ = ('name', 'type', 'numindirections','text', 'coord', '__weakref__')
+	__slots__ = ('name', 'type', 'numindirections','text', 'lines', '__weakref__')
 
-	def __init__(self, name, type, numindirections, coord=None,text=""):
+	def __init__(self, name, type, numindirections, lines=None,text=""):
 		self.name = name
 		self.type = type
 		self.numindirections = numindirections
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -338,13 +338,13 @@ class PtrDecl(Node):
 
 
 class Assignment(Node):
-	__slots__ = ('op', 'lvalue', 'rvalue','text', 'coord', '__weakref__')
+	__slots__ = ('op', 'lvalue', 'rvalue','text', 'lines', '__weakref__')
 
-	def __init__(self, op, lvalue, rvalue, coord=None,text=""):
+	def __init__(self, op, lvalue, rvalue, lines=None,text=""):
 		self.op = op
 		self.lvalue = lvalue
 		self.rvalue = rvalue
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -359,13 +359,13 @@ class Assignment(Node):
 
 
 class AndOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -382,13 +382,13 @@ class AndOp(Node):
 
 
 class OrOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -405,13 +405,13 @@ class OrOp(Node):
 
 
 class LeftOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -428,13 +428,13 @@ class LeftOp(Node):
 
 
 class RightOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -451,13 +451,13 @@ class RightOp(Node):
 
 
 class XorOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -474,13 +474,13 @@ class XorOp(Node):
 
 
 class LandOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -497,13 +497,13 @@ class LandOp(Node):
 
 
 class LorOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -520,13 +520,13 @@ class LorOp(Node):
 
 
 class TernaryOp(Node):
-	__slots__ = ('cond', 'truecond', 'falsecond','text', 'coord', '__weakref__')
+	__slots__ = ('cond', 'truecond', 'falsecond','text', 'lines', '__weakref__')
 
-	def __init__(self, cond, truecond, falsecond, coord=None,text=""):
+	def __init__(self, cond, truecond, falsecond, lines=None,text=""):
 		self.cond = cond
 		self.truecond = truecond
 		self.falsecond = falsecond
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -543,13 +543,13 @@ class TernaryOp(Node):
 
 
 class If(Node):
-	__slots__ = ('cond', 'truecond', 'falsecond','text', 'coord', '__weakref__')
+	__slots__ = ('cond', 'truecond', 'falsecond','text', 'lines', '__weakref__')
 
-	def __init__(self, cond, truecond, falsecond, coord=None,text=""):
+	def __init__(self, cond, truecond, falsecond, lines=None,text=""):
 		self.cond = cond
 		self.truecond = truecond
 		self.falsecond = falsecond
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -566,13 +566,13 @@ class If(Node):
 
 
 class NEqualOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -589,13 +589,13 @@ class NEqualOp(Node):
 
 
 class GEqualOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -612,13 +612,13 @@ class GEqualOp(Node):
 
 
 class LEqualOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -635,13 +635,13 @@ class LEqualOp(Node):
 
 
 class EqualOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -658,13 +658,13 @@ class EqualOp(Node):
 
 
 class GreatOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -681,13 +681,13 @@ class GreatOp(Node):
 
 
 class LessOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -704,13 +704,13 @@ class LessOp(Node):
 
 
 class RefOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -727,13 +727,13 @@ class RefOp(Node):
 
 
 class MultOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -750,13 +750,13 @@ class MultOp(Node):
 
 
 class AddOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -773,13 +773,13 @@ class AddOp(Node):
 
 
 class SubOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -796,13 +796,13 @@ class SubOp(Node):
 
 
 class DivOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -819,13 +819,13 @@ class DivOp(Node):
 
 
 class ModOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -842,13 +842,13 @@ class ModOp(Node):
 
 
 class BitNotOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -865,13 +865,13 @@ class BitNotOp(Node):
 
 
 class LogNotOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, type, coord=None,text=""):
+	def __init__(self, left, right, type, lines=None,text=""):
 		self.left = left
 		self.right = right
 		self.type = type
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -888,12 +888,12 @@ class LogNotOp(Node):
 
 
 class AssignOp(Node):
-	__slots__ = ('left', 'right','text', 'coord', '__weakref__')
+	__slots__ = ('left', 'right','text', 'lines', '__weakref__')
 
-	def __init__(self, left, right, coord=None,text=""):
+	def __init__(self, left, right, lines=None,text=""):
 		self.left = left
 		self.right = right
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -908,11 +908,11 @@ class AssignOp(Node):
 
 
 class Goto(Node):
-	__slots__ = ('name','text', 'coord', '__weakref__')
+	__slots__ = ('name','text', 'lines', '__weakref__')
 
-	def __init__(self, name, coord=None,text=""):
+	def __init__(self, name, lines=None,text=""):
 		self.name = name
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -923,12 +923,12 @@ class Goto(Node):
 
 
 class Cast(Node):
-	__slots__ = ('to_type', 'expr','text', 'coord', '__weakref__')
+	__slots__ = ('to_type', 'expr','text', 'lines', '__weakref__')
 
-	def __init__(self, to_type, expr, coord=None,text=""):
+	def __init__(self, to_type, expr, lines=None,text=""):
 		self.to_type = to_type
 		self.expr = expr
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -943,12 +943,12 @@ class Cast(Node):
 
 
 class Constant(Node):
-	__slots__ = ('type', 'value','text', 'coord', '__weakref__')
+	__slots__ = ('type', 'value','text', 'lines', '__weakref__')
 
-	def __init__(self, type, value, coord=None,text=""):
+	def __init__(self, type, value, lines=None,text=""):
 		self.type = type
 		self.value = value
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -959,11 +959,11 @@ class Constant(Node):
 
 
 class ExprList(Node):
-	__slots__ = ('exprs','text', 'coord', '__weakref__')
+	__slots__ = ('exprs','text', 'lines', '__weakref__')
 
-	def __init__(self, exprs, coord=None,text=""):
+	def __init__(self, exprs, lines=None,text=""):
 		self.exprs = exprs
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -976,10 +976,10 @@ class ExprList(Node):
 
 
 class EmptyStatement(Node):
-	__slots__ = ('coord', '__weakref__')
+	__slots__ = ('lines', '__weakref__', 'text')
 
-	def __init__(self, coord=None,text=""):
-		self.coord = coord
+	def __init__(self, lines=None,text=""):
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -989,11 +989,11 @@ class EmptyStatement(Node):
 
 
 class InitList(Node):
-	__slots__ = ('exprs','text', 'coord', '__weakref__')
+	__slots__ = ('exprs','text', 'lines', '__weakref__')
 
-	def __init__(self, exprs, coord=None,text=""):
+	def __init__(self, exprs, lines=None,text=""):
 		self.exprs = exprs
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -1006,12 +1006,12 @@ class InitList(Node):
 
 
 class Label(Node):
-	__slots__ = ('name', 'stmt','text', 'coord', '__weakref__')
+	__slots__ = ('name', 'stmt','text', 'lines', '__weakref__')
 
-	def __init__(self, name, stmt, coord=None,text=""):
+	def __init__(self, name, stmt, lines=None,text=""):
 		self.name = name
 		self.stmt = stmt
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -1024,13 +1024,13 @@ class Label(Node):
 
 
 class Type(Node):
-	__slots__ = ('type', 'qualifier', 'storage','text', 'coord', '__weakref__')
+	__slots__ = ('type', 'qualifier', 'storage','text', 'lines', '__weakref__')
 
-	def __init__(self, type, qualifier, storage, coord=None,text=""):
+	def __init__(self, type, qualifier, storage, lines=None,text=""):
 		self.type = type
 		self.qualifier = qualifier
 		self.storage = storage
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -1041,11 +1041,11 @@ class Type(Node):
 
 
 class ID(Node):
-	__slots__ = ('name','text', 'coord', '__weakref__')
+	__slots__ = ('name','text', 'lines', '__weakref__')
 
-	def __init__(self, name, coord=None,text=""):
+	def __init__(self, name, lines=None,text=""):
 		self.name = name
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -1056,12 +1056,12 @@ class ID(Node):
 
 
 class Struct(Node):
-	__slots__ = ('name', 'decls','text', 'coord', '__weakref__')
+	__slots__ = ('name', 'decls','text', 'lines', '__weakref__')
 
-	def __init__(self, name, decls, coord=None,text=""):
+	def __init__(self, name, decls, lines=None,text=""):
 		self.name = name
 		self.decls = decls
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -1074,12 +1074,12 @@ class Struct(Node):
 
 
 class Union(Node):
-	__slots__ = ('name', 'decls','text', 'coord', '__weakref__')
+	__slots__ = ('name', 'decls','text', 'lines', '__weakref__')
 
-	def __init__(self, name, decls, coord=None,text=""):
+	def __init__(self, name, decls, lines=None,text=""):
 		self.name = name
 		self.decls = decls
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -1092,13 +1092,13 @@ class Union(Node):
 
 
 class StructRef(Node):
-	__slots__ = ('name', 'type', 'field','text', 'coord', '__weakref__')
+	__slots__ = ('name', 'type', 'field','text', 'lines', '__weakref__')
 
-	def __init__(self, name, type, field, coord=None,text=""):
+	def __init__(self, name, type, field, lines=None,text=""):
 		self.name = name
 		self.type = type
 		self.field = field
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -1113,12 +1113,12 @@ class StructRef(Node):
 
 
 class Case(Node):
-	__slots__ = ('expr', 'stmts','text', 'coord', '__weakref__')
+	__slots__ = ('expr', 'stmts','text', 'lines', '__weakref__')
 
-	def __init__(self, expr, stmts, coord=None,text=""):
+	def __init__(self, expr, stmts, lines=None,text=""):
 		self.expr = expr
 		self.stmts = stmts
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -1133,11 +1133,11 @@ class Case(Node):
 
 
 class Default(Node):
-	__slots__ = ('stmts','text', 'coord', '__weakref__')
+	__slots__ = ('stmts','text', 'lines', '__weakref__')
 
-	def __init__(self, stmts, coord=None,text=""):
+	def __init__(self, stmts, lines=None,text=""):
 		self.stmts = stmts
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -1150,12 +1150,12 @@ class Default(Node):
 
 
 class Switch(Node):
-	__slots__ = ('cond', 'stmt','text', 'coord', '__weakref__')
+	__slots__ = ('cond', 'stmt','text', 'lines', '__weakref__')
 
-	def __init__(self, cond, stmt, coord=None,text=""):
+	def __init__(self, cond, stmt, lines=None,text=""):
 		self.cond = cond
 		self.stmt = stmt
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):
@@ -1170,12 +1170,12 @@ class Switch(Node):
 
 
 class Example(Node):
-	__slots__ = ('a', 'b','text', 'coord', '__weakref__')
+	__slots__ = ('a', 'b','text', 'lines', '__weakref__')
 
-	def __init__(self, a, b, coord=None,text=""):
+	def __init__(self, a, b, lines=None,text=""):
 		self.a = a
 		self.b = b
-		self.coord = coord
+		self.lines = lines
 		self.text = text
 
 	def children(self):

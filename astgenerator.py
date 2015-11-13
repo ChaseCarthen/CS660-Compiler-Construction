@@ -66,16 +66,16 @@ class RawNode(object):
 		if self.entries:
 			args = ', '.join(self.entries)
 			slots = ', '.join("'{0}'".format(e) for e in self.entries)
-			slots += ",'text', 'coord', '__weakref__'"
-			arglist = '(self, %s, coord=None,text="")' % args
+			slots += ",'text', 'lines', '__weakref__'"
+			arglist = '(self, %s, lines=None,text="")' % args
 		else:
-			slots = "'coord', '__weakref__'"
-			arglist = '(self, coord=None,text="")'
+			slots = "'lines', '__weakref__', 'text'"
+			arglist = '(self, lines=None,text="")'
 
 		code += "\t__slots__ = (%s)\n\n" % slots
 		code += "\tdef __init__%s:\n" %arglist
 
-		for name in self.entries + ['coord','text']:
+		for name in self.entries + ['lines','text']:
 			code += "\t\tself.%s = %s\n" % (name, name)
 
 		return code

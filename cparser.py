@@ -781,6 +781,9 @@ class Parser(Scanner):
                 astList.append(declarator["astNode"])
 
         p[0] = DeclList(astList)
+        span = (p.lexspan(1)[0],p.lexspan(3)[1])
+        p[0].lines = (p.linespan(1)[0],p.linespan(3)[1])
+        p[0].text =  self.input_data[span[0]:span[1]+1]
 
 
     def p_declaration_specifiers_1(self, p):
@@ -859,6 +862,9 @@ class Parser(Scanner):
             print "HERE"
             node = PtrDecl(p[1].GetName(), Type(p[1].GetType(),p[1].GetQualifiers(),[]),p[1].GetNumberIndirections())
             p[0] = makeParserDict(p[1],node)
+        span = (p.lexspan(1)[0],p.lexspan(1)[1])
+        p[1].lines = (p.linespan(1)[0],p.linespan(1)[1])
+        p[1].text =  self.input_data[span[0]:span[1]+1]
         
 
     def p_init_declarator_2(self, p):
@@ -1275,6 +1281,9 @@ class Parser(Scanner):
         '''compound_statement : OPENBRACE CLOSEBRACE'''
         self.symbol_table.EndScope()
         p[0] = CompoundStatement([EmptyStatement()]) #makeParserDict(None,EmptyStatement())
+        span = (p.lexspan(1)[0],p.lexspan(2)[1])
+        p[0].lines = (p.linespan(1)[0],p.linespan(2)[1])
+        p[0].text =  self.input_data[span[0]:span[1]+1]
         #print ("Found a scope")
         #p[0] = p[1] + p[2]
 
@@ -1282,16 +1291,25 @@ class Parser(Scanner):
         '''compound_statement : OPENBRACE statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
         p[0] = CompoundStatement(p[2])
+        span = (p.lexspan(1)[0],p.lexspan(3)[1])
+        p[0].lines = (p.linespan(1)[0],p.linespan(3)[1])
+        p[0].text =  self.input_data[span[0]:span[1]+1]
 
     def p_compound_statement_3(self, p):
         '''compound_statement : OPENBRACE declaration_list CLOSEBRACE'''
         p[0] = CompoundStatement(p[2])#makeParserDict(None,p[2])
         self.symbol_table.EndScope()
+        span = (p.lexspan(1)[0],p.lexspan(3)[1])
+        p[0].lines = (p.linespan(1)[0],p.linespan(3)[1])
+        p[0].text =  self.input_data[span[0]:span[1]+1]
 
     def p_compound_statement_4(self, p):
         '''compound_statement : OPENBRACE declaration_list statement_list CLOSEBRACE'''
         self.symbol_table.EndScope()
         p[0] = CompoundStatement(p[2] + p[3])
+        span = (p.lexspan(1)[0],p.lexspan(4)[1])
+        p[0].lines = (p.linespan(1)[0],p.linespan(4)[1])
+        p[0].text =  self.input_data[span[0]:span[1]+1]
 
     def p_declaration_list_1(self, p):
         '''declaration_list : declaration'''
@@ -1324,7 +1342,9 @@ class Parser(Scanner):
         span = p.lexspan(1)
         span2 = p.lexspan(5)
         print "If"
-        print self.input_data[span[0]:span2[1]+1] 
+        p[0].text = self.input_data[span[0]:span2[1]+1]
+        p[0].lines = (p.linespan(1)[0],p.linespan(5)[1])
+
     # Will iterate up through the ifs
     def p_selection_statement_2(self, p):
         '''selection_statement : IF OPENPARAN expression CLOSEPARAN statement ELSE statement'''
@@ -1332,7 +1352,8 @@ class Parser(Scanner):
         span = p.lexspan(1)
         span2 = p.lexspan(6)
         print "if else"
-        print self.input_data[span[0]:span2[1]+1]
+        p[0].text = self.input_data[span[0]:span2[1]+1]
+        p[0].lines = (p.linespan(1)[0],p.linespan(6)[1])
     def p_selection_statement_3(self, p):
         '''selection_statement : SWITCH OPENPARAN expression CLOSEPARAN statement'''
         pass
@@ -1343,7 +1364,8 @@ class Parser(Scanner):
         span = p.lexspan(1)
         span2 = p.lexspan(5)
         print "While"
-        print self.input_data[span[0]:span2[1]+1]
+        p[0].text = self.input_data[span[0]:span2[1]+1]
+        p[0].lines = (p.linespan(1)[0],p.linespan(5)[1]) 
 
     def p_iteration_statement_2(self, p):
         '''iteration_statement : DO statement WHILE OPENPARAN expression CLOSEPARAN SEMI'''
@@ -1351,14 +1373,17 @@ class Parser(Scanner):
         span = p.lexspan(1)
         span2 = p.lexspan(7)
         print "Do While"
-        print self.input_data[span[0]:span2[1]+1]        
+        p[0].text = self.input_data[span[0]:span2[1]+1]
+        p[0].lines = (p.linespan(1)[0],p.linespan(7)[1])        
     def p_iteration_statement_3(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement CLOSEPARAN statement'''
         p[0] = IterStatement(p[3],p[4],None,p[6],False,"For")
         span = p.lexspan(1)
         span2 = p.lexspan(6)
         print "For LOOP"
-        print self.input_data[span[0]:span2[1]+1]
+        p[0].text = self.input_data[span[0]:span2[1]+1]
+        p[0].lines = (p.linespan(1)[0],p.linespan(6)[1])
+
 
     def p_iteration_statement_4(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement expression CLOSEPARAN statement'''
@@ -1366,7 +1391,8 @@ class Parser(Scanner):
         span = p.lexspan(1)
         span2 = p.lexspan(7)
         print "For LOOP"
-        print self.input_data[span[0]:span2[1]+1]
+        p[0].text = self.input_data[span[0]:span2[1]+1]
+        p[0].lines = (p.linespan(1)[0],p.linespan(7)[1])
     def p_jump_statement_1(self, p):
         '''jump_statement : GOTO IDENTIFIER SEMI'''
         #p[0] = p[1] + p[2] + p[3] # look up
@@ -1381,10 +1407,16 @@ class Parser(Scanner):
     def p_jump_statement_4(self, p):
         '''jump_statement : RETURN SEMI'''
         p[0] = Return(None)
+        span = (p.lexspan(1)[0],p.lexspan(2)[1])
+        p[0].lines = (p.linespan(1)[0],p.linespan(2)[1])
+        p[0].text =  self.input_data[span[0]:span[1]+1]
         #p[0] = p[1] + p[2]
     def p_jump_statement_5(self, p):
         '''jump_statement : RETURN expression SEMI'''
         p[0] = Return(p[2])
+        span = (p.lexspan(1)[0],p.lexspan(3)[1])
+        p[0].lines = (p.linespan(1)[0],p.linespan(3)[1])
+        p[0].text =  self.input_data[span[0]:span[1]+1]
         #p[0] = p[1] + p[2] + p[3]
     def p_translation_unit_1(self, p):
         '''translation_unit : external_declaration'''
@@ -1404,13 +1436,16 @@ class Parser(Scanner):
 
     def p_external_declaration_1(self, p):
         '''external_declaration : function_definition'''
+        span = p.lexspan(1)
+        p[1].lines = p.linespan(1)
+        p[1].text =  self.input_data[span[0]:span[1]+1]
         p[0] = p[1]
 
     def p_external_declaration_2(self, p):
         '''external_declaration : declaration'''
         p[0] = p[1]
         span = p.lexspan(1)
-        p[1].coord = p.linespan(1)
+        p[1].lines = p.linespan(1)
         p[1].text =  self.input_data[span[0]:span[1]+1]
 
     def p_function_definition_1(self, p):
@@ -1423,7 +1458,14 @@ class Parser(Scanner):
         '''function_definition : declaration_specifiers declarator compound_statement'''
         paramlist = []
         for param in p[2].GetParameters():
-            paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
+            print type(param)
+            if type(param) == VariableNode:
+                paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
+            elif type(param) == PointerNode:
+                paramlist.append( PtrDecl(param.GetName(), Type(param.GetType(),param.GetQualifiers(),[]),param.GetNumberIndirections()) )
+            elif ArrayNode == type(param):
+                p[0] = paramlist.append(ArrDecl(param.GetName(),None,None,param.dimensions) )
+            p[0] = makeParserDict(p[1], FuncDecl(ParamList(paramlist),Type(param.GetType(),[],[] ), param.GetName()) )
         p[0] = FuncDef(ParamList(paramlist), p[1], p[2].GetName(), p[3])
         self.typelist.pop()
 

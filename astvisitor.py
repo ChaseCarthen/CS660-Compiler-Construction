@@ -421,6 +421,10 @@ class GraphVizVisitor(NodeVisitor):
 
 
 class ThreeAddressCode(NodeVisitor):
+    def printTAC(name, one = '-', two = '-', three = '-', code = 'No Code Given'):
+        coord = (name, one, two, three, code)
+        return '({0[0]:^15}, {0[1]:^15}, {0[2]:^15}, {0[3]:^15}); {0[4]:<40}'.format(coord)
+
     def visit_ID(self,node):
         pass
     def visit_DECL(self,node):

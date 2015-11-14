@@ -103,7 +103,7 @@ class Parser(Scanner):
             else:
                 paramlist.params.append(p[3][index])
         p[1].ParamList = paramlist
-        p[0] = p[1] # do a type check in parameter
+        p[0] = p[1]
 
     def p_postfix_expression_5(self, p):
         '''postfix_expression : postfix_expression '.' IDENTIFIER'''

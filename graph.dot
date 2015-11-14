@@ -1,11 +1,7 @@
 digraph parse_tree {
-{gv100000[label="Program"]}->{gv100015[label="Function Definition"]}{gv100015[label="Function Definition"]}->{gv100016[label="main"] gv100001[label="Type"] gv100003[label="Parameter List"] gv100005[label="Compound Statement"]};
-{gv100001[label="Type"]}->{gv100002[label="void"]};
-{gv100003[label="Parameter List"]}->{gv100004[label="None"]};
-{gv100005[label="Compound Statement"]}->{{gv100007[label="Declaration"]}};
-{gv100007[label="Declaration"]}->{gv100010[label="b"] gv100006[label="Init"] gv100008[label="Type"]};
-{gv100006[label="Init"]}->{gv100011[label="Constant"]};
-{gv100011[label="Constant"]}->{gv100012[label="2"]};
-{gv100011[label="Constant"]}->{gv100013[label="Type"]}{gv100013[label="Type"]}->{gv100014[label="int"]};
-{gv100008[label="Type"]}->{gv100009[label="int"]};
+{gv100000[label="Program"]}->{{gv100002[label="Declaration"]}}{gv100002[label="Declaration"]}->{gv100005[label="a"] gv100001[label="Init"] gv100003[label="Type"]};
+{gv100001[label="Init"]}->{gv100006[label="Constant"]};
+{gv100006[label="Constant"]}->{gv100007[label="8"]};
+{gv100006[label="Constant"]}->{gv100008[label="Type"]}{gv100008[label="Type"]}->{gv100009[label="int"]};
+{gv100003[label="Type"]}->{gv100004[label="int"]};
 }

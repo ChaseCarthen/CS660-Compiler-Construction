@@ -421,11 +421,121 @@ class GraphVizVisitor(NodeVisitor):
 
 
 class ThreeAddressCode(NodeVisitor):
-    def printTAC(name, one = '-', two = '-', three = '-', code = 'No Code Given'):
-        coord = (name, one, two, three, code)
+    # Add a shadow variable handing
+    '''
+    ThreeAddressCode our visitor for making three address code.
+    I think we should keep a similar goal to the one above where we return the string
+    on the first and a variable label that is needed.
+    exp: return string,relevant_glob_local_temp
+    '''
+    floattemp = TicketCounter("ft_")
+    inttemp = TicketCounter("it_")
+    localticket = TicketCounter("l_")
+    def __init__(self):
+        self.local = False # If this this is true we are in a local scope
+        self.globals = {}
+        self.locals = [] # pop off of this guy if leaving a scope
+    def searchForVariable(self,name):
+        if name in self.globals:
+            return self.globals[name]
+
+        for local in self.locals:
+            if name in local:
+                return local[name]
+        print "We should fail here."
+    def insertVariable(self,name,label):
+        if len(self.locals):
+            self.locals[-1][name] = label
+        else:
+            self.globals[name] = label
+    def commentify(self,string):
+        return "//" + string
+
+    def printTAC(self,name, one = '-', two = '-', three = '-', code = 'No Code Given'):
+        coord = (name, one, two, three, self.commentify(code))
         return '({0[0]:^15}, {0[1]:^15}, {0[2]:^15}, {0[3]:^15}); {0[4]:<40}'.format(coord)
+
+    def compressedTAC(self,*strings):
+        number = len(strings)
+        string = '('
+        for i in range(number):
+            string += "{"
+            string += "0[" + str(i) +"]}"
+            if i != number - 1:
+                string += ", "
+        string += ")"
+        return string.format(strings)
 
     def visit_ID(self,node):
         pass
-    def visit_DECL(self,node):
-        pass
+    #type,qualifier,storage
+    def visit_Type(self,node):
+        qualifier = ""
+        Type = ""
+        for i in node.qualifier:
+            qualifier += i + " "
+        for i in node.type:
+            Type += i + " "
+        return (Type,qualifier),"" # The "" is for convention
+    def visit_Decl(self,node):
+        # No strings right now.
+        # Floats and Ints need to be supported
+
+        op = ""
+        assignOP = ""
+        string = ""
+        name = node.name
+        if not self.local:
+            op = "global"
+            string += self.printTAC("global",name,str(4)) + "\n"# hard codeness
+        else:
+            op = "local"
+            # Create a local counter
+            name = localticket.GetNextTicket()
+        
+        TypeOut,variable = self.visit(node.type)
+        Type = TypeOut[0]
+        Qual = TypeOut[1]
+        if node.init != None:
+            initvalue,strings = self.visit(node.init)
+            string += strings
+        else:
+            initvalue = "_"
+        
+        if 'const' in Qual:
+            #op = "const"
+            # No idea here??
+            pass
+        else:
+            #lets get down to the meat
+            string = self.printTAC("assign",self.compressedTAC(op,name),"_",initvalue,node.text) + "\n"
+        # We need to add strings
+        return string,name
+    def visit_Constant(self,node):
+        TypeOut,variable = self.visit(node.type)
+        Type = TypeOut[0]
+        Qual = TypeOut[1]
+        if "int" in Type:
+            op = "cons"
+        else:# Add string check here when we get to it.
+            op = "fcons"
+
+        string = self.compressedTAC(op,node.value)
+        return string, ""
+    def visit_Program(self,node):
+        print ("Program")
+        for n in node.NodeList:
+            self.visit(n)
+        
+    def visit_DeclList(self,node):
+        print "DeclList"
+        string = ""
+        for n in node.decls:
+            declstring,declvariable = self.visit(n)
+            string += declstring
+        print string
+        return string,""
+    def visit_FuncDef(self,node):
+        local = {}
+        # Search local variables first if found return
+        # Search globals if not in locals

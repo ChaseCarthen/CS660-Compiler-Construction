@@ -1,7 +1,5 @@
 digraph parse_tree {
 {gv100000[label="Program"]}->{{gv100002[label="Declaration"]}}{gv100002[label="Declaration"]}->{gv100005[label="a"] gv100001[label="Init"] gv100003[label="Type"]};
-{gv100001[label="Init"]}->{gv100006[label="Constant"]};
-{gv100006[label="Constant"]}->{gv100007[label="8"]};
-{gv100006[label="Constant"]}->{gv100008[label="Type"]}{gv100008[label="Type"]}->{gv100009[label="int"]};
-{gv100003[label="Type"]}->{gv100004[label="int"]};
+{gv100001[label="Init"]}->{gv100006[label="None"]};
+{gv100003[label="Type"]}->{gv100004[label="char"]};
 }

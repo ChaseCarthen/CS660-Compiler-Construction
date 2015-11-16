@@ -153,8 +153,11 @@ class Scanner():
     string = "digraph parse_tree {\n"
     # call node visitor
     graphVisitor = GraphVizVisitor()
+    ThreeAC = ThreeAddressCode()
+    
 
     out = Program(out)
+    ThreeAC.visit(out)
     string += graphVisitor.visit(out)
     #for i in out:
     #  string += graphVisitor.visit(i)[0]

@@ -782,6 +782,8 @@ class Parser(Scanner):
 
         p[0] = DeclList(astList)
         span = (p.lexspan(1)[0],p.lexspan(3)[1])
+        print(span)
+        print(p[0])
         p[0].lines = (p.linespan(1)[0],p.linespan(3)[1])
         p[0].text =  self.input_data[span[0]:span[1]+1]
 
@@ -859,14 +861,12 @@ class Parser(Scanner):
             p[0] = makeParserDict(p[1], FuncDecl(ParamList(paramlist),Type(p[1].GetType(),[],[] ), p[1].GetName()) )
         elif PointerNode == type(p[1]):
             #PtrDecl: [name,type*]
-            print "HERE"
             node = PtrDecl(p[1].GetName(), Type(p[1].GetType(),p[1].GetQualifiers(),[]),p[1].GetNumberIndirections())
             p[0] = makeParserDict(p[1],node)
         span = (p.lexspan(1)[0],p.lexspan(1)[1])
-        p[1].lines = (p.linespan(1)[0],p.linespan(1)[1])
-        p[1].text =  self.input_data[span[0]:span[1]+1]
-        print(p[1].text)
-        print ("DECLFY")
+        p[0]["astNode"].lines = (p.linespan(1)[0],p.linespan(1)[1])
+        p[0]["astNode"].text =  self.input_data[span[0]:span[1]+1]
+
         
 
     def p_init_declarator_2(self, p):
@@ -881,8 +881,7 @@ class Parser(Scanner):
         span = (p.lexspan(1)[0],p.lexspan(3)[1])
         p[0]["astNode"].lines = (p.linespan(1)[0],p.linespan(3)[1])
         p[0]["astNode"].text =  self.input_data[span[0]:span[1]+2]
-        print ("DECLFY")
-        print(p[0]["astNode"].text)
+
     def p_storage_class_specifier_1(self, p):
         '''storage_class_specifier : TYPEDEF'''
         p[0] = p[1]

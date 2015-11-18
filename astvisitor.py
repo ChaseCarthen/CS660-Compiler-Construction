@@ -431,10 +431,12 @@ class ThreeAddressCode(NodeVisitor):
     floattemp = TicketCounter("f_")
     inttemp = TicketCounter("i_")
     localticket = TicketCounter("l_")
+    labelticket = TicketCounter("label_")
     def __init__(self):
         self.local = False # If this this is true we are in a local scope
         #self.globals = {}
         self.locals = [] # pop off of this guy if leaving a scope
+        self.done = ""
     def searchForVariable(self,name):
         #if name in self.globals:
         #    return self.globals[name]
@@ -504,7 +506,7 @@ class ThreeAddressCode(NodeVisitor):
         Type = TypeOut[0]
         Qual = TypeOut[1]
         if node.init != None:
-            print (node.init)
+            #print (node.init)
             strings,initvalue = self.visit(node.init)
             string += strings
         else:
@@ -533,8 +535,11 @@ class ThreeAddressCode(NodeVisitor):
         return "",string
     def visit_Program(self,node):
         #print ("Program")
+        string = ""
         for n in node.NodeList:
-            self.visit(n)
+            s,s2 = self.visit(n)
+            string += s
+        print (string)
         
     def visit_DeclList(self,node):
         #print "DeclList"
@@ -542,21 +547,21 @@ class ThreeAddressCode(NodeVisitor):
         for n in node.decls:
             declstring,declvariable = self.visit(n)
             string += declstring
-        print string
+        #print string
         return string,""
     # FuncDef: [ParamList**,type*,name,expression*,numlocals]
     def visit_FuncDef(self,node):
         self.local = True
         self.InsertLocalScope()
         local = {}
-        print("FuncDef")
+        #print("FuncDef")
         string = "procentry " + self.compressedTAC("glob",node.name) + " " + self.compressedTAC("cons",len(node.ParamList.params)) + " " + self.compressedTAC("cons",node.numlocals)+ "\n"
         string2,s = self.visit(node.expression)
         string += string2
         string += "endproc" 
         # Search local variables first if found return
         # Search globals if not in locals
-        print string
+        #print string
         self.PopLocalScope()
         return string,"" 
 
@@ -644,17 +649,45 @@ class ThreeAddressCode(NodeVisitor):
         return self.OPCommand("sub",node)
     def visit_DivOp(self,node):
         return self.OPCommand("div",node)
-# TOP
+    def visit_LessOp(self,node):
+        return self.OPCommand("lt",node)
 
+        # If: [cond*,truecond*,falsecond*] {}
+    def visit_If(self,node):
+        string,conditional = self.visit(node.cond)
+        string = "condtional code \n"
+        falsestring = ""
+        truestring = ""
+        falselabel = self.labelticket.GetNextTicket()
+        truestring,tlabel = self.visit(node.truecond)
+        first = False
+        if self.done == "":
+            self.done = self.labelticket.GetNextTicket()
+            first = True
+
+        donestring = self.printTAC("BR","_","_",self.compressedTAC("label",self.done),"") + "\n"
+        if node.falsecond != None:
+            falsestring,flabel = self.visit(node.falsecond)
+        string += self.printTAC("BRNE",falselabel,0) + "\n" 
+        string += truestring
+        string += donestring 
+        string += self.compressedTAC("label",falselabel) + "\n"
+        string += falsestring
+        
+        
+        if first:
+            string += self.compressedTAC("label",self.done) + "\n"
+            self.done = ""
+        return string, ""
     # IterStatement: [init*, cond*, next*, stmt*,isdowhile,name] {}
     def visit_IterStatement(self,node):
-        return None, None
+        return "", ""
 
     def visit_AssignOp(self, node):
         return None, None
 
     def visit_EmptyStatement(self,node):
-        return None, None
+        return "", ""
 
     def visit_Func(self,node):
         return None, None
@@ -662,9 +695,7 @@ class ThreeAddressCode(NodeVisitor):
     def visit_FuncDecl(self,node):
         return None, None
         
-    # If: [cond*,truecond*,falsecond*] {}
-    def visit_If(self,node):
-        return None, None
+
 
     #PtrDecl: [name,type*,numindirections]
     def visit_PtrDecl(self,node):
@@ -721,8 +752,7 @@ class ThreeAddressCode(NodeVisitor):
         return None, None
     def visit_GreatOp(self,node):
         return None, None
-    def visit_LessOp(self,node):
-        return None, None
+
     def visit_RefOp(self,node):
         return None, None
     def visit_ModOp(self,node):

@@ -442,7 +442,10 @@ class ThreeAddressCode(NodeVisitor):
             if name in local:
                 return local[name]
         return name
-        print "We should fail here."
+    def InsertLocalScope(self):
+        self.locals.append({})
+    def PopLocalScope(self):
+        self.locals.pop()
     def insertVariable(self,name,label):
         if len(self.locals):
             self.locals[-1][name] = label
@@ -543,7 +546,8 @@ class ThreeAddressCode(NodeVisitor):
         # Search local variables first if found return
         # Search globals if not in locals
     def visit_VariableCall(self,node):
-        return "",""
+        variableName = self.searchForVariable(node.name)
+        return "",variableName
     def visit_AddOp(self,node):
         stringleft,leftlabel = self.visit(node.left)
         stringright,rightlabel = self.visit(node.right)

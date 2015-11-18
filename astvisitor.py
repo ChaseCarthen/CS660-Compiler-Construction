@@ -468,6 +468,7 @@ class ThreeAddressCode(NodeVisitor):
 
     def visit_ID(self,node):
         pass
+        
     #type,qualifier,storage
     def visit_Type(self,node):
         qualifier = ""
@@ -477,6 +478,7 @@ class ThreeAddressCode(NodeVisitor):
         for i in node.type:
             Type += i + " "
         return (Type,qualifier),"" # The "" is for convention
+
     def visit_Decl(self,node):
         # No strings right now.
         # Floats and Ints need to be supported
@@ -511,6 +513,7 @@ class ThreeAddressCode(NodeVisitor):
             string = self.printTAC("assign",self.compressedTAC(op,name),"_",initvalue,node.text) + "\n"
         # We need to add strings
         return string,name
+
     def visit_Constant(self,node):
         TypeOut,variable = self.visit(node.type)
         Type = TypeOut[0]
@@ -535,7 +538,108 @@ class ThreeAddressCode(NodeVisitor):
             string += declstring
         print string
         return string,""
+
     def visit_FuncDef(self,node):
         local = {}
         # Search local variables first if found return
         # Search globals if not in locals
+
+# TOP
+
+    # IterStatement: [init*, cond*, next*, stmt*,isdowhile,name] {}
+    def visit_IterStatement(self,node):
+        return None, None
+
+    def visit_AssignOp(self, node):
+        return None, None
+
+    def visit_EmptyStatement(self,node):
+        return None, None
+
+    def visit_Func(self,node):
+        return None, None
+
+    def visit_FuncDecl(self,node):
+        return None, None
+        
+    # If: [cond*,truecond*,falsecond*] {}
+    def visit_If(self,node):
+        return None, None
+
+    #PtrDecl: [name,type*,numindirections]
+    def visit_PtrDecl(self,node):
+        return None, None
+
+    def visit_CompoundStatement(self,node):
+        return None, None
+
+    def visit_FuncCall(self,node):
+        return None, None
+
+    def visit_Return(self,node):
+        return None, None
+
+    def visit_ParamList(self,node):
+        return None, None
+
+    def visit_VariableCall(self,node):
+        return None, None
+
+    def visit_ArrDecl(self,node):
+        return None, None
+
+    def visit_ArrRef(self, node):
+        return None, None
+
+    # &,|,<<,>>,^ 
+    def visit_Cast(self,node):
+        return None, None
+
+    def generateOpOutput(self,node):
+        return None, None
+
+    def visit_AndOp(self,node):
+        return None, None
+    def visit_OrOp(self,node):
+        return None, None
+    def visit_LeftOp(self,node):
+        return None, None
+    def visit_RightOp(self,node):
+        return None, None
+    def visit_XorOp(self,node):
+        return None, None
+    def visit_LandOp(self,node):
+        return None, None
+    def visit_LorOp(self,node):
+        return None, None
+    def visit_TernaryOp(self,node):
+        return None, None
+    def visit_NEqualOp(self,node):
+        return None, None
+    def visit_GEqualOp(self,node):
+        return None, None
+    def visit_LEqualOp(self,node):
+        return None, None
+    def visit_EqualOp(self,node):
+        return None, None
+    def visit_GreatOp(self,node):
+        return None, None
+    def visit_LessOp(self,node):
+        return None, None
+    def visit_RefOp(self,node):
+        return None, None
+    def visit_MultOp(self,node):
+        return None, None
+    def visit_AddOp(self,node):
+        return None, None
+    def visit_SubOp(self,node):
+        return None, None
+    def visit_DivOp(self,node):
+        return None, None
+    def visit_ModOp(self,node):
+        return None, None
+    def visit_BitNotOp(self,node):
+        return None, None
+    def visit_LogNotOp(self,node):
+        return None, None
+

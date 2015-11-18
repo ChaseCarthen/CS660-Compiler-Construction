@@ -655,7 +655,6 @@ class ThreeAddressCode(NodeVisitor):
         # If: [cond*,truecond*,falsecond*] {}
     def visit_If(self,node):
         string,conditional = self.visit(node.cond)
-        string = "condtional code \n"
         falsestring = ""
         truestring = ""
         falselabel = self.labelticket.GetNextTicket()
@@ -668,7 +667,8 @@ class ThreeAddressCode(NodeVisitor):
         donestring = self.printTAC("BR","_","_",self.compressedTAC("label",self.done),"") + "\n"
         if node.falsecond != None:
             falsestring,flabel = self.visit(node.falsecond)
-        string += self.printTAC("BRNE",falselabel,0) + "\n" 
+
+        string += self.printTAC("BRNE",conditional,0,falselabel) + "\n" 
         string += truestring
         string += donestring 
         string += self.compressedTAC("label",falselabel) + "\n"
@@ -727,38 +727,39 @@ class ThreeAddressCode(NodeVisitor):
         return None, None
 
     def visit_AndOp(self,node):
-        return None, None
+        return self.OPCommand("and",node)
     def visit_OrOp(self,node):
-        return None, None
+        return self.OPCommand("or",node)
     def visit_LeftOp(self,node):
-        return None, None
+        return self.OPCommand("sll",node)
     def visit_RightOp(self,node):
-        return None, None
+        return self.OPCommand("srl",node)
     def visit_XorOp(self,node):
-        return None, None
+        return self.OPCommand("xor",node)
     def visit_LandOp(self,node):
-        return None, None
+        return self.OPCommand("andi",node)
     def visit_LorOp(self,node):
-        return None, None
+        return self.OPCommand("ori",node)
     def visit_TernaryOp(self,node):
         return None, None
     def visit_NEqualOp(self,node):
-        return None, None
+        return self.OPCommand("ne",node)
     def visit_GEqualOp(self,node):
-        return None, None
+        return self.OPCommand("ge",node)
     def visit_LEqualOp(self,node):
-        return None, None
+        return self.OPCommand("le",node)
     def visit_EqualOp(self,node):
-        return None, None
+        return self.OPCommand("eq",node)
     def visit_GreatOp(self,node):
-        return None, None
-
+        return self.OPCommand("gt",node)
+    def visit_LessOp(self,node):
+        return self.OPCommand("lt",node)
     def visit_RefOp(self,node):
-        return None, None
-    def visit_ModOp(self,node):
-        return None, None
+        return self.OPCommand("addr",node)
+    def visit_ModOp(self,node):                     # More Problems
+        return self.OPCommand("mod",node)
     def visit_BitNotOp(self,node):
-        return None, None
-    def visit_LogNotOp(self,node):
-        return None, None
+        return self.OPCommand("not",node)
+    def visit_LogNotOp(self,node):                  # This may be a problem in the future
+        return self.OPCommand("noti",node)
 

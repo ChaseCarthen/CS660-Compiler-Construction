@@ -428,8 +428,8 @@ class ThreeAddressCode(NodeVisitor):
     on the first and a variable label that is needed.
     exp: return string,relevant_glob_local_temp
     '''
-    floattemp = TicketCounter("ft_")
-    inttemp = TicketCounter("it_")
+    floattemp = TicketCounter("f_")
+    inttemp = TicketCounter("i_")
     localticket = TicketCounter("l_")
     def __init__(self):
         self.local = False # If this this is true we are in a local scope
@@ -440,8 +440,8 @@ class ThreeAddressCode(NodeVisitor):
         #    return self.globals[name]
         for local in self.locals:
             if name in local:
-                return local[name]
-        return name
+                return self.compressedTAC("local",local[name])
+        return self.compressedTAC("glob",name)
     def InsertLocalScope(self):
         self.locals.append({})
     def PopLocalScope(self):
@@ -502,7 +502,7 @@ class ThreeAddressCode(NodeVisitor):
         Type = TypeOut[0]
         Qual = TypeOut[1]
         if node.init != None:
-            initvalue,strings = self.visit(node.init)
+            strings,initvalue = self.visit(node.init)
             string += strings
         else:
             initvalue = "_"
@@ -526,7 +526,7 @@ class ThreeAddressCode(NodeVisitor):
             op = "fcons"
 
         string = self.compressedTAC(op,node.value)
-        return string, ""
+        return "",string
     def visit_Program(self,node):
         #print ("Program")
         for n in node.NodeList:
@@ -540,14 +540,26 @@ class ThreeAddressCode(NodeVisitor):
             string += declstring
         print string
         return string,""
+    # FuncDef: [ParamList**,type*,name,expression*]
     def visit_FuncDef(self,node):
         local = {}
         print("FuncDef")
+        string = "procentry " + self.compressedTAC("glob",node.name) + " " + self.compressedTAC("cons",len(node.ParamList.params)) + " num locals that needs to be filled.\n"
+        string2,s = self.visit(node.expression)
+        string += string2
+        string += "endproc" 
         # Search local variables first if found return
         # Search globals if not in locals
+        print string
+        return string,"" 
     def visit_VariableCall(self,node):
         variableName = self.searchForVariable(node.name)
         return "",variableName
+    def GetTypeInformation(self,typenode):
+        TypeOut,variable = self.visit(typenode)
+        Type = TypeOut[0]
+        Qual = TypeOut[1]
+        return Type,Qual
     def visit_AddOp(self,node):
         stringleft,leftlabel = self.visit(node.left)
         stringright,rightlabel = self.visit(node.right)
@@ -558,4 +570,11 @@ class ThreeAddressCode(NodeVisitor):
         print(stringright)
         print(leftlabel)
         print(rightlabel)
-        return "","" 
+        Type,Qual = self.GetTypeInformation(node.type)
+        if "int" in Type:
+            templabel = self.inttemp.GetNextTicket()
+        elif "float" in Type:
+            templabel = self.floattemp.GetNextTicket()
+        string = self.printTAC("add",leftlabel,rightlabel,templabel)+"\n"
+        print string
+        return string,templabel 

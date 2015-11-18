@@ -433,15 +433,15 @@ class ThreeAddressCode(NodeVisitor):
     localticket = TicketCounter("l_")
     def __init__(self):
         self.local = False # If this this is true we are in a local scope
-        self.globals = {}
+        #self.globals = {}
         self.locals = [] # pop off of this guy if leaving a scope
     def searchForVariable(self,name):
-        if name in self.globals:
-            return self.globals[name]
-
+        #if name in self.globals:
+        #    return self.globals[name]
         for local in self.locals:
             if name in local:
                 return local[name]
+        return name
         print "We should fail here."
     def insertVariable(self,name,label):
         if len(self.locals):
@@ -486,12 +486,14 @@ class ThreeAddressCode(NodeVisitor):
         string = ""
         name = node.name
         if not self.local:
-            op = "global"
+            op = "glob"
             string += self.printTAC("global",name,str(4)) + "\n"# hard codeness
         else:
             op = "local"
             # Create a local counter
+            previousname = name
             name = localticket.GetNextTicket()
+            self.insertVariable(previousname,name)
         
         TypeOut,variable = self.visit(node.type)
         Type = TypeOut[0]
@@ -508,9 +510,9 @@ class ThreeAddressCode(NodeVisitor):
             pass
         else:
             #lets get down to the meat
-            string = self.printTAC("assign",self.compressedTAC(op,name),"_",initvalue,node.text) + "\n"
+            string += self.printTAC("assign",initvalue,"_",self.compressedTAC(op,name),node.text) + "\n"
         # We need to add strings
-        return string,name
+        return string,self.compressedTAC(op,name)
     def visit_Constant(self,node):
         TypeOut,variable = self.visit(node.type)
         Type = TypeOut[0]
@@ -523,12 +525,12 @@ class ThreeAddressCode(NodeVisitor):
         string = self.compressedTAC(op,node.value)
         return string, ""
     def visit_Program(self,node):
-        print ("Program")
+        #print ("Program")
         for n in node.NodeList:
             self.visit(n)
         
     def visit_DeclList(self,node):
-        print "DeclList"
+        #print "DeclList"
         string = ""
         for n in node.decls:
             declstring,declvariable = self.visit(n)
@@ -537,5 +539,19 @@ class ThreeAddressCode(NodeVisitor):
         return string,""
     def visit_FuncDef(self,node):
         local = {}
+        print("FuncDef")
         # Search local variables first if found return
         # Search globals if not in locals
+    def visit_VariableCall(self,node):
+        return "",""
+    def visit_AddOp(self,node):
+        stringleft,leftlabel = self.visit(node.left)
+        stringright,rightlabel = self.visit(node.right)
+        print("ADD OP")
+        print(node.left)
+        print(node.right)
+        print(stringleft)
+        print(stringright)
+        print(leftlabel)
+        print(rightlabel)
+        return "","" 

@@ -43,14 +43,19 @@ void bubblesort(int* list, int size)
 
       // swap the min -- but I am doing it here
       if (minindex != -1)
-         swap(&list[i], &list[minindex]);
+      {
+         int temp = list[i];
+         list[i] = list[minindex];
+         list[minindex] = temp;
+      }
+         //swap(&list[i], &list[minindex]);
    }
 }
 
-void swap(int* a, int* b)
+/*void swap(int* a, int* b)
 {
    // swapping values, but not pointers.
    int temp = *a;
    *a = *b;
    *b = temp;
-}
+}*/

@@ -1,6 +1,0 @@
-digraph parse_tree {
-{gv100000[label="Program"]}->{gv100007[label="Function Definition"]}{gv100007[label="Function Definition"]}->{gv100008[label="main"] gv100001[label="Type"] gv100003[label="Parameter List"] gv100005[label="Compound Statement"]};
-{gv100001[label="Type"]}->{gv100002[label="void"]};
-{gv100003[label="Parameter List"]}->{gv100004[label="None"]};
-{gv100005[label="Compound Statement"]}->{gv100006[label="Empty Statment"]};
-}

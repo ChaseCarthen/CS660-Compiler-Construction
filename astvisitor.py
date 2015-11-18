@@ -471,6 +471,7 @@ class ThreeAddressCode(NodeVisitor):
 
     def visit_ID(self,node):
         pass
+        
     #type,qualifier,storage
     def visit_Type(self,node):
         qualifier = ""
@@ -480,6 +481,7 @@ class ThreeAddressCode(NodeVisitor):
         for i in node.type:
             Type += i + " "
         return (Type,qualifier),"" # The "" is for convention
+
     def visit_Decl(self,node):
         # No strings right now.
         # Floats and Ints need to be supported
@@ -495,13 +497,14 @@ class ThreeAddressCode(NodeVisitor):
             op = "local"
             # Create a local counter
             previousname = name
-            name = localticket.GetNextTicket()
+            name = self.localticket.GetNextTicket()
             self.insertVariable(previousname,name)
         
         TypeOut,variable = self.visit(node.type)
         Type = TypeOut[0]
         Qual = TypeOut[1]
         if node.init != None:
+            print (node.init)
             strings,initvalue = self.visit(node.init)
             string += strings
         else:
@@ -516,6 +519,7 @@ class ThreeAddressCode(NodeVisitor):
             string += self.printTAC("assign",initvalue,"_",self.compressedTAC(op,name),node.text) + "\n"
         # We need to add strings
         return string,self.compressedTAC(op,name)
+
     def visit_Constant(self,node):
         TypeOut,variable = self.visit(node.type)
         Type = TypeOut[0]
@@ -540,41 +544,191 @@ class ThreeAddressCode(NodeVisitor):
             string += declstring
         print string
         return string,""
-    # FuncDef: [ParamList**,type*,name,expression*]
+    # FuncDef: [ParamList**,type*,name,expression*,numlocals]
     def visit_FuncDef(self,node):
+        self.local = True
+        self.InsertLocalScope()
         local = {}
         print("FuncDef")
-        string = "procentry " + self.compressedTAC("glob",node.name) + " " + self.compressedTAC("cons",len(node.ParamList.params)) + " num locals that needs to be filled.\n"
+        string = "procentry " + self.compressedTAC("glob",node.name) + " " + self.compressedTAC("cons",len(node.ParamList.params)) + " " + self.compressedTAC("cons",node.numlocals)+ "\n"
         string2,s = self.visit(node.expression)
         string += string2
         string += "endproc" 
         # Search local variables first if found return
         # Search globals if not in locals
         print string
+        self.PopLocalScope()
         return string,"" 
+
     def visit_VariableCall(self,node):
         variableName = self.searchForVariable(node.name)
         return "",variableName
+
     def GetTypeInformation(self,typenode):
         TypeOut,variable = self.visit(typenode)
         Type = TypeOut[0]
         Qual = TypeOut[1]
         return Type,Qual
-    def visit_AddOp(self,node):
+
+    def OPCommand(self,command,node):
         stringleft,leftlabel = self.visit(node.left)
         stringright,rightlabel = self.visit(node.right)
-        print("ADD OP")
-        print(node.left)
-        print(node.right)
-        print(stringleft)
-        print(stringright)
-        print(leftlabel)
-        print(rightlabel)
         Type,Qual = self.GetTypeInformation(node.type)
         if "int" in Type:
             templabel = self.inttemp.GetNextTicket()
         elif "float" in Type:
             templabel = self.floattemp.GetNextTicket()
-        string = self.printTAC("add",leftlabel,rightlabel,templabel)+"\n"
-        print string
-        return string,templabel 
+        string = stringleft 
+        string += stringright
+        string += self.printTAC(command,leftlabel,rightlabel,templabel)+"\n"
+        return string,templabel
+    #ArrDecl: [name,type*,init*,dim**] {}
+    def visit_ArrDecl(self,node):
+        op = ""
+        assignOP = ""
+        string = ""
+        name = node.name
+        if not self.local:
+            op = "glob"
+            string += self.printTAC("global",name,str(4)) + "\n"# hard codeness
+        else:
+            op = "local"
+            # Create a local counter
+            previousname = name
+            name = self.localticket.GetNextTicket()
+            self.insertVariable(previousname,name)
+        
+        TypeOut,variable = self.visit(node.type)
+        Type = TypeOut[0]
+        Qual = TypeOut[1]
+        if node.init != None:
+            print (node.init)
+            strings,initvalue = self.visit(node.init)
+            string += strings
+        else:
+            initvalue = "_"
+
+        #lets get down to the meat
+        dim = 1
+        for i in node.dim:
+            dim *= int(i.value)
+        string += self.printTAC("array",dim,"_",self.compressedTAC(op,name),node.text) + "\n"
+        string += self.printTAC("assign",initvalue,"_",self.compressedTAC(op,name),node.text) + "\n"
+
+        # We need to add strings
+        return string,self.compressedTAC(op,name)
+
+    # ArrRef: [name,subscript**,type*,dim**]
+    def visit_ArrRef(self, node):
+        variableName = self.searchForVariable(node.name)
+        subscripts = []
+        dims = []
+        string = ""
+        for i in node.subscript:
+            subscripts.append(int(i.value))
+
+        for i in node.dim:
+            dims.append(int(i.value))
+        for i in range(len(subscripts)):
+            string += self.printTAC("bound",dims[i],0,subscripts[i]) + "\n"
+            temp = self.inttemp.GetNextTicket()
+            string += self.printTAC("assign",self.compressedTAC("indr",variableName),"_",temp) + "\n"
+            variableName = temp
+        return string,temp
+
+    def visit_AddOp(self,node):
+        return self.OPCommand("add",node)
+    def visit_MultOp(self,node):
+        return self.OPCommand("mult",node)
+    def visit_SubOp(self,node):
+        return self.OPCommand("sub",node)
+    def visit_DivOp(self,node):
+        return self.OPCommand("div",node)
+# TOP
+
+    # IterStatement: [init*, cond*, next*, stmt*,isdowhile,name] {}
+    def visit_IterStatement(self,node):
+        return None, None
+
+    def visit_AssignOp(self, node):
+        return None, None
+
+    def visit_EmptyStatement(self,node):
+        return None, None
+
+    def visit_Func(self,node):
+        return None, None
+
+    def visit_FuncDecl(self,node):
+        return None, None
+        
+    # If: [cond*,truecond*,falsecond*] {}
+    def visit_If(self,node):
+        return None, None
+
+    #PtrDecl: [name,type*,numindirections]
+    def visit_PtrDecl(self,node):
+        return None, None
+
+    def visit_CompoundStatement(self,node):
+        string = ""
+        for i in node.stmts:
+            if(i == None):
+                continue
+            cs, cl = self.visit(i)
+            string += cs
+        return string, ""
+
+    def visit_FuncCall(self,node):
+        return None, None
+
+    def visit_Return(self,node):
+        return None, None
+
+    def visit_ParamList(self,node):
+        return None, None
+
+    # &,|,<<,>>,^ 
+    def visit_Cast(self,node):
+        return None, None
+
+    def generateOpOutput(self,node):
+        return None, None
+
+    def visit_AndOp(self,node):
+        return None, None
+    def visit_OrOp(self,node):
+        return None, None
+    def visit_LeftOp(self,node):
+        return None, None
+    def visit_RightOp(self,node):
+        return None, None
+    def visit_XorOp(self,node):
+        return None, None
+    def visit_LandOp(self,node):
+        return None, None
+    def visit_LorOp(self,node):
+        return None, None
+    def visit_TernaryOp(self,node):
+        return None, None
+    def visit_NEqualOp(self,node):
+        return None, None
+    def visit_GEqualOp(self,node):
+        return None, None
+    def visit_LEqualOp(self,node):
+        return None, None
+    def visit_EqualOp(self,node):
+        return None, None
+    def visit_GreatOp(self,node):
+        return None, None
+    def visit_LessOp(self,node):
+        return None, None
+    def visit_RefOp(self,node):
+        return None, None
+    def visit_ModOp(self,node):
+        return None, None
+    def visit_BitNotOp(self,node):
+        return None, None
+    def visit_LogNotOp(self,node):
+        return None, None
+

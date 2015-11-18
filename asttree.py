@@ -65,13 +65,14 @@ class FuncDecl(Node):
 
 
 class FuncDef(Node):
-	__slots__ = ('ParamList', 'type', 'name', 'expression','text', 'lines', '__weakref__')
+	__slots__ = ('ParamList', 'type', 'name', 'expression', 'numlocals','text', 'lines', '__weakref__')
 
-	def __init__(self, ParamList, type, name, expression, lines=None,text=""):
+	def __init__(self, ParamList, type, name, expression, numlocals, lines=None,text=""):
 		self.ParamList = ParamList
 		self.type = type
 		self.name = name
 		self.expression = expression
+		self.numlocals = numlocals
 		self.lines = lines
 		self.text = text
 
@@ -85,7 +86,7 @@ class FuncDef(Node):
 			nodelist.append(("ParamList[%d]" % i, child))
 		return tuple(nodelist)
 
-	attr_names = ('name', )
+	attr_names = ('name', 'numlocals', )
 
 
 class FuncCall(Node):

@@ -12,6 +12,7 @@ class SymbolTable(object):
     tree["_type"] = {}
     self.stack.append(tree)
     self.pointer = None
+    self.previouslocalcount = 0
 
   def Retrieve(self, name):
     self.pointer = None
@@ -161,13 +162,30 @@ class SymbolTable(object):
 
   def EndScope(self):
     self.insert = True
+    self.previouslocalcount = self.GetLocalCount()
     self.stack.pop()
 
   def NewScope(self):
     self.insert = True
     tree = bintrees.RBTree()
     tree["_type"] = {}
+
     self.stack.append(tree)
+    # Adding the count for the numbers of locals -- this is for local variables
+    # for the 3ac
+    if len(self.stack) > 1:
+      tree["localcount"] = 0
+
+  # local count functions
+  def GetLocalCount(self):
+    if len(self.stack) > 1:
+      return self.stack[-1]["localcount"]
+    else:
+      return self.previouslocalcount
+
+  def IncLocalCount(self):
+    if len(self.stack) > 1:
+      self.stack[-1]["localcount"] += 1
 
   def StackDump(self):
     print "Stack Dump: "

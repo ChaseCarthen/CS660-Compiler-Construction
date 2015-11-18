@@ -43,7 +43,7 @@ class Parser(Scanner):
 
     def p_primary_expression_4(self, p):
         '''primary_expression : OPENPARAN expression CLOSEPARAN''' 
-        p[0] = p[1] + p[2] + p[3]
+        p[0] = p[2]
 
     def p_postfix_expression_1(self, p):
         '''postfix_expression : primary_expression'''
@@ -843,6 +843,7 @@ class Parser(Scanner):
         if not "typedef" in self.typelist[-1].storage:
             try:
                 self.symbol_table.InsertNode(p[1])
+                self.symbol_table.IncLocalCount()
             except SymbolTableWarning, e:
                 print(e)
             except SymbolTableError, e:
@@ -873,6 +874,7 @@ class Parser(Scanner):
         '''init_declarator : declarator '=' initializer'''
         try:
             self.symbol_table.InsertNode(p[1])
+            self.symbol_table.IncLocalCount()
         except SymbolTableWarning, e:
             print(e)
         except SymbolTableError, e:
@@ -1472,7 +1474,8 @@ class Parser(Scanner):
             elif ArrayNode == type(param):
                 p[0] = paramlist.append(ArrDecl(param.GetName(),None,None,param.dimensions) )
             p[0] = makeParserDict(p[1], FuncDecl(ParamList(paramlist),Type(param.GetType(),[],[] ), param.GetName()) )
-        p[0] = FuncDef(ParamList(paramlist), p[1], p[2].GetName(), p[3])
+        p[0] = FuncDef(ParamList(paramlist), p[1], p[2].GetName(), p[3],self.symbol_table.GetLocalCount())
+        print(self.symbol_table.GetLocalCount())
         self.typelist.pop()
 
     def p_function_definition_3(self, p):

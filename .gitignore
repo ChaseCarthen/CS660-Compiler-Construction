@@ -10,3 +10,6 @@ parse.log
 tokenfile.txt
 parselog.txt
 parsetab.py
+*.png
+*.dot
+*.sublime-*

@@ -19,12 +19,14 @@ class Parser(Scanner):
             p[0] = self.symbol_table.Retrieve(p[1])
             if type(p[0]) != type(FunctionNode()):
                 p[0] = VariableCall( Type(p[0].GetType(), p[0].GetQualifiers(), None), p[0].GetName())
+                self.SetNodeInformation(p[0],1,1,p)
             else:
                 # FuncCall: [ParamList**,type*,name]{}
                 typelist = []
                 for param in p[0].GetParameters():
                     typelist.append(Type(param.GetType(), param.GetQualifiers(), None))
                 p[0] = FuncCall(ParamList(typelist), Type(p[0].GetType(), None, None), p[0].GetName())
+                self.SetNodeInformation(p[0],1,1,p)
 
         except SymbolTableError, e:
             print("We need to fail(this output on line 14): " + str(e))
@@ -35,6 +37,7 @@ class Parser(Scanner):
         cType = strconv.infer(p[1])
         tNode = Type([cType],[],[])
         p[0] = Constant(tNode,p[1],None)
+        self.SetNodeInformation(p[0],1,1,p)
         #p[0] = p[1]
 
     def p_primary_expression_3(self, p):
@@ -136,6 +139,7 @@ class Parser(Scanner):
         else:
             one,two,Typed = self.StrongestType(p[1],One)
             p[0] = AddOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,2,p)
 
     def p_postfix_expression_8(self, p):
         '''postfix_expression : postfix_expression DEC_OP'''
@@ -160,6 +164,7 @@ class Parser(Scanner):
         else:
             one,two,Typed = self.StrongestType(p[1],One)
             p[0] = SubOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,2,p)
 
     def p_argument_expression_list_1(self, p):
         '''argument_expression_list : assignment_expression'''
@@ -196,6 +201,7 @@ class Parser(Scanner):
         else:
             one,two,Typed = self.StrongestType(p[2],One)
             p[0] = AddOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,2,p)
 
     def p_unary_expression_3(self, p):
         '''unary_expression : DEC_OP unary_expression'''
@@ -220,6 +226,7 @@ class Parser(Scanner):
         else:
             one,two,Typed = self.StrongestType(p[2],One)
             p[0] = SubOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,2,p)
 
     def p_unary_expression_4(self, p):
         '''unary_expression : unary_operator cast_expression'''
@@ -282,6 +289,7 @@ class Parser(Scanner):
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = MultOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p)
 
 
     def p_multiplicative_expression_3(self, p):
@@ -305,6 +313,7 @@ class Parser(Scanner):
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = DivOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p)
 
     def p_multiplicative_expression_4(self, p):
         '''multiplicative_expression : multiplicative_expression '%' cast_expression'''
@@ -323,6 +332,7 @@ class Parser(Scanner):
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = ModOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p)
 
     def p_additive_expression_1(self, p):
         '''additive_expression : multiplicative_expression'''
@@ -350,6 +360,7 @@ class Parser(Scanner):
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = AddOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p)
 
     def p_additive_expression_3(self, p):
         '''additive_expression : additive_expression '-' multiplicative_expression'''
@@ -372,6 +383,7 @@ class Parser(Scanner):
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = SubOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p)
 
     def p_shift_expression_1(self, p):
         '''shift_expression : additive_expression'''
@@ -396,7 +408,8 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(p[1].value << p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
-            p[0] = LeftOp(one,two,Typed) 
+            p[0] = LeftOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p) 
         #p[0] = p[1] + p[2] + p[3]
     def p_shift_expression_3(self, p):
         '''shift_expression : shift_expression RIGHT_OP additive_expression'''
@@ -418,7 +431,8 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(p[1].value >> p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
-            p[0] = RightOp(one,two,Typed) 
+            p[0] = RightOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p) 
     def p_relational_expression_1(self, p):
         '''relational_expression : shift_expression'''
         p[0] = p[1]
@@ -443,7 +457,7 @@ class Parser(Scanner):
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = LessOp(one,two,Typed)  
-
+            self.SetNodeInformation(p[0],1,3,p)
     def p_relational_expression_3(self, p):
         '''relational_expression : relational_expression '>' shift_expression'''
         rType = ""
@@ -464,7 +478,8 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(1 if p[1].value > p[3].value else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
-            p[0] = GreatOp(one,two,Typed) 
+            p[0] = GreatOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p) 
     def p_relational_expression_4(self, p):
         '''relational_expression : relational_expression LE_OP shift_expression'''
         rType = ""
@@ -485,7 +500,8 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(1 if p[1].value <= p[3].value else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
-            p[0] = LEqualOp(one,two,Typed) 
+            p[0] = LEqualOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p) 
     def p_relational_expression_5(self, p):
         '''relational_expression : relational_expression GE_OP shift_expression'''
         rType = ""
@@ -507,6 +523,7 @@ class Parser(Scanner):
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
             p[0] = GEqualOp(one,two,Typed) 
+            self.SetNodeInformation(p[0],1,3,p)
     def p_equality_expression_1(self, p):
         '''equality_expression : relational_expression'''
         p[0] = p[1]
@@ -530,7 +547,9 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(1 if p[1].value == p[3].value else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
-            p[0] = EqualOp(one,two,Typed) 
+            p[0] = EqualOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p)
+
     def p_equality_expression_3(self, p):
         '''equality_expression : equality_expression NE_OP relational_expression'''
         rType = ""
@@ -551,7 +570,8 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(1 if p[1].value != p[3].value else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
-            p[0] = NEqualOp(one,two,Typed) 
+            p[0] = NEqualOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p)
     def p_and_expression_1(self, p):
         '''and_expression : equality_expression'''
         p[0] = p[1]
@@ -575,7 +595,8 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(p[1].value & p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
-            p[0] = AndOp(one,two,Typed) 
+            p[0] = AndOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p) 
     def p_exclusive_or_expression_1(self, p):
         '''exclusive_or_expression : and_expression'''
         p[0] = p[1]
@@ -599,7 +620,8 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(p[1].value ^ p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
-            p[0] = XorOp(one,two,Typed) 
+            p[0] = XorOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p) 
     def p_inclusive_or_expression_1(self, p):
         '''inclusive_or_expression : exclusive_or_expression'''
         p[0] = p[1]
@@ -623,7 +645,8 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(p[1].value | p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
-            p[0] = OrOp(one,two,Typed) 
+            p[0] = OrOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p) 
     def p_logical_and_expression_1(self, p):
         '''logical_and_expression : inclusive_or_expression'''
         p[0] = p[1]
@@ -647,7 +670,8 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(1 if p[1].value != 0 and p[3].value != 0 else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
-            p[0] = LandOp(one,two,Typed) 
+            p[0] = LandOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p) 
     def p_logical_or_expression_1(self, p):
         '''logical_or_expression : logical_and_expression'''
         p[0] = p[1]
@@ -671,7 +695,8 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(1 if p[1].value != 0 or p[3].value != 0 else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
-            p[0] = LorOp(one,two,Typed) 
+            p[0] = LorOp(one,two,Typed)
+            self.SetNodeInformation(p[0],1,3,p) 
     def p_conditional_expression_1(self, p):
         '''conditional_expression : logical_or_expression'''
         #print("Conditional expression" + str(p[1]))
@@ -695,7 +720,8 @@ class Parser(Scanner):
                     print "Weak upcast warning!"
             p[0] = p[3] if p[1].value != 0 else p[5]
         else:
-            p[0] = TernaryOp(p[1],p[3],p[5]) 
+            p[0] = TernaryOp(p[1],p[3],p[5])
+            self.SetNodeInformation(p[0],1,5,p) 
 
     def p_assignment_expression_1(self, p):
         '''assignment_expression : conditional_expression'''
@@ -711,6 +737,7 @@ class Parser(Scanner):
         p[2].left = p[1]
         p[2].right = p[3]
         p[0] = p[2]
+        self.SetNodeInformation(p[0],1,3,p)
 
     def p_assignment_operator_1(self, p):
         '''assignment_operator : '=' '''
@@ -782,8 +809,8 @@ class Parser(Scanner):
 
         p[0] = DeclList(astList)
         span = (p.lexspan(1)[0],p.lexspan(3)[1])
-        print(span)
-        print(p[0])
+        #print(span)
+        #print(p[0])
         p[0].lines = (p.linespan(1)[0],p.linespan(3)[1])
         p[0].text =  self.input_data[span[0]:span[1]+1]
 
@@ -1351,6 +1378,7 @@ class Parser(Scanner):
         span2 = p.lexspan(5)
         print "If"
         p[0].text = self.input_data[span[0]:span2[1]+1]
+        print p[0].text
         p[0].lines = (p.linespan(1)[0],p.linespan(5)[1])
 
     # Will iterate up through the ifs
@@ -1369,38 +1397,23 @@ class Parser(Scanner):
     def p_iteration_statement_1(self, p):
         '''iteration_statement : WHILE OPENPARAN expression CLOSEPARAN statement'''
         p[0] = IterStatement(None,p[3],None,p[5],False,"While")# IterStatement: [init*, cond*, next*, stmt*,isdowhile,name]
-        span = p.lexspan(1)
-        span2 = p.lexspan(5)
-        print "While"
-        p[0].text = self.input_data[span[0]:span2[1]+1]
-        p[0].lines = (p.linespan(1)[0],p.linespan(5)[1]) 
+        self.SetNodeInformation(p[0],1,5,p) 
 
     def p_iteration_statement_2(self, p):
         '''iteration_statement : DO statement WHILE OPENPARAN expression CLOSEPARAN SEMI'''
         p[0] = IterStatement(None,p[5],None,p[2],True,"Do While")
-        span = p.lexspan(1)
-        span2 = p.lexspan(7)
-        print "Do While"
-        p[0].text = self.input_data[span[0]:span2[1]+1]
-        p[0].lines = (p.linespan(1)[0],p.linespan(7)[1])        
+        self.SetNodeInformation(p[0],1,7,p)
+
     def p_iteration_statement_3(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement CLOSEPARAN statement'''
         p[0] = IterStatement(p[3],p[4],None,p[6],False,"For")
-        span = p.lexspan(1)
-        span2 = p.lexspan(6)
-        print "For LOOP"
-        p[0].text = self.input_data[span[0]:span2[1]+1]
-        p[0].lines = (p.linespan(1)[0],p.linespan(6)[1])
-
+        self.SetNodeInformation(p[0],1,6,p)
 
     def p_iteration_statement_4(self, p):
         '''iteration_statement : FOR OPENPARAN expression_statement expression_statement expression CLOSEPARAN statement'''
         p[0] = IterStatement(p[3],p[4],p[5],p[7],False,"For")
-        span = p.lexspan(1)
-        span2 = p.lexspan(7)
-        print "For LOOP"
-        p[0].text = self.input_data[span[0]:span2[1]+1]
-        p[0].lines = (p.linespan(1)[0],p.linespan(7)[1])
+        self.SetNodeInformation(p[0],1,7,p)
+
     def p_jump_statement_1(self, p):
         '''jump_statement : GOTO IDENTIFIER SEMI'''
         #p[0] = p[1] + p[2] + p[3] # look up
@@ -1441,6 +1454,7 @@ class Parser(Scanner):
         #print p.lineno(2)
         span = p.lexspan(2)
         print self.input_data[span[0]:span[1]+1]
+
 
     def p_external_declaration_1(self, p):
         '''external_declaration : function_definition'''

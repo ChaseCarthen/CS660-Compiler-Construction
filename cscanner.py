@@ -37,7 +37,7 @@ class Scanner():
             'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACE','CLOSEBRACE','SEMI','OPENPARAN','CLOSEPARAN', 'COMMENT','DUMPSYMBOL']
 
   precedence =  []
-  literals = ['=',']','[','&','+','-','.','?','!',',',':','*','<','>','^','|','%','/']
+  literals = ['=',']','[','&','+','-','.','?','!',',',':','*','<','>','^','|','%','/','\n']
   def __init__(self,data,parselog,parsefile,tokenfile,graphfile):
     data = data.replace("\t","    ")
     # To enable a more verbose logger -- this is so we can see all of the production that were taken in the grammar.
@@ -93,6 +93,14 @@ class Scanner():
       self.lines.append(self.lines[-1]+len(i)+1)
     self.rootnode = []
     self.supportedtypes = self.GetSupportedTypes()
+
+  # Setting the text and line information for AST Nodes
+  def SetNodeInformation(self,node,p1,p2,p):
+    span = (p.lexspan(p1)[0],p.lexspan(p2)[1])
+    node.lines = (p.linespan(p1)[0],p.linespan(p2)[1])
+    
+    node.text =  self.input_data[span[0]:span[1]+1]
+
   def GetSupportedTypes(self,typefile="types.txt"):
     typeFile = open(typefile,'r')
     string = typeFile.read().split('\n')

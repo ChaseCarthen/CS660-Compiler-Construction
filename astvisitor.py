@@ -461,7 +461,7 @@ class ThreeAddressCode(NodeVisitor):
 
     def printTAC(self,name, one = '-', two = '-', three = '-', code = 'No Code Given'):
         coord = (name, one, two, three, self.commentify(code))
-        if CODE:
+        if code:
             return '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30}); {0[4]:<40}\n'.format(coord)
         else:
             return '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30});\n'.format(coord)
@@ -590,7 +590,7 @@ class ThreeAddressCode(NodeVisitor):
             templabel = self.floattemp.GetNextTicket()
         string = stringleft 
         string += stringright
-        string += self.printTAC(command,leftlabel,rightlabel,templabel)
+        string += self.printTAC(command,leftlabel,rightlabel,templabel,node.text)
         return string,templabel
     #ArrDecl: [name,type*,init*,dim**] {}
     def visit_ArrDecl(self,node):
@@ -669,11 +669,11 @@ class ThreeAddressCode(NodeVisitor):
             self.done = self.labelticket.GetNextTicket()
             first = True
 
-        donestring = self.printTAC("BR","_","_",self.compressedTAC("label",self.done),"") + "\n"
+        donestring = self.printTAC("br","_","_",self.compressedTAC("label",self.done),"") + "\n"
         if node.falsecond != None:
             falsestring,flabel = self.visit(node.falsecond)
 
-        string += self.printTAC("BRNE",conditional,0,falselabel) + "\n" 
+        string += self.printTAC("brne",conditional,0,falselabel,node.text) + "\n" 
         string += truestring
         string += donestring 
         string += self.compressedTAC("label",falselabel) + "\n"

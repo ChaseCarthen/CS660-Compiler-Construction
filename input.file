@@ -1,9 +1,14 @@
 void main()
 {
-
-  int i;
-  for(i = 0; i < 10; i++) {
-	 int a[10][100];
-	 int b = a[10];
-  }
+	int a =1;
+	for (a; a < 10; a++)
+	{
+		int i = 2;
+		a = 50;
+		
+		for (i=0; i < 10; i++)
+		{
+			a = 3;
+		}
+	}
 }

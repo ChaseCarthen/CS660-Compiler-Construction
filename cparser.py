@@ -25,6 +25,7 @@ class Parser(Scanner):
                 typelist = []
                 for param in p[0].GetParameters():
                     typelist.append(Type(param.GetType(), param.GetQualifiers(), None))
+                print(p[0].GetType())
                 p[0] = FuncCall(ParamList(typelist), Type(p[0].GetType(), None, None), p[0].GetName())
                 self.SetNodeInformation(p[0],1,1,p)
 
@@ -85,23 +86,23 @@ class Parser(Scanner):
     def p_postfix_expression_3(self, p):
         '''postfix_expression : postfix_expression OPENPARAN CLOSEPARAN'''
         if len(p[1].ParamList.params) > 0:
-            print("We need to fail since a function is called with less parameters than required. 0 given and " + str(len(p[1].ParamList)) + " required.")
+            print("We need to fail since a function is called with less parameters than required. 0 given and " + str(len(p[1].ParamList.params)) + " required.")
             sys.exit()
         p[0] = p[1]
 
     def p_postfix_expression_4(self, p):
         '''postfix_expression : postfix_expression OPENPARAN argument_expression_list CLOSEPARAN'''
         # Check size of parameters
-        if len(p[1].ParamList) != len(p[3]):
-            print("We need to fail since a function is called with less parameters than required. " + len(p[3]) + " given and " + str(len(p[1].ParamList)) + " required.")
+        if len(p[1].ParamList.params) != len(p[3]):
+            print("We need to fail since a function is called with less parameters than required. " + len(p[3]) + " given and " + str(len(p[1].ParamList.params)) + " required.")
             sys.exit()
 
         # Check that the types are correct
         paramlist = ParamList([])
         for index in range(len(p[3])):
-            if p[1].ParamList[index].type != p[3][index].type.type:
+            if p[1].ParamList.params[index].type != p[3][index].type.type:
                 print("Needs to fail for improper parameter types at parameter location " + str(index) + ". " 
-                       + str(p[3][index].type.type) + " given and " + str(p[1].ParamList[index].type) + " expected.")
+                       + str(p[3][index].type.type) + " given and " + str(p[1].ParamList.params[index].type) + " expected.")
                 sys.exit()
             else:
                 paramlist.params.append(p[3][index])
@@ -1121,7 +1122,7 @@ class Parser(Scanner):
 
     def p_direct_declarator_6(self, p):
         '''direct_declarator : direct_declarator OPENPARAN identifier_list CLOSEPARAN'''
-        p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1]["specifiers"], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
+        p[0] = FunctionNode(parameters = p[3], type_var = self.typelist[-1].type, name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
             if len(self.symbol_table.stack) > 1:
@@ -1139,7 +1140,7 @@ class Parser(Scanner):
         '''direct_declarator : direct_declarator OPENPARAN CLOSEPARAN'''
 
         p[1] = p[1]
-        p[0] = FunctionNode(type_var = self.typelist[-1], name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
+        p[0] = FunctionNode(type_var = self.typelist[-1].type, name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation())
 
         try:
             if len(self.symbol_table.stack) > 1:
@@ -1377,7 +1378,7 @@ class Parser(Scanner):
         span = p.lexspan(1)
         span2 = p.lexspan(5)
         print "If"
-        p[0].text = self.input_data[span[0]:span2[1]+1]
+        p[0].text = self.input_data[span[0]:span2[1]]
         print p[0].text
         p[0].lines = (p.linespan(1)[0],p.linespan(5)[1])
 
@@ -1388,7 +1389,7 @@ class Parser(Scanner):
         span = p.lexspan(1)
         span2 = p.lexspan(6)
         print "if else"
-        p[0].text = self.input_data[span[0]:span2[1]+1]
+        p[0].text = self.input_data[span[0]:span2[1]]
         p[0].lines = (p.linespan(1)[0],p.linespan(6)[1])
     def p_selection_statement_3(self, p):
         '''selection_statement : SWITCH OPENPARAN expression CLOSEPARAN statement'''

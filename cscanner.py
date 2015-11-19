@@ -165,11 +165,20 @@ class Scanner():
     
 
     out = Program(out)
-    ThreeAC.visit(out)
+
     string += graphVisitor.visit(out)
     #for i in out:
     #  string += graphVisitor.visit(i)[0]
     string += "}"
+
+    # output of the three address code.
+    tacstring,label = ThreeAC.visit(out)
+    print "++++++++++++++++++++++++++"
+    print(tacstring)
+    print "++++++++++++++++++++++++++"
+    test = open("test.tac",'w')
+    test.write(tacstring)
+    test.close()
     #print string
     graph.write(string)
     graph.close()

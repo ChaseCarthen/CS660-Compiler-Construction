@@ -13,3 +13,4 @@ parsetab.py
 *.png
 *.dot
 *.sublime-*
+*.tac

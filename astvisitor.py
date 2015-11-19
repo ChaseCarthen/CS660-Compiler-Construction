@@ -134,7 +134,6 @@ class GraphVizVisitor(NodeVisitor):
 
     def visit_AssignOp(self, node):
         label = self.StringifyLabel("Assignment Operation\n=", self.ticket.GetNextTicket())
-        print(node.left)
         leftstring, leftlabel = self.visit(node.left)
         rightstring, rightlabel = self.visit(node.right)
         string = self.AddBrackets(label) + "->" + self.AddBrackets(leftlabel, rightlabel)
@@ -248,7 +247,7 @@ class GraphVizVisitor(NodeVisitor):
         return string + typestring + paramstring, FuncDeclLabel
 
     def visit_Return(self,node):
-        return ""
+        return "",""
 
     def visit_ParamList(self,node):
         label = self.StringifyLabel("Parameter List", self.ticket.GetNextTicket())
@@ -455,15 +454,18 @@ class ThreeAddressCode(NodeVisitor):
     def insertVariable(self,name,label):
         if len(self.locals):
             self.locals[-1][name] = label
-        else:
-            self.globals[name] = label
     def commentify(self,string):
-        return "//" + string
+        string2 = ""
+        strings = string.split('\n')
+        for i in strings:
+            string2 += ";\t\t" + i + "\n"
+        string2 = string2[0:len(string2)-1] 
+        return string2
 
     def printTAC(self,name, one = '-', two = '-', three = '-', code = 'No Code Given'):
-        coord = (name, one, two, three, self.commentify(code))
+        coord = (name, one, two, three)
         if self.CODE:
-            return '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30}); {0[4]:<40}\n'.format(coord)
+            return self.commentify(code) + "\n" + '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30});\n'.format(coord)
         else:
             return '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30});\n'.format(coord)
 
@@ -547,7 +549,7 @@ class ThreeAddressCode(NodeVisitor):
         for n in node.NodeList:
             s,s2 = self.visit(n)
             string += s
-        print (string)
+        return string,""
         
     def visit_DeclList(self,node):
         #print "DeclList"
@@ -563,7 +565,10 @@ class ThreeAddressCode(NodeVisitor):
         self.local = True
         self.InsertLocalScope()
         local = {}
-        string = "procentry \n" + self.compressedTAC("glob",node.name) + "\n" + self.compressedTAC("cons",len(node.ParamList.params)) + "\n" + self.compressedTAC("cons",node.numlocals) + "\n"
+        #print node.text
+        #raw_input()
+        string = "\n"+ self.commentify(node.text)
+        string += "procentry \n" + self.compressedTAC("glob",node.name) + "\n" + self.compressedTAC("cons",len(node.ParamList.params)) + "\n" + self.compressedTAC("cons",node.numlocals) + "\n"
         string2,s = self.visit(node.expression)
         string += string2
         string += "endproc" 
@@ -616,7 +621,6 @@ class ThreeAddressCode(NodeVisitor):
         Type = TypeOut[0]
         Qual = TypeOut[1]
         if node.init != None:
-            print (node.init)
             strings,initvalue = self.visit(node.init)
             string += strings
         else:
@@ -748,6 +752,16 @@ class ThreeAddressCode(NodeVisitor):
         string += temp
         return string + self.printTAC('assign', label_1, '-', label_2, node.text), None
 
+    def visit_FuncCall(self,node):
+        string = 'args ' + self.compressedTAC("cons",len(node.ParamList.params)) + "\n"
+        for i in node.ParamList.params:
+            content, label = self.visit(i)
+            string += content
+            string += "refout " + label + "\n"
+        string += "call " + self.compressedTAC("glob",node.name) + "\n"
+        #print string        
+        return string, ""
+
     def visit_EmptyStatement(self,node):
         return "", ""
 
@@ -755,7 +769,7 @@ class ThreeAddressCode(NodeVisitor):
         return None, None
 
     def visit_FuncDecl(self,node):
-        return None, None
+        return "", ""
         
 
 
@@ -772,11 +786,10 @@ class ThreeAddressCode(NodeVisitor):
             string += cs
         return string, ""
 
-    def visit_FuncCall(self,node):
-        return None, None
 
+    # Return: [expr*]
     def visit_Return(self,node):
-        return None, None
+        return self.visit(node.expr)
 
     def visit_ParamList(self,node):
         return None, None

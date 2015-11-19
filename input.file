@@ -4,3 +4,4 @@ void main()
   int c = 10;
   int b = a[5][c];
 }
+

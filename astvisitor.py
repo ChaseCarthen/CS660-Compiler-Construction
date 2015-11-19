@@ -1,8 +1,6 @@
 from ticketcounter import *
 import sys
 
-CODE = False
-
 # Node Visitor borrowed from https://github.acom/eliben/pycparser/blob/master/pycparser/_c_ast.cfg
 class NodeVisitor(object):
     """ A base NodeVisitor class for visiting c_ast nodes.
@@ -435,6 +433,9 @@ class ThreeAddressCode(NodeVisitor):
     inttemp = TicketCounter("i_")
     localticket = TicketCounter("l_")
     labelticket = TicketCounter("label_")
+    CODE = False
+    offset = {'char': 1, 'int': 1, 'float': 1}
+
     def __init__(self):
         self.local = False # If this this is true we are in a local scope
         #self.globals = {}
@@ -461,7 +462,7 @@ class ThreeAddressCode(NodeVisitor):
 
     def printTAC(self,name, one = '-', two = '-', three = '-', code = 'No Code Given'):
         coord = (name, one, two, three, self.commentify(code))
-        if code:
+        if self.CODE:
             return '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30}); {0[4]:<40}\n'.format(coord)
         else:
             return '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30});\n'.format(coord)
@@ -539,6 +540,7 @@ class ThreeAddressCode(NodeVisitor):
 
         string = self.compressedTAC(op,node.value)
         return "",string
+
     def visit_Program(self,node):
         #print ("Program")
         string = ""
@@ -555,6 +557,7 @@ class ThreeAddressCode(NodeVisitor):
             string += declstring
         #print string
         return string,""
+
     # FuncDef: [ParamList**,type*,name,expression*,numlocals]
     def visit_FuncDef(self,node):
         self.local = True
@@ -592,6 +595,7 @@ class ThreeAddressCode(NodeVisitor):
         string += stringright
         string += self.printTAC(command,leftlabel,rightlabel,templabel,node.text)
         return string,templabel
+
     #ArrDecl: [name,type*,init*,dim**] {}
     def visit_ArrDecl(self,node):
         op = ""
@@ -635,16 +639,52 @@ class ThreeAddressCode(NodeVisitor):
         dims = []
         string = ""
         for i in node.subscript:
-            subscripts.append(int(i.value))
+            string, label = self.visit(i)
+            subscripts.append(label)
 
         for i in node.dim:
-            dims.append(int(i.value))
-        for i in range(len(subscripts)):
-            string += self.printTAC("bound",dims[i],0,subscripts[i]) 
-            temp = self.inttemp.GetNextTicket()
-            string += self.printTAC("assign",self.compressedTAC("indr",variableName),"-",temp) 
-            variableName = temp
-        return string,temp
+            string, label = self.visit(i)
+            dims.append(label)
+
+        # Gets the base address to a temp
+        baseAddress = self.inttemp.GetNextTicket()
+        string += self.printTAC("assign",self.compressedTAC("indr",variableName),"-",baseAddress)
+
+        # Build types as a full string
+        t = ''
+        for i in node.type.type:
+            t += i + " "
+        t = t.strip()
+        typeSize = self.offset[t]
+
+        addTemps = []
+        string += self.printTAC("bound",dims[len(subscripts)-1],0,subscripts[len(subscripts)-1])
+        temp = self.inttemp.GetNextTicket()
+        addTemps.append(temp)
+        string += self.printTAC("multiply", typeSize, subscripts[len(subscripts)-1], temp, "-")
+
+        for i in reversed(range(len(subscripts)-1)):
+            string += self.printTAC("bound",dims[i],0,subscripts[i])
+            temp1 = self.inttemp.GetNextTicket()
+            string += self.printTAC("multiply", typeSize, subscripts[len(subscripts)-1], temp1, "-")
+
+            final = ""
+            current1 = temp1
+            for j in range(i+1, len(subscripts)):
+                final = self.inttemp.GetNextTicket()
+                string += self.printTAC("multiply", current1, subscripts[j], final, "-")
+                current1 = final
+
+            addTemps.append(final)
+
+        assignment = self.inttemp.GetNextTicket()
+        current1 = self.inttemp.GetNextTicket()
+        final = self.inttemp.GetNextTicket()
+        string += self.printTAC("add", baseAddress, addTemps[0], assignment, "-")
+        for i in range(1, len(addTemps)):
+            string += self.printTAC("add", addTemps[i], assignment, assignment, "-")
+
+        return string, assignment
 
     def visit_AddOp(self,node):
         return self.OPCommand("add",node)

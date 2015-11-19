@@ -1,8 +1,6 @@
-int a = 1;
 void main()
 {
-	for (a; a = 1; a++)
-	{
-	
-	}
+  int a[10][100];
+  int c = 10;
+  int b = a[5][c];
 }

@@ -559,7 +559,10 @@ class ThreeAddressCode(NodeVisitor):
         self.local = True
         self.InsertLocalScope()
         local = {}
-        string = "procentry \n" + self.compressedTAC("glob",node.name) + "\n" + self.compressedTAC("cons",len(node.ParamList.params)) + "\n" + self.compressedTAC("cons",node.numlocals) + "\n"
+        #print node.text
+        #raw_input()
+        string = "\n"+ self.commentify(node.text)
+        string += "procentry \n" + self.compressedTAC("glob",node.name) + "\n" + self.compressedTAC("cons",len(node.ParamList.params)) + "\n" + self.compressedTAC("cons",node.numlocals) + "\n"
         string2,s = self.visit(node.expression)
         string += string2
         string += "endproc" 

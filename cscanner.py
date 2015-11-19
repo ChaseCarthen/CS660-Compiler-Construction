@@ -176,6 +176,9 @@ class Scanner():
     print "++++++++++++++++++++++++++"
     print(tacstring)
     print "++++++++++++++++++++++++++"
+    test = open("test.tac",'w')
+    test.write(tacstring)
+    test.close()
     #print string
     graph.write(string)
     graph.close()

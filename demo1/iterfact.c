@@ -35,7 +35,7 @@ int iterfact(int n)
    int i = 1;
    for(i = 2; i <= n; i++)
    {
-      product *= i;
+      product = product * i;
    }
    return product;
 }

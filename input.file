@@ -1,8 +1,9 @@
-int a = 1;
+void foo(int a)
+{
+
+}
+
 void main()
 {
-	for (a; a = 1; a++)
-	{
-	
-	}
+	foo(0);
 }

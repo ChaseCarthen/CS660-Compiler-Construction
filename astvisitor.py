@@ -702,7 +702,7 @@ class ThreeAddressCode(NodeVisitor):
 
     def visit_AssignOp(self, node):
         string = ''
-        temp, label_1 = self.visit(node.left)
+        temp, label_1 = self.visit(node.right)
         string += temp
         temp, label_2 = self.visit(node.left)
         string += temp

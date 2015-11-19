@@ -1,14 +1,8 @@
+int a = 1;
 void main()
 {
-	int a =1;
-	for (a; a < 10; a++)
+	for (a; a = 1; a++)
 	{
-		int i = 2;
-		a = 50;
-		
-		for (i=0; i < 10; i++)
-		{
-			a = 3;
-		}
+	
 	}
 }

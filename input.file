@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 void foo()
 {
 	int b = 24;
@@ -15,3 +16,12 @@ void foo2()
 	}
 	while(1);
 }
+=======
+void main()
+{
+  int a[10][100];
+  int c = 10;
+  int b = a[5][c];
+}
+
+>>>>>>> eb6cbe0f7391b44d4262b613bc0dbeb449ba8419

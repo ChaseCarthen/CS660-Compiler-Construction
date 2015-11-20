@@ -439,6 +439,7 @@ class ThreeAddressCode(NodeVisitor):
         #self.globals = {}
         self.locals = [] # pop off of this guy if leaving a scope
         self.done = ""
+        self.localcount = 0
     def searchForVariable(self,name):
         #if name in self.globals:
         #    return self.globals[name]
@@ -459,11 +460,13 @@ class ThreeAddressCode(NodeVisitor):
         for i in strings:
             string2 += ";\t\t" + i + "\n"
         string2 = string2[0:len(string2)-1] 
-        return string2
+        if string == "":
+            return ""
+        return string2 + "\n"
 
-    def printTAC(self,name, one = '-', two = '-', three = '-', code = 'No Code Given'):
+    def printTAC(self,name, one = '-', two = '-', three = '-', code = ''):
         coord = (name, one, two, three)
-        return self.commentify(code) + "\n" + '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30});\n'.format(coord)
+        return self.commentify(code) + '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30});\n'.format(coord)
 
     def compressedTAC(self,*strings):
         number = len(strings)
@@ -504,7 +507,8 @@ class ThreeAddressCode(NodeVisitor):
             op = "local"
             # Create a local counter
             previousname = name
-            name = self.localticket.GetNextTicket()
+            name = str(self.localcount) #self.localticket.GetNextTicket()
+            self.localcount += 1
             self.insertVariable(previousname,name)
         
         TypeOut,variable = self.visit(node.type)
@@ -561,15 +565,17 @@ class ThreeAddressCode(NodeVisitor):
         local = {}
         #print node.text
         #raw_input()
-        string = "\n"+ self.commentify(node.text)
-        string += "procentry \n" + self.compressedTAC("glob",node.name) + "\n" + self.compressedTAC("cons",len(node.ParamList.params)) + "\n" + self.compressedTAC("cons",node.numlocals) + "\n"
+
         string2,s = self.visit(node.expression)
+        string = "\n"+ self.commentify(node.text)
+        string += "procentry \n" + self.compressedTAC("glob",node.name) + "\n" + self.compressedTAC("cons",len(node.ParamList.params)) + "\n" + self.compressedTAC("cons",self.localcount) + "\n"
         string += string2
         string += "endproc" 
         # Search local variables first if found return
         # Search globals if not in locals
         #print string
         self.PopLocalScope()
+        self.localcount = 0
         return string,"" 
 
     def visit_VariableCall(self,node):
@@ -607,7 +613,8 @@ class ThreeAddressCode(NodeVisitor):
             op = "local"
             # Create a local counter
             previousname = name
-            name = self.localticket.GetNextTicket()
+            name = str(self.localcount) #self.localticket.GetNextTicket()
+            self.localcount += 1
             self.insertVariable(previousname,name)
         
         TypeOut,variable = self.visit(node.type)
@@ -620,9 +627,15 @@ class ThreeAddressCode(NodeVisitor):
             initvalue = "-"
 
         #lets get down to the meat
-        dim = 1
+        dim = self.inttemp.GetNextTicket()
+        string += self.printTAC("assign",self.compressedTAC("cons",1),"_",dim)
         for i in node.dim:
-            dim *= int(i.value)
+            outstr, label = self.visit(i)
+            string +=  outstr
+            newlabel = self.inttemp.GetNextTicket()
+            string += self.printTAC("mul",dim,label,newlabel)
+            dim = newlabel
+            
         string += self.printTAC("array",dim,"-",self.compressedTAC(op,name),node.text) 
         string += self.printTAC("assign",initvalue,"-",self.compressedTAC(op,name),node.text) 
 
@@ -687,7 +700,9 @@ class ThreeAddressCode(NodeVisitor):
         return string, ""
     # IterStatement: [init*, cond*, next*, stmt*,isdowhile,name] {}
     def visit_IterStatement(self,node):
-        string, dummy = self.visit(node.init)
+        string = ""
+        if node.init:
+            string, dummy = self.visit(node.init)
         top = self.labelticket.GetNextTicket()
         bottom = self.labelticket.GetNextTicket()
         if not node.isdowhile:
@@ -746,7 +761,13 @@ class ThreeAddressCode(NodeVisitor):
 
     # Return: [expr*]
     def visit_Return(self,node):
-        return self.visit(node.expr)
+        string = ""
+        string += self.printTAC("return") + "\n"
+        if node.expr != node:
+            exprstring, exprlabel = self.visit(node.expr)
+            string += exprstring
+            string += self.printTAC("assign",exprlabel,"_","ra",node.text)
+        return string,""
 
     def visit_ParamList(self,node):
         return None, None

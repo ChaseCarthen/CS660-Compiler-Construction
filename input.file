@@ -1,9 +1,17 @@
-void foo(int a)
+void foo()
 {
-
+	int b = 24;
+	int a[50][b];
 }
 
-void main()
+
+void foo2()
 {
-	foo(0);
+	int c = 1;
+	int b= 1;
+	do
+	{
+		int d = 2;
+	}
+	while(1);
 }

@@ -9,7 +9,7 @@ class GraphVizVisitor(NodeVisitor):
 
         if braces:
             return "{"+ticketlabel + "["+"label=" + '"' + label + '"'+ "]"+"}"
-        return ticketlabel + "["+"label=" + '"' + label + '"'+ "]"
+        return ticketlabel + "["+"label=" + '"' + str(label) + '"'+ "]"
 
 
     def AddBrackets(self, *strings):

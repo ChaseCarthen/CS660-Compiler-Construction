@@ -1446,7 +1446,7 @@ class Parser(Scanner):
         p[0] = self.rootnode
         #print p.lineno(1)
         span = p.lexspan(1)
-        print self.input_data[span[0]:span[1]+1]
+        # print self.input_data[span[0]:span[1]+1]
 
     def p_translation_unit_2(self, p):
         '''translation_unit : translation_unit external_declaration'''
@@ -1454,7 +1454,7 @@ class Parser(Scanner):
         p[0] = self.rootnode
         #print p.lineno(2)
         span = p.lexspan(2)
-        print self.input_data[span[0]:span[1]+1]
+        # print self.input_data[span[0]:span[1]+1]
 
 
     def p_external_declaration_1(self, p):
@@ -1481,7 +1481,7 @@ class Parser(Scanner):
         '''function_definition : declaration_specifiers declarator compound_statement'''
         paramlist = []
         for param in p[2].GetParameters():
-            print type(param)
+            #print type(param)
             if type(param) == VariableNode:
                 paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
             elif type(param) == PointerNode:
@@ -1490,7 +1490,7 @@ class Parser(Scanner):
                 p[0] = paramlist.append(ArrDecl(param.GetName(),None,None,param.dimensions) )
             p[0] = makeParserDict(p[1], FuncDecl(ParamList(paramlist),Type(param.GetType(),[],[] ), param.GetName()) )
         p[0] = FuncDef(ParamList(paramlist), p[1], p[2].GetName(), p[3],self.symbol_table.GetLocalCount())
-        print(self.symbol_table.GetLocalCount())
+        #print(self.symbol_table.GetLocalCount())
         self.typelist.pop()
 
     def p_function_definition_3(self, p):

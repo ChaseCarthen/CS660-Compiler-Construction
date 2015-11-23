@@ -5,9 +5,11 @@ from symboltable import SymbolTable
 import os
 from node import *
 from termcolor import colored
-from astvisitor import *
+from graphvisitor import *
+from tacvisitor import *
 from asttree import *
 import sys
+
 # tokens 'IDENTIFIER', 'CONSTANT', 'STRING_LITERAL', 'SIZEOF', 'PTR_OP', 
 #'INC_OP', 'DEC_OP', 'LEFT_OP', 'RIGHT_OP', 'LE_OP', 'GE_OP', 'EQ_OP', 'NE_OP', 
 #'AND_OP', 'OR_OP', 'MUL_ASSIGN', 'DIV_ASSIGN', 'MOD_ASSIGN', 'ADD_ASSIGN', 'SUB_ASSIGN', 
@@ -38,16 +40,20 @@ class Scanner():
 
   precedence =  []
   literals = ['=',']','[','&','+','-','.','?','!',',',':','*','<','>','^','|','%','/','\n']
-  def __init__(self,data,parselog,parsefile,tokenfile,graphfile):
+
+
+  def __init__(self,data,parselog,parsefile,tokenfile,graphfile,tacfile,writecode):
     data = data.replace("\t","    ")
     # To enable a more verbose logger -- this is so we can see all of the production that were taken in the grammar.
     self.parselog = parselog
-    self.graphfile = graphfile
+    self.graphfile = "log/" + graphfile
+    self.tacfile = "log/" + tacfile
+    self.writecode = writecode
     # set up the logger to log info... We added a flag for when not to output this info
     if self.parselog:
       logging.basicConfig(
         level = logging.INFO,
-        filename = parsefile,
+        filename = "log/" + parsefile,
         filemode = "w",
         format = "%(filename)10s:%(lineno)4d:%(message)s"
       )
@@ -82,7 +88,7 @@ class Scanner():
     self.typelist = []
 
     # our token log file
-    self.log_tokens(tokenfile)
+    self.log_tokens("log/" + tokenfile)
 
     # The symbol table
     self.symbol_table = SymbolTable()
@@ -94,6 +100,46 @@ class Scanner():
     self.rootnode = []
     self.supportedtypes = self.GetSupportedTypes()
 
+
+  def run(self):
+    # BEgin the running, and run
+    self.loginfo("==============================Starting    LINE NUMBER: " + str(1) + "======================")
+    if self.parselog:
+      out = self.yacc.parse(self.input_data,debug=self.log,tracking=True)
+    else:
+      out = self.yacc.parse(self.input_data,tracking=True)
+
+    out = Program(out)
+
+    # output of the three address code.
+    ThreeAC = ThreeAddressCode(self.writecode)
+    tacstring,label = ThreeAC.visit(out)
+    test = open(self.tacfile, 'w')
+    test.write(tacstring)
+    test.close()
+
+    # Build the AST graph
+    graphVisitor = GraphVizVisitor()
+    string = "digraph parse_tree {\n"
+    string += graphVisitor.visit(out)
+    string += "}"
+    graph = open(self.graphfile + ".dot", 'w')
+    graph.write(string)
+    graph.close()
+    os.system("dot -Tpng " + self.graphfile + ".dot > " + self.graphfile)
+
+  def scan(self,string):
+    self.lexer.input(string)
+    i = 0
+    while os.path.exists("token%s.txt" % i):
+      i += 1
+    path = "token%s.txt" % i
+    self.log_tokens(path)
+    while(True):
+      current = self.lexer.token()
+      if current == None:
+        break
+      
   # Setting the text and line information for AST Nodes
   def SetNodeInformation(self,node,p1,p2,p):
     span = (p.lexspan(p1)[0],p.lexspan(p2)[1])
@@ -101,7 +147,7 @@ class Scanner():
     
     node.text =  self.input_data[span[0]:span[1]+1]
 
-  def GetSupportedTypes(self,typefile="types.txt"):
+  def GetSupportedTypes(self, typefile="src/types.txt"):
     typeFile = open(typefile,'r')
     string = typeFile.read().split('\n')
     typeFile.close()
@@ -113,16 +159,42 @@ class Scanner():
       self.tokens += typed + " "
       if self.parselog:
         self.log.info("Line Number: " + str(self.lexer.lineno) + " Token: " + str(typed) + " Value: " + str(value))
+
+  def loginfo(self,string):
+    if self.parselog:
+      self.log.info(string)
+
+  def set_symbol_table(self,sym):
+    self.symbol_table = sym
+
+  def log_tokens(self, txt):
+    self.logtokens = True
+    self.tokenlog = open(txt,'wa')
+
+  def test_running(self):
+    while True:
+      tok = self.lexer.token()
+      if not tok: 
+          break      # No more input
+      print(tok)
+      print(self.lexer.lexpos)
+
+
+  # The following functions are used for type comparing
   def StrongTypeComparison(self,Type1,Type2):
     return Type1.type == Type2.type and Type1.qualifier == Type2.qualifier
   def WeakTypeComparison(self,Type1,Type2):
     return Type1.type == Type2.type
+
   def WeakTypeComparisonWithType(self,Type,Type1,Type2):
     return Type in Type1.type and Type in Type2.type
+
   def TypeComparison(self,Type,Type1):
     return Type in Type1.type
+
   def IsConstant(self,Type):
     return "Const" in Type.qualifier
+
   # Check between int,float,double,long long -- for expressions
   def StrongestType(self,expr1,expr2):
     string = ""
@@ -138,74 +210,50 @@ class Scanner():
       elif "float" in string2:
         return Cast(Type(["float"],[],[]),expr1),expr2,Type(["float"],[],[])
     return expr1,expr2,expr1.type
-  def loginfo(self,string):
-    if self.parselog:
-      self.log.info(string)
-
-  def set_symbol_table(self,sym):
-    self.symbol_table = sym
-
-  def log_tokens(self, txt):
-    self.logtokens = True
-    self.tokenlog = open(txt,'wa')
-
-  def run(self):
-    self.loginfo("==============================Starting    LINE NUMBER: " + str(1) + "======================")
-    if self.parselog:
-      out = self.yacc.parse(self.input_data,debug=self.log,tracking=True)
-    else:
-      out = self.yacc.parse(self.input_data,tracking=True)
-
-    graph = open("graph.dot",'w')
-    #graph.write("digraph parse_tree {" +  + "}")
-    string = "digraph parse_tree {\n"
-    # call node visitor
-    graphVisitor = GraphVizVisitor()
-    ThreeAC = ThreeAddressCode()
     
 
-    out = Program(out)
 
-    string += graphVisitor.visit(out)
-    #for i in out:
-    #  string += graphVisitor.visit(i)[0]
-    string += "}"
+  # Ignore the spaces and tabs -- comments
+  t_ignore = ' \t'
 
-    # output of the three address code.
-    tacstring,label = ThreeAC.visit(out)
-    print "++++++++++++++++++++++++++"
-    print(tacstring)
-    print "++++++++++++++++++++++++++"
-    test = open("test.tac",'w')
-    test.write(tacstring)
-    test.close()
-    #print string
-    graph.write(string)
-    graph.close()
-    os.system("dot -Tpng graph.dot > " + self.graphfile)
+  # Define a rule so we can track line numbers
+  def t_newline(self, t):
+    r'\n+'
+    
+    t.lexer.lineno += len(t.value)
 
-  def scan(self,string):
-    self.lexer.input(string)
-    i = 0
-    while os.path.exists("token%s.txt" % i):
-      i += 1
-    path = "token%s.txt" % i
-    self.log_tokens(path)
-    while(True):
-      current = self.lexer.token()
-      if current == None:
-        break
-      
+    self.loginfo("tokens : " + self.tokens)
+    self.loginfo("source : " + self.source)
 
+    self.tokens += "\n"
+    self.tokenlog.write("/*"+self.source + "*/\n")
+    self.tokenlog.write(self.tokens)
 
-  def test_running(self):
-    while True:
-      tok = self.lexer.token()
-      if not tok: 
-          break      # No more input
-      print(tok)
-      print(self.lexer.lexpos)
+    self.source = ""
+    self.tokens = ""
+    self.loginfo("==============================Completed LINE NUMBER: " + str(t.lexer.lineno-1) + "======================")
+    self.loginfo("==============================Starting    LINE NUMBER: " + str(t.lexer.lineno) + "======================")
 
+  # PRint the color at the line
+  def highlightstring(self,line,position):
+    data = self.lexer.lexdata
+    string = data[self.lines[line-1]:self.lines[line]]
+    position -= self.lines[line-1]  
+    if position <= len(string):
+      print colored(string, 'red')
+      a = ""
+      for i in range(position):
+       a += ' '
+      a += '^'
+      print colored(a, 'red')
+
+  # Lex Error message
+  def t_error(self,t):
+    print "FOUND LEXICAL ERROR ON LINE: "  + str(t.lineno) + " " + self.lexer.lexdata[t.lexer.lexpos]
+    self.highlightstring(self.lexer.lineno,self.lexer.lexpos)#self.lexer.lexdata.split('\n')[self.lexer.lineno-1],t.lexer.lexpos-self.lines[self.lexer.lineno-1]+1)
+    t.lexer.skip(1)
+
+  # Lex related functions
   def t_PTR_OP(self,t):
     "->"
     self.logging(t.type,t.value)
@@ -221,10 +269,6 @@ class Scanner():
     r'\"(\\.|[^\\\"])*\"'
     self.logging(t.type,t.value)
     return t
-  #def t_SIZEOF(self,t):
-  #  r"SIZEOF|sizeof"
-  #  self.logging(t.type,t.value)
-  #  return t
 
   def t_INC_OP(self,t):
     r"\+\+"
@@ -334,45 +378,6 @@ class Scanner():
         print "HERE"
     self.logging(t.type,t.value)
     return t
-
-  # Ignore the spaces and tabs -- comments
-  t_ignore = ' \t'
-
-  # Define a rule so we can track line numbers
-  def t_newline(self, t):
-    r'\n+'
-    
-    t.lexer.lineno += len(t.value)
-
-    self.loginfo("tokens : " + self.tokens)
-    self.loginfo("source : " + self.source)
-
-    self.tokens += "\n"
-    self.tokenlog.write("/*"+self.source + "*/\n")
-    self.tokenlog.write(self.tokens)
-
-    self.source = ""
-    self.tokens = ""
-    self.loginfo("==============================Completed LINE NUMBER: " + str(t.lexer.lineno-1) + "======================")
-    self.loginfo("==============================Starting    LINE NUMBER: " + str(t.lexer.lineno) + "======================")
-
-  def highlightstring(self,line,position):
-    data = self.lexer.lexdata
-    string = data[self.lines[line-1]:self.lines[line]]
-    position -= self.lines[line-1]  
-    if position <= len(string):
-      print colored(string, 'red')
-      a = ""
-      for i in range(position):
-       a += ' '
-      a += '^'
-      print colored(a, 'red')
-
-  # Lex Error message
-  def t_error(self,t):
-    print "FOUND LEXICAL ERROR ON LINE: "  + str(t.lineno) + " " + self.lexer.lexdata[t.lexer.lexpos]
-    self.highlightstring(self.lexer.lineno,self.lexer.lexpos)#self.lexer.lexdata.split('\n')[self.lexer.lineno-1],t.lexer.lexpos-self.lines[self.lexer.lineno-1]+1)
-    t.lexer.skip(1)
 
   def t_requal(self,t):
     r'='

@@ -1,0 +1,44 @@
+
+;		void foo()
+;		{
+;		    int b = 24;
+;		    int a[50][b];
+;		}
+procentry 
+(glob, foo)
+(cons, 0)
+(cons, 2)
+;		b = 24
+(            assign            ,           (cons, 24)          ,               -               ,           (local, 0)          );
+(            assign            ,           (cons, 1)           ,               _               ,            i_100000           );
+(             mul              ,            i_100000           ,           (cons, 50)          ,            i_100001           );
+(             mul              ,            i_100001           ,           (local, 0)          ,            i_100002           );
+;		a[50][b]
+(            array             ,            i_100002           ,               -               ,           (local, 1)          );
+;		a[50][b]
+(            assign            ,               -               ,               -               ,           (local, 1)          );
+endproc
+;		void foo2()
+;		{
+;		    int c = 1;
+;		    int b= 1;
+;		    do
+;		    {
+;		        int d = 2;
+;		    }
+;		    while(1);
+;		}
+procentry 
+(glob, foo2)
+(cons, 0)
+(cons, 3)
+;		c = 1;
+(            assign            ,           (cons, 1)           ,               -               ,           (local, 0)          );
+;		b= 1;
+(            assign            ,           (cons, 1)           ,               -               ,           (local, 1)          );
+(            label             ,               -               ,               -               ,          label_100000         );
+;		d = 2;
+(            assign            ,           (cons, 2)           ,               -               ,           (local, 2)          );
+(            label             ,               -               ,               -               ,          label_100001         );
+(             brne             ,               0               ,           (cons, 1)           ,          label_100000         );
+endproc

@@ -1,2 +1,4 @@
-integer size = 4
-pointer size = 8
+pointer = 4
+int = 4
+float = 4
+char = 1

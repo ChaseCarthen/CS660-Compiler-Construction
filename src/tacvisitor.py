@@ -1,5 +1,7 @@
 from astvisitor import *
 from asttree import *
+import math
+
 class ThreeAddressCode(NodeVisitor):
     # Add a shadow variable handing
     '''
@@ -12,8 +14,6 @@ class ThreeAddressCode(NodeVisitor):
     inttemp = TicketCounter("i_")
     localticket = TicketCounter("l_")
     labelticket = TicketCounter("label_")
-    CODE = True
-    offset = {'char': 1, 'int': 1, 'float': 1}
 
     def __init__(self, code):
         self.local = False # If this this is true we are in a local scope
@@ -22,6 +22,14 @@ class ThreeAddressCode(NodeVisitor):
         self.done = ""
         self.localcount = 0
         self.CODE = code
+        self.offset = {}
+        
+        # Build the offset dictionary from the file
+        f = open("src/platform.info", "r")
+        for line in f:
+            item = line.replace("\n","").split("=")
+            self.offset[item[0].strip()] = int(math.ceil(int(item[1].strip()) / 4.0))
+        f.close()
 
     def searchForVariable(self,name):
         #if name in self.globals:

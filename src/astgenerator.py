@@ -147,5 +147,5 @@ class Node(object):
 
 
 if __name__ == "__main__":
-	astgen = Generator("ast.cfg")
-	astgen.generate(open('asttree.py', 'w'))
+	astgen = Generator("src/ast.cfg")
+	astgen.generate(open('src/asttree.py', 'w'))

@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------
 # ** DISCLAIMER **
 # This code was automatically generated from the file:
-# ast.cfg
+# src/ast.cfg
 #
 # AST Node classes:
 #  - Heavy Inspiration as drawn from the team developing pycparser

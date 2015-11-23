@@ -434,6 +434,14 @@ class StructNode(SymbolTreeNode):
       if name == i.GetName():
         return i
     return None
+  def GetOffset(self,name):
+    wordsize = 0
+    for i in self.fields:
+      if name == i.GetName():
+        return wordsize
+      wordsize += self.GetWordSize(i)
+
+    return wordsize
   def __str__(self):
     string = super(StructNode, self).__str__()
     for i in self.fields:
@@ -453,4 +461,6 @@ class StructVariableNode(StructNode):
     return string
   def FindField(self,name):
     return self.structtype.FindField(name)
+  def GetOffset(self,name):
+    return self.structtype.GetOffset(name)
 

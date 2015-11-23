@@ -388,3 +388,14 @@ class GraphVizVisitor(NodeVisitor):
         return self.UnaryOpOutput(node)
     def visit_NegOp(self,node):
         return self.UnaryOpOutput(node)
+
+    def visit_Struct(self,node):
+        return "",""
+    def visit_StructDecl(self,node):
+        return "",""
+    def visit_StructRef(self,node):
+        return "",""
+    def visit_PtrRef(self,node):
+        return "",""
+    def visit_String(self,node):
+        return "",""

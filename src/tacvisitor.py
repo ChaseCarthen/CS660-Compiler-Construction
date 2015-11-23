@@ -22,6 +22,7 @@ class ThreeAddressCode(NodeVisitor):
         self.done = ""
         self.localcount = 0
         self.CODE = code
+        print code
     def searchForVariable(self,name):
         #if name in self.globals:
         #    return self.globals[name]
@@ -529,3 +530,55 @@ class ThreeAddressCode(NodeVisitor):
         return self.UnaryOp("abs",node)
     def visit_NegOp(self,node):
         return self.UnaryOp("neg",node)
+
+    def visit_Struct(self,node):
+        op = ""
+        assignOP = ""
+        string = ""
+        name = node.name
+        if not self.local:
+            op = "glob"
+            string += self.printTAC("global",name,str(4)) # hard codeness
+        else:
+            op = "local"
+            # Create a local counter
+            previousname = name
+            name = str(self.localcount) #self.localticket.GetNextTicket()
+            self.localcount += 1
+            self.insertVariable(previousname,name)
+        
+
+        #fieldstring,fieldlabel = self.visit(node.fields)
+
+        
+        #finallabel = self.compressedTAC(op,name)
+        #lets get down to the meat
+        print node.name
+        print node.text
+        print name
+        string = self.printTAC("array",self.compressedTAC("cons",node.size),"-",self.compressedTAC(op,name),node.text,node.lines) 
+        # We need to add strings
+        return string,self.compressedTAC(op,name)
+    def visit_StructDecl(self,node):
+        return "",""
+
+    # StructRef: [name,field*,offset,type]
+    def visit_StructRef(self,node):
+        op = ""
+        assignOP = ""
+        string = ""
+        name = variableName = self.searchForVariable(node.name)
+
+        fieldstring, fieldvalue = self.visit(node.field)
+
+        templabel = self.GetTempLabel("int")
+        string += self.printTAC("assign",self.compressedTAC("addr",fieldvalue),"_",templabel,node.text,node.lines)
+        string += self.printTAC("add",self.compressedTAC("cons",node.offset), templabel,templabel,"",None)
+        string += self.printTAC("assign",self.compressedTAC("indr",templabel), "-", templabel,"",None)
+        return string,templabel
+
+    #name,type*,numindirections,wordsize,init
+    def visit_PtrRef(self,node):
+        return "",""
+    def visit_String(self,node):
+        return "",""

@@ -190,6 +190,8 @@ class Scanner():
     return Type in Type1.type and Type in Type2.type
 
   def TypeComparison(self,Type,Type1):
+    print Type
+    print Type1
     return Type in Type1.type
 
   def IsConstant(self,Type):
@@ -210,7 +212,7 @@ class Scanner():
       elif "float" in string2:
         return Cast(Type(["float"],[],[]),expr1),expr2,Type(["float"],[],[])
     return expr1,expr2,expr1.type
-    
+
 
 
   # Ignore the spaces and tabs -- comments

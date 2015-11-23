@@ -1,14 +1,14 @@
 
 struct apple
 {
-	int a2;
-	int b2;
+	int a;
+	int b;
 };
 
 
 void main()
 {
 	struct apple a;
-	a.a = 1;
+	a.b = 1;
 
 }

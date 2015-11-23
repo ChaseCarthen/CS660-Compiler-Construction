@@ -377,6 +377,27 @@ class PtrDecl(Node):
 	attr_names = ('name', 'numindirections', 'wordsize', 'init', )
 
 
+class PtrRef(Node):
+	__slots__ = ('name', 'type', 'offset','text', 'lines', '__weakref__')
+
+	def __init__(self, name, type, offset, lines=None,text=""):
+		self.name = name
+		self.type = type
+		self.offset = offset
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		if self.offset is not None:
+			nodelist.append(("offset", self.offset))
+		return tuple(nodelist)
+
+	attr_names = ('name', )
+
+
 class Assignment(Node):
 	__slots__ = ('op', 'lvalue', 'rvalue','text', 'lines', '__weakref__')
 
@@ -1049,6 +1070,22 @@ class Constant(Node):
 	attr_names = ('type', 'value', )
 
 
+class String(Node):
+	__slots__ = ('type', 'value','text', 'lines', '__weakref__')
+
+	def __init__(self, type, value, lines=None,text=""):
+		self.type = type
+		self.value = value
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		return tuple(nodelist)
+
+	attr_names = ('type', 'value', )
+
+
 class ExprList(Node):
 	__slots__ = ('exprs','text', 'lines', '__weakref__')
 
@@ -1146,22 +1183,41 @@ class ID(Node):
 	attr_names = ('name', )
 
 
-class Struct(Node):
-	__slots__ = ('name', 'decls','text', 'lines', '__weakref__')
+class StructDecl(Node):
+	__slots__ = ('name', 'fields','text', 'lines', '__weakref__')
 
-	def __init__(self, name, decls, lines=None,text=""):
+	def __init__(self, name, fields, lines=None,text=""):
 		self.name = name
-		self.decls = decls
+		self.fields = fields
 		self.lines = lines
 		self.text = text
 
 	def children(self):
 		nodelist = []
-		for i, child in enumerate(self.decls or []):
-			nodelist.append(("decls[%d]" % i, child))
+		for i, child in enumerate(self.fields or []):
+			nodelist.append(("fields[%d]" % i, child))
 		return tuple(nodelist)
 
 	attr_names = ('name', )
+
+
+class Struct(Node):
+	__slots__ = ('name', 'fields', 'size','text', 'lines', '__weakref__')
+
+	def __init__(self, name, fields, size, lines=None,text=""):
+		self.name = name
+		self.fields = fields
+		self.size = size
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		for i, child in enumerate(self.fields or []):
+			nodelist.append(("fields[%d]" % i, child))
+		return tuple(nodelist)
+
+	attr_names = ('name', 'size', )
 
 
 class StructRef(Node):

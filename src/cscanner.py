@@ -190,8 +190,6 @@ class Scanner():
     return Type in Type1.type and Type in Type2.type
 
   def TypeComparison(self,Type,Type1):
-    print Type
-    print Type1
     return Type in Type1.type
 
   def IsConstant(self,Type):

@@ -28,7 +28,7 @@ class Parser(Scanner):
                 typelist = []
                 for param in p[0].GetParameters():
                     typelist.append(Type(param.GetType(), param.GetQualifiers(), None))
-                print(p[0].GetType())
+                #print(p[0].GetType())
                 p[0] = FuncCall(ParamList(typelist), Type(p[0].GetType(), None, None), p[0].GetName())
                 self.SetNodeInformation(p[0],1,1,p)
 
@@ -119,7 +119,7 @@ class Parser(Scanner):
 
     def p_postfix_expression_5(self, p):
         '''postfix_expression : postfix_expression '.' IDENTIFIER'''
-        print p[1]
+        #print p[1]
         symbolnode = self.symbol_table.Retrieve(p[1].name)
         symbolnode2 = symbolnode.FindField(p[3])
         p[1].field = VariableCall( Type(symbolnode2.GetType(), symbolnode2.GetQualifiers(), None), symbolnode2.GetName(), type(symbolnode) == PointerNode or type(symbolnode) == ArrayNode)
@@ -836,7 +836,7 @@ class Parser(Scanner):
                     declarator["symbolNode"].SetType(p[1].type) 
                     declarator["symbolNode"].SetQualifiers(p[1].qualifier) # Dictionary ouch right here .. a potential bug to fix
                     declarator["astNode"].type = p[1]
-                print p[2]
+                #print p[2]
                 astList.append(declarator["astNode"])
 
         p[0] = DeclList(astList)
@@ -914,8 +914,8 @@ class Parser(Scanner):
             #p[0] = p[1],astnode
         elif type(self.typelist[-1]) == StructNode:
             #self.symbol_table.InsertNode()
-            print type(p[1])
-            print self.typelist
+            #print type(p[1])
+            #print self.typelist
 
             structnode = StructVariableNode(self.typelist[-1],"",p[1].GetName(),p.linespan(1),p.lexpos(1))
             p[0] = makeParserDict(structnode,Struct(p[1].GetName(),self.typelist[-1].fields,self.typelist[-1].GetTotalWordSize()))
@@ -963,8 +963,8 @@ class Parser(Scanner):
             #p[0] = p[1],astnode
         elif type(self.typelist[-1]) == StructNode:
             #self.symbol_table.InsertNode()
-            print type(p[1])
-            print self.typelist
+            #print type(p[1])
+            #print self.typelist
 
             structnode = StructVariableNode(self.typelist[-1],"",p[1].GetName(),p.linespan(1),p.lexpos(1))
             p[0] = makeParserDict(structnode,Struct(p[1].GetName(),self.typelist[-1].fields,self.typelist[-1].GetTotalWordSize()))
@@ -978,8 +978,10 @@ class Parser(Scanner):
 
         else:
             self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1].type[1:])
-        if not self.TypeComparison(p[1].GetType(),p[3].type):
+        if not p[1].GetType().type == p[3].type.type:
             print "ERROR: Bad Type!!!!!!!!!! at line number: " + str(p.lineno(1))
+            print p[1].GetType().type
+            print p[3].type.type
             print self.highlightstring(p.lineno(1),p.lexspan(3)[1])
 
         if VariableNode == type(p[1]):
@@ -1474,9 +1476,9 @@ class Parser(Scanner):
         p[0] = If(p[3], p[5],None) # May need to check types here
         span = p.lexspan(1)
         span2 = p.lexspan(5)
-        print "If"
+        #print "If"
         p[0].text = self.input_data[span[0]:span2[1]]
-        print p[0].text
+        #print p[0].text
         p[0].lines = (p.linespan(1)[0],p.linespan(5)[1])
 
     # Will iterate up through the ifs
@@ -1485,7 +1487,7 @@ class Parser(Scanner):
         p[0] = If(p[3],p[5],p[7]) # May need to check types
         span = p.lexspan(1)
         span2 = p.lexspan(6)
-        print "if else"
+        #print "if else"
         p[0].text = self.input_data[span[0]:span2[1]]
         p[0].lines = (p.linespan(1)[0],p.linespan(6)[1])
     def p_selection_statement_3(self, p):

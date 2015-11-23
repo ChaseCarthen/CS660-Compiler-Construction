@@ -37,7 +37,7 @@ class Scanner():
             'WHILE', 'DO', 'FOR', 'GOTO', 'CONTINUE', 'BREAK', 'RETURN','OPENBRACE','CLOSEBRACE','SEMI','OPENPARAN','CLOSEPARAN', 'COMMENT','DUMPSYMBOL']
 
   precedence =  []
-  literals = ['=',']','[','&','+','-','.','?','!',',',':','*','<','>','^','|','%','/','\n']
+  literals = ['=',']','[','&','+','-','.','?','!',',',':','*','<','>','^','|','%','/','\n','~']
   def __init__(self,data,parselog,parsefile,tokenfile,graphfile):
     data = data.replace("\t","    ")
     # To enable a more verbose logger -- this is so we can see all of the production that were taken in the grammar.

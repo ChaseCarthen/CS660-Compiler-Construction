@@ -145,11 +145,12 @@ class Return(Node):
 
 
 class VariableCall(Node):
-	__slots__ = ('type', 'name','text', 'lines', '__weakref__')
+	__slots__ = ('type', 'name', 'isPtr','text', 'lines', '__weakref__')
 
-	def __init__(self, type, name, lines=None,text=""):
+	def __init__(self, type, name, isPtr, lines=None,text=""):
 		self.type = type
 		self.name = name
+		self.isPtr = isPtr
 		self.lines = lines
 		self.text = text
 
@@ -159,7 +160,7 @@ class VariableCall(Node):
 			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
-	attr_names = (' name', )
+	attr_names = (' name', 'isPtr', )
 
 
 class ParamList(Node):
@@ -179,13 +180,48 @@ class ParamList(Node):
 	attr_names = ()
 
 
-class Decl(Node):
-	__slots__ = ('name', 'type', 'init','text', 'lines', '__weakref__')
+class StructDecl(Node):
+	__slots__ = ('name', 'decls','text', 'lines', '__weakref__')
 
-	def __init__(self, name, type, init, lines=None,text=""):
+	def __init__(self, name, decls, lines=None,text=""):
+		self.name = name
+		self.decls = decls
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		for i, child in enumerate(self.decls or []):
+			nodelist.append(("decls[%d]" % i, child))
+		return tuple(nodelist)
+
+	attr_names = ('name', )
+
+
+class StructCall(Node):
+	__slots__ = ('name', 'field','text', 'lines', '__weakref__')
+
+	def __init__(self, name, field, lines=None,text=""):
+		self.name = name
+		self.field = field
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		return tuple(nodelist)
+
+	attr_names = ('name', 'field', )
+
+
+class Decl(Node):
+	__slots__ = ('name', 'type', 'init', 'wordsize','text', 'lines', '__weakref__')
+
+	def __init__(self, name, type, init, wordsize, lines=None,text=""):
 		self.name = name
 		self.type = type
 		self.init = init
+		self.wordsize = wordsize
 		self.lines = lines
 		self.text = text
 
@@ -197,7 +233,7 @@ class Decl(Node):
 			nodelist.append(("init", self.init))
 		return tuple(nodelist)
 
-	attr_names = ('name', )
+	attr_names = ('name', 'wordsize', )
 
 
 class DeclList(Node):
@@ -272,13 +308,14 @@ class Continue(Node):
 
 
 class ArrDecl(Node):
-	__slots__ = ('name', 'type', 'init', 'dim','text', 'lines', '__weakref__')
+	__slots__ = ('name', 'type', 'init', 'dim', 'wordsize','text', 'lines', '__weakref__')
 
-	def __init__(self, name, type, init, dim, lines=None,text=""):
+	def __init__(self, name, type, init, dim, wordsize, lines=None,text=""):
 		self.name = name
 		self.type = type
 		self.init = init
 		self.dim = dim
+		self.wordsize = wordsize
 		self.lines = lines
 		self.text = text
 
@@ -292,7 +329,7 @@ class ArrDecl(Node):
 			nodelist.append(("dim[%d]" % i, child))
 		return tuple(nodelist)
 
-	attr_names = ('name', )
+	attr_names = ('name', 'wordsize', )
 
 
 class ArrRef(Node):
@@ -320,12 +357,14 @@ class ArrRef(Node):
 
 
 class PtrDecl(Node):
-	__slots__ = ('name', 'type', 'numindirections','text', 'lines', '__weakref__')
+	__slots__ = ('name', 'type', 'numindirections', 'wordsize', 'init','text', 'lines', '__weakref__')
 
-	def __init__(self, name, type, numindirections, lines=None,text=""):
+	def __init__(self, name, type, numindirections, wordsize, init, lines=None,text=""):
 		self.name = name
 		self.type = type
 		self.numindirections = numindirections
+		self.wordsize = wordsize
+		self.init = init
 		self.lines = lines
 		self.text = text
 
@@ -335,7 +374,7 @@ class PtrDecl(Node):
 			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
-	attr_names = ('name', 'numindirections', )
+	attr_names = ('name', 'numindirections', 'wordsize', 'init', )
 
 
 class Assignment(Node):
@@ -704,29 +743,6 @@ class LessOp(Node):
 	attr_names = ()
 
 
-class RefOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
-
-	def __init__(self, left, right, type, lines=None,text=""):
-		self.left = left
-		self.right = right
-		self.type = type
-		self.lines = lines
-		self.text = text
-
-	def children(self):
-		nodelist = []
-		if self.left is not None:
-			nodelist.append(("left", self.left))
-		if self.right is not None:
-			nodelist.append(("right", self.right))
-		if self.type is not None:
-			nodelist.append(("type", self.type))
-		return tuple(nodelist)
-
-	attr_names = ()
-
-
 class MultOp(Node):
 	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
 
@@ -842,52 +858,6 @@ class ModOp(Node):
 	attr_names = ()
 
 
-class BitNotOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
-
-	def __init__(self, left, right, type, lines=None,text=""):
-		self.left = left
-		self.right = right
-		self.type = type
-		self.lines = lines
-		self.text = text
-
-	def children(self):
-		nodelist = []
-		if self.left is not None:
-			nodelist.append(("left", self.left))
-		if self.right is not None:
-			nodelist.append(("right", self.right))
-		if self.type is not None:
-			nodelist.append(("type", self.type))
-		return tuple(nodelist)
-
-	attr_names = ()
-
-
-class LogNotOp(Node):
-	__slots__ = ('left', 'right', 'type','text', 'lines', '__weakref__')
-
-	def __init__(self, left, right, type, lines=None,text=""):
-		self.left = left
-		self.right = right
-		self.type = type
-		self.lines = lines
-		self.text = text
-
-	def children(self):
-		nodelist = []
-		if self.left is not None:
-			nodelist.append(("left", self.left))
-		if self.right is not None:
-			nodelist.append(("right", self.right))
-		if self.type is not None:
-			nodelist.append(("type", self.type))
-		return tuple(nodelist)
-
-	attr_names = ()
-
-
 class AssignOp(Node):
 	__slots__ = ('left', 'right','text', 'lines', '__weakref__')
 
@@ -903,6 +873,126 @@ class AssignOp(Node):
 			nodelist.append(("left", self.left))
 		if self.right is not None:
 			nodelist.append(("right", self.right))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class IndOp(Node):
+	__slots__ = ('value', 'type','text', 'lines', '__weakref__')
+
+	def __init__(self, value, type, lines=None,text=""):
+		self.value = value
+		self.type = type
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		if self.value is not None:
+			nodelist.append(("value", self.value))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class RefOp(Node):
+	__slots__ = ('value', 'type','text', 'lines', '__weakref__')
+
+	def __init__(self, value, type, lines=None,text=""):
+		self.value = value
+		self.type = type
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		if self.value is not None:
+			nodelist.append(("value", self.value))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class BitNotOp(Node):
+	__slots__ = ('value', 'type','text', 'lines', '__weakref__')
+
+	def __init__(self, value, type, lines=None,text=""):
+		self.value = value
+		self.type = type
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		if self.value is not None:
+			nodelist.append(("value", self.value))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class AbsOp(Node):
+	__slots__ = ('value', 'type','text', 'lines', '__weakref__')
+
+	def __init__(self, value, type, lines=None,text=""):
+		self.value = value
+		self.type = type
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		if self.value is not None:
+			nodelist.append(("value", self.value))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class NegOp(Node):
+	__slots__ = ('value', 'type','text', 'lines', '__weakref__')
+
+	def __init__(self, value, type, lines=None,text=""):
+		self.value = value
+		self.type = type
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		if self.value is not None:
+			nodelist.append(("value", self.value))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
+		return tuple(nodelist)
+
+	attr_names = ()
+
+
+class LogNotOp(Node):
+	__slots__ = ('value', 'type','text', 'lines', '__weakref__')
+
+	def __init__(self, value, type, lines=None,text=""):
+		self.value = value
+		self.type = type
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		if self.value is not None:
+			nodelist.append(("value", self.value))
+		if self.type is not None:
+			nodelist.append(("type", self.type))
 		return tuple(nodelist)
 
 	attr_names = ()
@@ -1074,6 +1164,26 @@ class Struct(Node):
 	attr_names = ('name', )
 
 
+class StructRef(Node):
+	__slots__ = ('name', 'field', 'offset', 'type','text', 'lines', '__weakref__')
+
+	def __init__(self, name, field, offset, type, lines=None,text=""):
+		self.name = name
+		self.field = field
+		self.offset = offset
+		self.type = type
+		self.lines = lines
+		self.text = text
+
+	def children(self):
+		nodelist = []
+		if self.field is not None:
+			nodelist.append(("field", self.field))
+		return tuple(nodelist)
+
+	attr_names = ('name', 'offset', 'type', )
+
+
 class Union(Node):
 	__slots__ = ('name', 'decls','text', 'lines', '__weakref__')
 
@@ -1090,27 +1200,6 @@ class Union(Node):
 		return tuple(nodelist)
 
 	attr_names = ('name', )
-
-
-class StructRef(Node):
-	__slots__ = ('name', 'type', 'field','text', 'lines', '__weakref__')
-
-	def __init__(self, name, type, field, lines=None,text=""):
-		self.name = name
-		self.type = type
-		self.field = field
-		self.lines = lines
-		self.text = text
-
-	def children(self):
-		nodelist = []
-		if self.name is not None:
-			nodelist.append(("name", self.name))
-		if self.field is not None:
-			nodelist.append(("field", self.field))
-		return tuple(nodelist)
-
-	attr_names = ('type', )
 
 
 class Case(Node):

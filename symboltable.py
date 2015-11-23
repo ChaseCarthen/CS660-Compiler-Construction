@@ -10,6 +10,7 @@ class SymbolTable(object):
     self.insert = True
     tree = bintrees.RBTree()
     tree["_type"] = {}
+    tree["_struct"] = {}
     self.stack.append(tree)
     self.pointer = None
     self.previouslocalcount = 0
@@ -130,6 +131,31 @@ class SymbolTable(object):
   def InsertNewType(self,name,typenode):
     self.stack[-1]["_type"][name] = typenode
 
+
+  def CheckForStruct(self,name):
+    if len(self.stack) == 0:
+      return
+    tree = self.stack.pop()
+    typenode = self._CheckTree(tree, "_struct")
+    result = None
+
+    if not typenode:
+      result = self.CheckForStruct(name)
+    else:
+      if name in typenode:
+        result = typenode[name]
+      else:
+        result = self.CheckForStruct(name)
+
+    # check for stack overflow -- later
+    self.stack.append(tree)
+    return result
+
+  def InsertNewStruct(self,name,structnode):
+    self.stack[-1]["_struct"][name] = structnode
+
+  #def CheckForStruct
+
   def _CheckTree(self, tree, key):
     value = None
     try:
@@ -169,6 +195,7 @@ class SymbolTable(object):
     self.insert = True
     tree = bintrees.RBTree()
     tree["_type"] = {}
+    tree["_struct"] = {}
 
     self.stack.append(tree)
     # Adding the count for the numbers of locals -- this is for local variables
@@ -365,3 +392,65 @@ class ArrayNode(SymbolTreeNode):
     string = string + " Dimensions: " + str(self.dimensions) + ","
     string += " Type Qualifiers: " + str(self.typequalifiers)
     return string
+  def GetWordSize(self):
+    dim = 1
+    for i in self.dimensions:
+      dim *= int(i.value)
+    return dim
+
+class StructNode(SymbolTreeNode):
+  """A struct node"""
+  def __init__(self, fields ="", type_var = "", name = "", line = "", line_loc = "" ):
+    if type(fields) != list:
+      fields = []
+    self.wordsize = 1
+    self.fields = fields
+    super(StructNode, self).__init__(type_var, name, line, line_loc)
+    self.qualifer = ""
+    self.type = ""
+  def GetTotalWordSize(self):
+    wordsize = 0
+    for i in self.fields:
+      wordsize += self.GetWordSize(i)
+    self.wordsize = wordsize
+    return wordsize
+  def GetWordSize(self,field):
+    if type(field) == VariableNode:
+      return 1
+    elif type(field) == PointerNode:
+      return 1
+    elif type(field) == ArrayNode:
+      dim = 1
+      for i in field.dimensions:
+        dim *= i
+      return dim
+    return 0
+  def SetFields(self,fields):
+    for i in self.fields:
+      self.wordsize += self.GetWordSize(i)
+    self.fields = fields
+  def FindField(self,name):
+    for i in self.fields:
+      if name == i.GetName():
+        return i
+    return None
+  def __str__(self):
+    string = super(StructNode, self).__str__()
+    for i in self.fields:
+      string += "\n\t" +str(i) + "\n"
+    return string
+
+class StructVariableNode(StructNode):
+  '''Struct Variable Node'''
+  def __init__(self, structtype= "", type_var ="", name = "", line = "", line_loc = "" ):
+    self.structtype = structtype
+    self.name = name
+    super(StructVariableNode, self).__init__(type_var = type_var, name = name, line = line, line_loc = line_loc)
+  def GetTotalWordSize(self):
+    return self.structtype.GetTotalWordSize()
+  def __str__(self):
+    string = super(StructVariableNode,self).__str__() +"\n"
+    return string
+  def FindField(self,name):
+    return self.structtype.FindField(name)
+

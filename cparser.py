@@ -17,9 +17,12 @@ class Parser(Scanner):
         '''primary_expression : IDENTIFIER'''
         try:
             p[0] = self.symbol_table.Retrieve(p[1])
-            if type(p[0]) != type(FunctionNode()):
-                p[0] = VariableCall( Type(p[0].GetType(), p[0].GetQualifiers(), None), p[0].GetName())
+
+            if type(p[0]) != type(FunctionNode()) and type(p[0]) != StructVariableNode:
+                p[0] = VariableCall( Type(p[0].GetType(), p[0].GetQualifiers(), None), p[0].GetName(), type(p[0]) == PointerNode or type(p[0]) == ArrayNode)
                 self.SetNodeInformation(p[0],1,1,p)
+            elif type(p[0]) == StructVariableNode:
+                p[0] = StructRef(p[1],None,None,Type([],[],[]))# StructRef: [name,field*] {}
             else:
                 # FuncCall: [ParamList**,type*,name]{}
                 typelist = []
@@ -111,7 +114,12 @@ class Parser(Scanner):
 
     def p_postfix_expression_5(self, p):
         '''postfix_expression : postfix_expression '.' IDENTIFIER'''
-        #p[0] = p[1] + p[2] + p[3] # Do a look on identfier
+        print p[1]
+        symbolnode = self.symbol_table.Retrieve(p[1].name)
+        symbolnode = symbolnode.FindField(p[2])
+        p[1].field = ""
+        p[1].offset = ""
+        p[0] = p[1]
 
     def p_postfix_expression_6(self, p):
         '''postfix_expression : postfix_expression PTR_OP IDENTIFIER'''
@@ -231,7 +239,21 @@ class Parser(Scanner):
 
     def p_unary_expression_4(self, p):
         '''unary_expression : unary_operator cast_expression'''
-        #p[0] = p[1] + p[2]
+        if p[1] == "&":
+            p[0] = RefOp(p[2],p[2].type)
+        elif p[1] == "*":
+            p[0] = IndOp(p[2],p[2].type)
+        elif p[1] == "+":
+            p[0] = AbsOp(p[2],p[2].type)
+        elif p[1] == "-":
+            p[0] = NegOp(p[2],p[2].type)
+        elif p[1] == "~":
+            if 'float' in p[2].type.type:
+                print "Error using a float type in bitwise not"
+                # we should probably fail here.
+            p[0] = BitNotOp(p[2],p[2].type)
+        elif p[1] == "!":
+            p[0] = LogNotOp(p[2],p[2].type) 
     def p_unary_expression_5(self, p):
         '''unary_expression : SIZEOF unary_expression'''
         #p[0] = p[1] + p[2]
@@ -791,7 +813,9 @@ class Parser(Scanner):
     # Pushing a dictionary here.
     def p_declaration_1(self, p):
         '''declaration : declaration_specifiers SEMI'''
-        p[0] = p[1]
+        self.symbol_table.InsertNode(p[1])
+        p[0] = Struct(p[1].GetName(),p[1].fields)
+        #if type(p[1]) != StructNode:
         self.typelist.pop()
         #print(p[1])
 
@@ -803,9 +827,11 @@ class Parser(Scanner):
         # lookup and insert
         for declarator in p[2]:
             if declarator != None:
-                declarator["symbolNode"].SetType(p[1].type) 
-                declarator["symbolNode"].SetQualifiers(p[1].qualifier) # Dictionary ouch right here .. a potential bug to fix
-                declarator["astNode"].type = p[1]
+                if type(p[1]) == Type:
+                    declarator["symbolNode"].SetType(p[1].type) 
+                    declarator["symbolNode"].SetQualifiers(p[1].qualifier) # Dictionary ouch right here .. a potential bug to fix
+                    declarator["astNode"].type = p[1]
+                print p[2]
                 astList.append(declarator["astNode"])
 
         p[0] = DeclList(astList)
@@ -829,8 +855,12 @@ class Parser(Scanner):
 
     def p_declaration_specifiers_3(self, p):
         '''declaration_specifiers : type_specifier'''
-        p[0] = Type([p[1]],[],[]) #{"qualifiers" : [], "specifiers" : [p[1]],"storage" : []}
-        self.typelist.append(p[0])
+        if type(p[1]) != StructNode:
+            p[0] = Type([p[1]],[],[]) #{"qualifiers" : [], "specifiers" : [p[1]],"storage" : []}
+            self.typelist.append(p[0])
+        else:
+            p[0] = p[1]
+            self.typelist.append(p[0])
 
     def p_declaration_specifiers_4(self, p):
         '''declaration_specifiers : type_specifier declaration_specifiers'''
@@ -868,7 +898,7 @@ class Parser(Scanner):
         
     def p_init_declarator_1(self, p):
         '''init_declarator : declarator'''
-        if not "typedef" in self.typelist[-1].storage:
+        if type(self.typelist[-1]) == Type and not "typedef" in self.typelist[-1].storage:
             try:
                 self.symbol_table.InsertNode(p[1])
                 self.symbol_table.IncLocalCount()
@@ -877,21 +907,37 @@ class Parser(Scanner):
             except SymbolTableError, e:
                 print(e)
             #p[0] = p[1],astnode
+        elif type(self.typelist[-1]) == StructNode:
+            #self.symbol_table.InsertNode()
+            print type(p[1])
+            print self.typelist
+
+            structnode = StructVariableNode(self.typelist[-1],"",p[1].GetName(),p.linespan(1),p.lexpos(1))
+            p[0] = makeParserDict(structnode,Struct(p[1].GetName(),self.typelist[-1].fields))
+            try:
+                self.symbol_table.InsertNode(structnode)
+                self.symbol_table.IncLocalCount()
+            except SymbolTableWarning, e:
+                print(e)
+            except SymbolTableError, e:
+                print(e)
+
         else:
             self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1].type[1:])
-        if VariableNode == type(p[1]):
-            p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,None) )
-        elif ArrayNode == type(p[1]):
-            p[0] = makeParserDict(p[1], ArrDecl(p[1].GetName(),None,None,p[1].dimensions) )
-        elif FunctionNode == type(p[1]):
-            paramlist = []
-            for param in p[1].GetParameters():
-                paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
-            p[0] = makeParserDict(p[1], FuncDecl(ParamList(paramlist),Type(p[1].GetType(),[],[] ), p[1].GetName()) )
-        elif PointerNode == type(p[1]):
-            #PtrDecl: [name,type*]
-            node = PtrDecl(p[1].GetName(), Type(p[1].GetType(),p[1].GetQualifiers(),[]),p[1].GetNumberIndirections())
-            p[0] = makeParserDict(p[1],node)
+        if p[0] == None:
+            if VariableNode == type(p[1]):
+                p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,None,Constant( Type(["int"],[],[]),str(1) ) ) )
+            elif ArrayNode == type(p[1]):
+                p[0] = makeParserDict(p[1], ArrDecl(p[1].GetName(),None,None,p[1].dimensions, Constant( Type(["int"],[],[]),str(p[1].GetWordSize())) ),None )
+            elif FunctionNode == type(p[1]):
+                paramlist = []
+                for param in p[1].GetParameters():
+                    paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
+                p[0] = makeParserDict(p[1], FuncDecl(ParamList(paramlist),Type(p[1].GetType(),[],[] ), p[1].GetName()) )
+            elif PointerNode == type(p[1]):
+                #PtrDecl: [name,type*]
+                node = PtrDecl(p[1].GetName(), Type(p[1].GetType(),p[1].GetQualifiers(),[]),p[1].GetNumberIndirections())
+                p[0] = makeParserDict(p[1],node)
         span = (p.lexspan(1)[0],p.lexspan(1)[1])
         p[0]["astNode"].lines = (p.linespan(1)[0],p.linespan(1)[1])
         p[0]["astNode"].text =  self.input_data[span[0]:span[1]+1]
@@ -907,7 +953,10 @@ class Parser(Scanner):
             print(e)
         except SymbolTableError, e:
             print(e)
-        p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,p[3],None))
+        if VariableNode == type(p[1]):
+            p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,p[3],None,Constant( Type(["int"],[],[]),str(1))) )
+        elif PointerNode == type(p[1]):
+            p[0] = makeParserDict(p[1], PtrDecl(p[1].GetName(), Type(p[1].GetType(),p[1].GetQualifiers(),[]),p[1].GetNumberIndirections(),  Constant( Type(["int"],[],[]),str(1) ) ,p[3] ) ) 
         span = (p.lexspan(1)[0],p.lexspan(3)[1])
         p[0]["astNode"].lines = (p.linespan(1)[0],p.linespan(3)[1])
         p[0]["astNode"].text =  self.input_data[span[0]:span[1]+2]
@@ -961,17 +1010,24 @@ class Parser(Scanner):
     def p_type_specifier_11(self, p):
         '''type_specifier : enum_specifier'''
         p[0] = p[1]
+    # Struct: [name,decls**] {} name holds the struct name decls .. fields of the struct
     def p_struct_or_union_specifier_1(self, p):
         '''struct_or_union_specifier : struct_or_union IDENTIFIER OPENBRACE struct_declaration_list CLOSEBRACE'''
-        p[0] = p[1] + p[2] + p[3] + p[4] + p[5] # insert this guy
+        structnode = StructNode(name = p[2], fields = p[4], line = (p.linespan(0)[1],p.linespan(5)[1]))
+        self.symbol_table.EndScope()
+        self.symbol_table.InsertNewStruct(p[2],structnode)
+        p[0] = structnode #makeParserDict(structnode,Struct(p[1],p[4]))
+        
 
     def p_struct_or_union_specifier_2(self, p):
         '''struct_or_union_specifier : struct_or_union OPENBRACE struct_declaration_list CLOSEBRACE'''
-        p[0] = p[1] + p[2] + p[3] + p[4] # insert this guy???
+        #p[0] = p[1] # insert this guy???
+
 
     def p_struct_or_union_specifier_3(self, p):
         '''struct_or_union_specifier : struct_or_union IDENTIFIER'''
-        p[0] = p[1] + p[2] # insert this guy
+        #p[0] = p[1] # insert this guy
+        p[0] = self.symbol_table.CheckForStruct(p[2])
 
     def p_struct_or_union_1(self, p):
         '''struct_or_union : STRUCT'''
@@ -987,40 +1043,49 @@ class Parser(Scanner):
 
     def p_struct_declaration_list_2(self, p):
         '''struct_declaration_list : struct_declaration_list struct_declaration'''
-        p[0] = p[1] + p[2]
+        for i in p[2]:
+            p[1] = p[1] + [i]
+        p[0] = p[1]
 
     def p_struct_declaration_1(self, p):
         '''struct_declaration : specifier_qualifier_list struct_declarator_list SEMI'''
-        p[0] = p[1] + p[2] + p[3] # insert
+        l = []
+        for name in p[2]:
+            l.append(VariableNode(name=name, type_var=p[1].type, line=p.lineno(1), line_loc=p.lexpos(1) - self.lines[p.lineno(1)-1],tq=p[1].qualifier))
+        p[0] = l
 
     def p_specifier_qualifier_list_1(self, p):
         '''specifier_qualifier_list : type_specifier specifier_qualifier_list'''
-        p[0] = p[1] + p[2]
+        p[2].type += [p[1]]
+        p[0] = p[2]
 
     def p_specifier_qualifier_list_2(self, p):
         '''specifier_qualifier_list : type_specifier'''
-        p[0] = p[1]
+        p[0] = Type([p[1]],[],[]) 
     def p_specifier_qualifier_list_3(self, p):
         '''specifier_qualifier_list : type_qualifier specifier_qualifier_list'''
-        p[0] = p[1] + p[2]
+        p[2].qualifier += [p[1]]
+        p[0] = p[2]
     def p_specifier_qualifier_list_4(self, p):
         '''specifier_qualifier_list : type_qualifier'''
-        p[0] = p[1]
+        p[0] = Type([],[p[1]],[])
     def p_struct_declarator_list_1(self, p):
         '''struct_declarator_list : struct_declarator'''
-        p[0] = p[1] 
+        p[0] = [p[1]] 
     def p_struct_declarator_list_2(self, p):
         '''struct_declarator_list : struct_declarator_list ',' struct_declarator'''
-        p[0] = p[1] + p[2] + p[3]
+        p[0] = p[1].append(p[3])
     def p_struct_declarator_1(self, p):
         '''struct_declarator : declarator'''
         p[0] = p[1]
     def p_struct_declarator_2(self, p):
         '''struct_declarator : ':' constant_expression'''
         p[0] = p[1]
+        # print a warning here
     def p_struct_declarator_3(self, p):
         '''struct_declarator : declarator ':' constant_expression'''
-        p[0] = p[1] + p[2] + p[3]
+        p[0] = p[1]
+        # print a warning here
     def p_enum_specifier_1(self, p):
         '''enum_specifier : ENUM OPENBRACE enumerator_list CLOSEBRACE'''
         p[0] = p[1] + p[2] + p[3] + p[4]
@@ -1214,7 +1279,10 @@ class Parser(Scanner):
         '''parameter_declaration : declaration_specifiers'''
         self.typelist.pop()
         #print( "TYPE: " + str(p[1]))
-        p[0] = VariableNode(type_var = p[1].type, tq = p[1].qualifier)
+        if type(p[1]) != Type: 
+            p[0] = VariableNode(type_var = p[1].type, tq = p[1].qualifier)
+        else:
+            p[0] = p[1]
 
     def p_identifier_list_1(self, p):
         '''identifier_list : IDENTIFIER'''
@@ -1479,15 +1547,16 @@ class Parser(Scanner):
 
     def p_function_definition_2(self, p):
         '''function_definition : declaration_specifiers declarator compound_statement'''
+        
         paramlist = []
         for param in p[2].GetParameters():
             print type(param)
             if type(param) == VariableNode:
-                paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None))
+                paramlist.append(Decl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]), None,None, Constant( Type(["int"],[],[]),str(1)))    )
             elif type(param) == PointerNode:
-                paramlist.append( PtrDecl(param.GetName(), Type(param.GetType(),param.GetQualifiers(),[]),param.GetNumberIndirections()) )
+                paramlist.append( PtrDecl(param.GetName(), Type(param.GetType(),param.GetQualifiers(),[]),param.GetNumberIndirections()))
             elif ArrayNode == type(param):
-                p[0] = paramlist.append(ArrDecl(param.GetName(),None,None,param.dimensions) )
+                p[0] = paramlist.append(ArrDecl(param.GetName(),Type(param.GetType(),param.GetQualifiers(),[]),None,param.dimensions, Constant( Type(["int"],[],[]),str(param.GetWordSize()))))
             p[0] = makeParserDict(p[1], FuncDecl(ParamList(paramlist),Type(param.GetType(),[],[] ), param.GetName()) )
         p[0] = FuncDef(ParamList(paramlist), p[1], p[2].GetName(), p[3],self.symbol_table.GetLocalCount())
         print(self.symbol_table.GetLocalCount())

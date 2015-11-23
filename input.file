@@ -1,27 +1,15 @@
-<<<<<<< HEAD
-void foo()
+struct apple
 {
-	int b = 24;
-	int a[50][b];
-}
+	int a2;
+	int b2;
+};
 
 
-void foo2()
-{
-	int c = 1;
-	int b= 1;
-	do
-	{
-		int d = 2;
-	}
-	while(1);
-}
-=======
+
+
 void main()
 {
-  int a[10][100];
-  int c = 10;
-  int b = a[5][c];
-}
+	struct apple a;
+	a.a = 1;
 
->>>>>>> eb6cbe0f7391b44d4262b613bc0dbeb449ba8419
+}

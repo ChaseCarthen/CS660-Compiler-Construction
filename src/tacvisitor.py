@@ -68,9 +68,9 @@ class ThreeAddressCode(NodeVisitor):
     def printTAC(self,name, one = '-', two = '-', three = '-', code = '',lines=None):
         coord = (name, one, two, three)
         if self.CODE:
-            return self.commentify(code,lines) + '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30});\n'.format(coord)
+            return self.commentify(code,lines) + '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30})\n'.format(coord)
         else:
-            return '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30});\n'.format(coord)
+            return '({0[0]:^30}, {0[1]:^30}, {0[2]:^30}, {0[3]:^30})\n'.format(coord)
 
     def compressedTAC(self,*strings):
         number = len(strings)
@@ -94,7 +94,12 @@ class ThreeAddressCode(NodeVisitor):
             qualifier += i + " "
         for i in node.type:
             Type += i + " "
-        return (Type,qualifier),"" # The "" is for convention
+
+        t = ""
+        for i in node.type:
+            t += i + " "
+        t = t.strip()
+        return (Type,qualifier),t # The "" is for convention
 
     def visit_Decl(self,node):
         # No strings right now.
@@ -209,6 +214,7 @@ class ThreeAddressCode(NodeVisitor):
 
     #ArrDecl: [name,type*,init*,dim**] {}
     def visit_ArrDecl(self,node):
+        print "ARRDECL"
         op = ""
         assignOP = ""
         string = ""
@@ -225,8 +231,11 @@ class ThreeAddressCode(NodeVisitor):
             self.insertVariable(previousname,name)
         
         TypeOut,variable = self.visit(node.type)
-        Type = TypeOut[0]
-        Qual = TypeOut[1]
+        print variable
+        #Type = TypeOut[0]
+        #Qual = TypeOut[1]
+        #string += TypeOut
+
         if node.init != None:
             strings,initvalue = self.visit(node.init)
             string += strings
@@ -235,7 +244,7 @@ class ThreeAddressCode(NodeVisitor):
 
         #lets get down to the meat
         dim = self.inttemp.GetNextTicket()
-        string += self.printTAC("assign",self.compressedTAC("cons",1),"_",dim)
+        string += self.printTAC("assign",self.compressedTAC("cons",self.offset[variable]),"_",dim)
         for i in node.dim:
             outstr, label = self.visit(i)
             string +=  outstr
@@ -251,6 +260,7 @@ class ThreeAddressCode(NodeVisitor):
 
     # ArrRef: [name,subscript**,type*,dim**]
     def visit_ArrRef(self, node):
+        print "ARRREF"
         variableName = self.searchForVariable(node.name)
         subscripts = []
         dims = []
@@ -269,9 +279,8 @@ class ThreeAddressCode(NodeVisitor):
 
         # Build types as a full string
         t = ''
-        for i in node.type.type:
-            t += i + " "
-        t = t.strip()
+
+        _,t = self.visit(node.type)
         typeSize = self.offset[t]
 
         addTemps = []
@@ -528,6 +537,7 @@ class ThreeAddressCode(NodeVisitor):
         return self.UnaryOp("neg",node)
 
     def visit_Struct(self,node):
+        print "STRUCT"
         op = ""
         assignOP = ""
         string = ""
@@ -554,19 +564,22 @@ class ThreeAddressCode(NodeVisitor):
         # We need to add strings
         return string,self.compressedTAC(op,name)
     def visit_StructDecl(self,node):
-        return "",""
+        self.offset[node.name] = node.size
+        print "STRUCT DECL"
+        return "",node.name
 
     # StructRef: [name,field*,offset,type]
     def visit_StructRef(self,node):
+        print "STRUCT REF"
         op = ""
         assignOP = ""
         string = ""
         name = variableName = self.searchForVariable(node.name)
 
         fieldstring, fieldvalue = self.visit(node.field)
-
+        
         templabel = self.GetTempLabel("int")
-        string += self.printTAC("assign",self.compressedTAC("addr",fieldvalue),"_",templabel,node.text,node.lines)
+        string += self.printTAC("assign",name,"_",templabel,node.text,node.lines)
         string += self.printTAC("add",self.compressedTAC("cons",node.offset), templabel,templabel,"",None)
         string += self.printTAC("assign",self.compressedTAC("indr",templabel), "-", templabel,"",None)
         return string,templabel

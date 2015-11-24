@@ -71,17 +71,27 @@ class Parser(Scanner):
 
             # ArrRef: [name,subscript*,type*,dim**]
             typenode = Type([],[],[])
-            for i in node.GetType():
-                typenode.type.append(i)
-
-            for i in node.GetQualifiers():
-                typenode.qualifier.append(i)
+            if type(node) != StructVariableNode: # Patch
+                
+                for i in node.GetType():
+                    typenode.type.append(i)
+            
+                for i in node.GetQualifiers():
+                    typenode.qualifier.append(i)
+            else:
+                print p[1].name + "!!!!!!"
+                print node
+                oldnode = node
+                node = node.FindField(p[1].field.name)
+                print type(node)
+                raw_input()
+                typenode.type.append(oldnode.GetTypeName())
 
             dimension = []
             for i in node.dimensions:
                 dimension.append(i)
 
-            p[0] = ArrRef(node.GetName(), [p[3]], typenode, dimension)
+            p[0] = ArrRef(p[1].field.name, [p[3]], typenode, dimension)
         else:
             p[1].subscript.append(p[3])
 
@@ -122,9 +132,13 @@ class Parser(Scanner):
         #print p[1]
         symbolnode = self.symbol_table.Retrieve(p[1].name)
         symbolnode2 = symbolnode.FindField(p[3])
+        print p[3]
+        print symbolnode2.GetName()
+        print p[1]
         p[1].field = VariableCall( Type(symbolnode2.GetType(), symbolnode2.GetQualifiers(), None), symbolnode2.GetName(), type(symbolnode) == PointerNode or type(symbolnode) == ArrayNode)
         p[1].offset = symbolnode.GetOffset(p[3])
         p[0] = p[1]
+        raw_input("HERE")
 
     def p_postfix_expression_6(self, p):
         '''postfix_expression : postfix_expression PTR_OP IDENTIFIER'''
@@ -819,7 +833,7 @@ class Parser(Scanner):
     def p_declaration_1(self, p):
         '''declaration : declaration_specifiers SEMI'''
         self.symbol_table.InsertNode(p[1])
-        p[0] = StructDecl(p[1].GetName(),p[1].fields)
+        p[0] = StructDecl(p[1].GetName(),p[1].fields,p[1].GetTotalWordSize())
         #if type(p[1]) != StructNode:
         self.typelist.pop()
         #print(p[1])
@@ -916,9 +930,12 @@ class Parser(Scanner):
             #self.symbol_table.InsertNode()
             #print type(p[1])
             #print self.typelist
-
-            structnode = StructVariableNode(self.typelist[-1],"",p[1].GetName(),p.linespan(1),p.lexpos(1))
-            p[0] = makeParserDict(structnode,Struct(p[1].GetName(),self.typelist[-1].fields,self.typelist[-1].GetTotalWordSize()))
+            if type(p[1]) != ArrayNode:
+                structnode = StructVariableNode(self.typelist[-1],"",p[1].GetName(),p.linespan(1),p.lexpos(1))
+                p[0] = makeParserDict(structnode,Struct(p[1].GetName(),self.typelist[-1].fields,self.typelist[-1].GetTotalWordSize()))
+            else:
+                structnode = StructVariableNode(self.typelist[-1],"",p[1].GetName(),p.linespan(1),p.lexpos(1))
+                p[0] = makeParserDict(structnode, ArrDecl(p[1].GetName(), Type([self.typelist[-1].GetName()],[],[]),None,p[1].dimensions, Constant( Type(["int"],[],[]),str(p[1].GetWordSize())) ) )
             try:
                 self.symbol_table.InsertNode(structnode)
                 self.symbol_table.IncLocalCount()
@@ -1082,7 +1099,8 @@ class Parser(Scanner):
         '''struct_declaration : specifier_qualifier_list struct_declarator_list SEMI'''
         l = []
         for name in p[2]:
-            l.append(VariableNode(name=name.GetName(), type_var=p[1].type, line=p.lineno(1), line_loc=p.lexpos(1) - self.lines[p.lineno(1)-1],tq=p[1].qualifier))
+            name.SetType(p[1].type)
+            l.append(name)
         p[0] = l
 
     def p_specifier_qualifier_list_1(self, p):

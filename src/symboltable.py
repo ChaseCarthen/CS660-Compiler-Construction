@@ -422,7 +422,7 @@ class StructNode(SymbolTreeNode):
     elif type(field) == ArrayNode:
       dim = 1
       for i in field.dimensions:
-        dim *= i
+        dim *= int(i.value)
       return dim
     return 0
   def SetFields(self,fields):
@@ -463,4 +463,6 @@ class StructVariableNode(StructNode):
     return self.structtype.FindField(name)
   def GetOffset(self,name):
     return self.structtype.GetOffset(name)
+  def GetTypeName(self):
+    return self.structtype.GetName()
 

@@ -1184,11 +1184,12 @@ class ID(Node):
 
 
 class StructDecl(Node):
-	__slots__ = ('name', 'fields','text', 'lines', '__weakref__')
+	__slots__ = ('name', 'fields', 'size','text', 'lines', '__weakref__')
 
-	def __init__(self, name, fields, lines=None,text=""):
+	def __init__(self, name, fields, size, lines=None,text=""):
 		self.name = name
 		self.fields = fields
+		self.size = size
 		self.lines = lines
 		self.text = text
 
@@ -1198,7 +1199,7 @@ class StructDecl(Node):
 			nodelist.append(("fields[%d]" % i, child))
 		return tuple(nodelist)
 
-	attr_names = ('name', )
+	attr_names = ('name', 'size', )
 
 
 class Struct(Node):

@@ -260,7 +260,7 @@ class ThreeAddressCode(NodeVisitor):
 
     # ArrRef: [name,subscript**,type*,dim**]
     def visit_ArrRef(self, node):
-        print "ARRREF"
+        #print "ARRREF"
         variableName = self.searchForVariable(node.name)
         subscripts = []
         dims = []

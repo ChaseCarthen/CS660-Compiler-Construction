@@ -79,19 +79,21 @@ class Parser(Scanner):
                 for i in node.GetQualifiers():
                     typenode.qualifier.append(i)
             else:
-                print p[1].name + "!!!!!!"
-                print node
+                #print p[1].name + "!!!!!!"
+                #print node
                 oldnode = node
                 node = node.FindField(p[1].field.name)
-                print type(node)
-                raw_input()
+                #print type(node)
+                #raw_input()
                 typenode.type.append(oldnode.GetTypeName())
 
             dimension = []
             for i in node.dimensions:
                 dimension.append(i)
-
-            p[0] = ArrRef(p[1].field.name, [p[3]], typenode, dimension)
+            if type(node) == StructVariableNode:
+                p[0] = ArrRef(p[1].field.name, [p[3]], typenode, dimension)
+            else:
+                p[0] = ArrRef(p[1].name, [p[3]], typenode, dimension)
         else:
             p[1].subscript.append(p[3])
 

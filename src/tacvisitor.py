@@ -79,7 +79,7 @@ class ThreeAddressCode(NodeVisitor):
             string += "{"
             string += "0[" + str(i) +"]}"
             if i != number - 1:
-                string += ", "
+                string += " "
         string += ")"
         return string.format(strings)
 

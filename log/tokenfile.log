@@ -1,20 +1,22 @@
-/**/
-
-/*void fillMatrix ( int array [ ] , int row , int col ) ; */
-VOID IDENTIFIER OPENPARAN INT IDENTIFIER [ ] , INT IDENTIFIER , INT IDENTIFIER CLOSEPARAN SEMI 
-/*int main ( ) */
-INT IDENTIFIER OPENPARAN CLOSEPARAN 
+/*struct a */
+STRUCT IDENTIFIER 
 /*{ */
 OPENBRACE 
-/*struct a { */
-STRUCT IDENTIFIER OPENBRACE 
+/*int a ; */
+INT IDENTIFIER SEMI 
 /*int b ; */
 INT IDENTIFIER SEMI 
+/*int c [ 50 ] ; */
+INT IDENTIFIER [ CONSTANT ] SEMI 
 /*} ; */
 CLOSEBRACE SEMI 
+/*void main ( ) */
+VOID IDENTIFIER OPENPARAN CLOSEPARAN 
+/*{ */
+OPENBRACE 
 /*struct a b ; */
 STRUCT IDENTIFIER IDENTIFIER SEMI 
-/*b . b = 1 ; */
-IDENTIFIER . IDENTIFIER = CONSTANT SEMI 
+/*b . c [ 1 ] = 1 ; */
+IDENTIFIER . IDENTIFIER [ CONSTANT ] = CONSTANT SEMI 
 /*} */
 CLOSEBRACE 

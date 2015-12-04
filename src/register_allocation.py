@@ -1,4 +1,4 @@
-
+ignored = [0,1]
 
 
 class RegisterAllocation(object):
@@ -7,8 +7,9 @@ class RegisterAllocation(object):
     # Init all registers to empty
     # TODO: exempt the reserved registers from the list
     self.registers = {}
-    for i in range(2,32):
-      self.registers[i] = None
+    for i in range(0,32):
+      if not i in ignored:
+        self.registers[i] = None
 
 
   def getRegister(self, name):

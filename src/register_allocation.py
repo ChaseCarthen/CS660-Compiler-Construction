@@ -1,5 +1,8 @@
 ignored = [0,1,26,27]
-
+results = [2,3]
+arguments = [4,5,6,7]
+temporary = [8,9,10,11,12,13,14,15,24,25]
+saved = [16,17,18,19,20,21,22,23,24]
 
 class RegisterAllocation(object):
 '''
@@ -23,16 +26,37 @@ class RegisterAllocation(object):
         self.registers[i] = None
 
 
-  def getRegister(self, name):
-    index = 2
-    while index < 32 and self.registers[index]:
-      index += 1
+  def getTemporaryRegister(self, name):
+    for index in temporary:
+      if not self.registers[index]:
+        self.registers[index] = name
+        return index
 
-    if index == 32:
-      return 0
+    return 0
 
-    self.registers[index] = name
-    return index
+  def getSavedRegister(self, name):
+    for index in saved:
+      if not self.registers[index]:
+        self.registers[index] = name
+        return index
+
+    return 0
+
+  def getResultRegister(self, name):
+    for index in results:
+      if not self.registers[index]:
+        self.registers[index] = name
+        return index
+
+    return 0
+
+  def getArgumentRegister(self, name):
+    for index in arguments:
+      if not self.registers[index]:
+        self.registers[index] = name
+        return index
+
+    return 0
 
   def freeRegisterByValue(self, item):
     for index, value in self.registers.items():

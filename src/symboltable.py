@@ -392,6 +392,17 @@ class ArrayNode(SymbolTreeNode):
     string = string + " Dimensions: " + str(self.dimensions) + ","
     string += " Type Qualifiers: " + str(self.typequalifiers)
     return string
+  def GetDims(self):
+    dims = []
+    for dim in self.dimensions:
+      if(dim == str):
+        dims.append(Constant( Type(["int"],[],[]),str(dim)))
+      else:
+        dims.append(dim)
+    print dims
+    raw_input()
+    return dims
+
   def GetWordSize(self):
     dim = 1
     for i in self.dimensions:

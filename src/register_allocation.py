@@ -2,7 +2,7 @@ ignored = [0,1,26,27]
 results = [2,3]
 arguments = [4,5,6,7]
 temporary = [8,9,10,11,12,13,14,15,24,25]
-saved = [16,17,18,19,20,21,22,23,24]
+saved = [16,17,18,19,20,21,22,23]
 
 class RegisterAllocation(object):
   '''
@@ -25,25 +25,27 @@ class RegisterAllocation(object):
     for i in range(0,32):
       if not i in ignored:
         self.registers[i] = None
-    for i in range(0,8):
-      self.saved["$s"+str(i)] = None
-    for i in range(0,10):
-      self.temporary["$t" + str(i)] = None 
+    for i in range(16,24):
+      self.saved[i] = "$s"+str(i-16)
+    for i in range(8,16):
+      self.temporary[i] =  "$t" + str(i-8)
+    self.temporary[24] = "$t" + str(24)
+    self.temporary[25] = "$t" + str(25)
 
   # Get the next temporary register
   def getTemporaryRegister(self, name):
-    for index in self.temporary:
-      if not self.temporary[index]:
-        self.temporary[index] = name
-        return index
+    for index in temporary:
+      if not self.registers[index]:
+        self.registers[index] = name
+        return self.temporary[index]
 
     return 0
   # Get the next saved register
   def getSavedRegister(self, name):
-    for index in self.saved:
-      if not self.saved[index]:
-        self.saved[index] = name
-        return index
+    for index in saved:
+      if not self.registers[index]:
+        self.registers[index] = name
+        return self.saved[index]
 
     # Register spilling happens yall
     return 0

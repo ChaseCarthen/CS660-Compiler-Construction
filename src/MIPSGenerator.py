@@ -1,6 +1,7 @@
 import sys
 import re
 from register_allocation import *
+from stack_tracker import *
 
 class Variable:
 	def __init__(self,string):
@@ -64,16 +65,32 @@ class Function:
 		del string[0]
 		del string[0]
 		del string[0]
+
 		# parse the rest of everything else
 		self.statements = map(Instruction,string)
 
 
+
 class MipsGenerator:
+
 	Frequency = []
 	def __init__(self):
 		# the local variable is for handling cases of global statements
 		self.local = False
 		self.registermap = RegisterAllocation()
+		self.variableMap = {}
+		self.removeList = []
+		self.stackTracker = StackTracker()
+
+	def MarkForRemove(self,parameters):
+		self.removeList.append(parameters[0].name)
+		self.removeList.append(parameters[1].name)
+		self.removeList.append(parameters[2].name)
+
+	def cleanUpVariableMap(self):
+		for i in self.removeList:
+			if i in self.variableMap:
+				del self.variableMap[i]
 
 	def call(self,funcname,parameters):
 		method = funcname
@@ -92,31 +109,39 @@ class MipsGenerator:
 		string = ""
 		# figure out destination
 		dest = parameters[2]
-		if dest.type == "local":
-			reg = self.registermap.getSavedRegister(dest.name)
+		reg = self.registerMap(dest)
 
 		# Get value
 		value = parameters[0]
 
-		if value.type == "cons":
-			val = dest.name
+		val = self.registerMap(value)
 
 		# Loading constants
 		if value.type == "cons":
 			print reg
 			string += "li " + reg + "," + str(val)  + "\n"
+		else:
+			string += "move " + reg + "," + str(val) + "\n"
 
+		self.stackTracker.SetVariable(dest.name,4)
 		# make the assignment happen
-		string += "sw " + reg + ",stackarea\n"
-		return string  
+		string += "sw " + reg + ","+ str(self.stackTracker.GetVariable(dest.name)) + "($sp)"+ "\n"
+		return string
+
 	def registerMap(self,variable):
+		if variable.name in self.variableMap:
+			return self.variableMap[variable.name]
 		if variable.type == "cons":
 			return variable.name
 		elif variable.type == "local":
-			self.registermap.getSavedRegister(variable.name)
+			reg = self.registermap.getSavedRegister(variable.name)
+			self.variableMap[variable.name] = reg
+			return reg
 		elif variable.type == "glob":
 			pass
-		return self.registermap.getTemporaryRegister(variable.name)
+		reg = self.registermap.getTemporaryRegister(variable.name)
+		self.variableMap[variable.name] = reg
+		return reg
 
 	def add(self,parameters):
 		string = ""
@@ -125,9 +150,16 @@ class MipsGenerator:
 		
 		reg = self.registerMap(dest)
 		# Get value
+
+		
 		value = self.registerMap(parameters[0])
 		value2 = self.registerMap(parameters[1])
-		string += "add " + reg + "," + value + "," + value2 + "\n"
+		if parameters[0].type == "cons":
+			string += "addi " + reg + "," + value2 + "," + value + "\n"
+		elif parameters[1].type == "cons":
+			string += "addi " + reg + "," + value + "," + value2 + "\n"
+		else:
+			string += "add " + reg + "," + value + "," + value2 + "\n"
 		return string  
 
 	def label(self, parameters):
@@ -150,32 +182,33 @@ class MipsGenerator:
 
 		# compute space for stack frame -- include space for return address
 		stackspace = function.localcount + savedregisters + 1
-		ra = stackspace - 1
-
+		self.stackTracker.UpdateStackSize(stackspace*4)
+		self.stackTracker.SetVariable("$ra",4)
 		# store save registers
 
-
 		# push stack frame 
-		string += "\t\taddiu $sp,$sp,(-"+str(stackspace*4)+")\n"
+		string += "\t\taddiu $sp,$sp,(-"+str(self.stackTracker.GetStackSize())+")\n"
 
 		# store the return address
-		string += "\t\tsw $ra," + str(4*ra) + "($sp)\n" 
+		string += "\t\tsw $ra," + str(self.stackTracker.GetVariable("$ra")) + "($sp)\n" 
 
 		# Lets go through the statements
 		for i in function.statements:
 			string += self.call(i.name,i.params())
-		#string += "\t\t;Instructions here\n"
+			self.MarkForRemove(i.params())
+
 		# restore save registers
 
 		# restore return address
-		string += "\t\tlw $ra," + str(4*ra) + "($sp)\n" 
-		string += "\t\taddiu $sp,$sp," + str(stackspace*4) + "\n" # pop stack frame
+		string += "\t\tlw $ra," + str(self.stackTracker.GetVariable("$ra")) + "($sp)\n" 
+		string += "\t\taddiu $sp,$sp," + str(self.stackTracker.GetStackSize()) + "\n" # pop stack frame
 
  		# end of epilogue
  		string += "\t\tjr $ra" # return
  		print "============= Assembly ===================\n"
 		print string
 		print "\n============= Assembly ==================="
+		self.cleanUpVariableMap()
 
 	def Parse(self,string):
 		Global,functions = self.TacSplit(string)

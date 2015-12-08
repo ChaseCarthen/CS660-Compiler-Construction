@@ -44,7 +44,7 @@ class Instruction:
 			string = [string] 
 		return string
 	def __str__(self):
-		string = str(self.command)
+		string = str(self.name)
 		string += "," + str(self.one)
 		string +=  "," + str(self.two)
 		string +=  "," + str(self.three) + "\n"
@@ -91,12 +91,12 @@ class MipsGenerator:
 	def assign(self,parameters):
 		string = ""
 		# figure out destination
-		dest = parameters.three
+		dest = parameters[2]
 		if dest.type == "local":
 			reg = self.registermap.getSavedRegister(dest.name)
 
 		# Get value
-		value = parameters.one
+		value = parameters[0]
 
 		if value.type == "cons":
 			val = dest.name
@@ -121,13 +121,12 @@ class MipsGenerator:
 	def add(self,parameters):
 		string = ""
 		# figure out destination
-		dest = parameters.three
+		dest = parameters[2]
 		
 		reg = self.registerMap(dest)
 		# Get value
-		value = self.registerMap(parameters.one)
-		value2 = self.registerMap(parameters.two)
-		print parameters.one
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
 		string += "add " + reg + "," + value + "," + value2 + "\n"
 		return string  
 
@@ -135,7 +134,6 @@ class MipsGenerator:
 		return "\t" + parameters[2].name + ':\n'
 
 	def br(self, parameters):
-		print type(parameters[2])
 		return "\t\tj " + parameters[2].name + '\n'
 
 	def Global(self,globals):
@@ -165,7 +163,7 @@ class MipsGenerator:
 
 		# Lets go through the statements
 		for i in function.statements:
-			string += self.call(i.name,i)
+			string += self.call(i.name,i.params())
 		#string += "\t\t;Instructions here\n"
 		# restore save registers
 
@@ -174,8 +172,10 @@ class MipsGenerator:
 		string += "\t\taddiu $sp,$sp," + str(stackspace*4) + "\n" # pop stack frame
 
  		# end of epilogue
- 		string += "\t\tjr $ra" # return 
+ 		string += "\t\tjr $ra" # return
+ 		print "============= Assembly ===================\n"
 		print string
+		print "\n============= Assembly ==================="
 
 	def Parse(self,string):
 		Global,functions = self.TacSplit(string)

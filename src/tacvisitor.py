@@ -111,7 +111,7 @@ class ThreeAddressCode(NodeVisitor):
         name = node.name
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(4)) # hard codeness
+            string += self.printTAC("global",name,str(1)) # hard codeness
         else:
             op = "local"
             # Create a local counter
@@ -221,7 +221,7 @@ class ThreeAddressCode(NodeVisitor):
         name = node.name
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(4)) # hard codeness
+            string += self.printTAC("global",name,str(1)) # hard codeness
         else:
             op = "local"
             # Create a local counter
@@ -414,7 +414,7 @@ class ThreeAddressCode(NodeVisitor):
         name = node.name
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(4)) # hard codeness
+            string += self.printTAC("global",name,str(1)) # hard codeness
         else:
             op = "local"
             # Create a local counter
@@ -544,7 +544,7 @@ class ThreeAddressCode(NodeVisitor):
         name = node.name
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(4)) # hard codeness
+            string += self.printTAC("global",name,str(1)) # hard codeness
         else:
             op = "local"
             # Create a local counter

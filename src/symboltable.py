@@ -15,6 +15,11 @@ class SymbolTable(object):
     self.pointer = None
     self.previouslocalcount = 0
 
+    intparam = VariableNode(None, ['int'], 'a', 0, 0)
+    charparam = VariableNode(None, ['char'], 'a', 0, 0)
+    self.InsertNode(FunctionNode([intparam], ['void'], 'printint', 0,0))
+    self.InsertNode(FunctionNode([charparam], ['void'], 'printchar', 0,0))
+
   def Retrieve(self, name):
     self.pointer = None
     self._CheckStack(name, self.pointer)

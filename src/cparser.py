@@ -952,7 +952,7 @@ class Parser(Scanner):
             if VariableNode == type(p[1]):
                 p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,None,Constant( Type(["int"],[],[]),str(1) ) ) )
             elif ArrayNode == type(p[1]):
-                p[0] = makeParserDict(p[1], ArrDecl(p[1].GetName(),None,None,p[1].dimensions, Constant( Type(["int"],[],[]),str(p[1].GetWordSize())) ) )
+                p[0] = makeParserDict(p[1], ArrDecl(p[1].GetName(),None,None,p[1].dimensions, p[1].GetDims() ) )
             elif FunctionNode == type(p[1]):
                 paramlist = []
                 for param in p[1].GetParameters():

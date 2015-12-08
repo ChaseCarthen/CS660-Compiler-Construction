@@ -1190,6 +1190,7 @@ class Parser(Scanner):
     def p_direct_declarator_3(self, p):
         '''direct_declarator : direct_declarator '[' constant_expression ']' '''
         if type(p[1]) == type(VariableNode()):
+            print("Here: ", p[3])
             p[1] = ArrayNode(type_var = p[1].GetType(), name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation(), dim = p[3])
         else:
             #p[1].IncrementDimensions()

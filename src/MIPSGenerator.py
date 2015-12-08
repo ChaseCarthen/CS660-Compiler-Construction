@@ -104,6 +104,3 @@ class MipsGenerator:
 generator = MipsGenerator()
 generator.Parse(a)
 generator.call("test","")
-
-
-

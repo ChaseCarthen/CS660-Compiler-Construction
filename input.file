@@ -1,8 +1,15 @@
-int b[50];
-
 void main()
 {
-	int a[50];
-	int i =0;
-	int* b = &i;
+  int i, j;
+  for(i = 0; i < 10; i++)
+  {
+    if(i < 5)
+    {
+      j = i;
+    }
+    else
+    {
+      j = i + 1;
+    }
+  }
 }

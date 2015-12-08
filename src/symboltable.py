@@ -395,6 +395,7 @@ class ArrayNode(SymbolTreeNode):
   def GetWordSize(self):
     dim = 1
     for i in self.dimensions:
+      print(i.type)
       dim *= int(i.value)
     return dim
 

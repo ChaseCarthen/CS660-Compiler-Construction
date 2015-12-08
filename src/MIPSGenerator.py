@@ -32,6 +32,10 @@ class Instruction:
 		self.one = Variable(self.Tuple(string[1]))
 		self.two = Variable(self.Tuple(string[2]))
 		self.three = Variable(self.Tuple(string[3]))
+
+	def params(self):
+		return [self.one, self.two, self.three]
+
 	def Tuple(self,string):
 		if " " in string:
 			strlist = string.split(" ")
@@ -72,13 +76,23 @@ class MipsGenerator:
 
 	def call(self,funcname,parameters):
 		method = funcname
-		callfunc = getattr(self, method, self.undef)
+		callfunc = getattr(self, method, None)
+
+		if not callfunc:
+			print("No Attribute of type " + funcname + " exists.")
+			return "\t\tNot Implemented: " + funcname + "\n"
 		return callfunc(parameters)
 
 	def undef(self,parameters):
-		print "UNDEFINED"
-	def test(self,parameters):
-		print "test"
+		return ""
+
+	def label(self, parameters):
+		return "\t" + parameters[2].name + ':\n'
+
+	def br(self, parameters):
+		print type(parameters[2])
+		return "\t\tj " + parameters[2].name + '\n'
+
 	def Global(self,globals):
 		self.local = False
 
@@ -107,7 +121,9 @@ class MipsGenerator:
 		# Lets go through the statements
 		#for i in function.statements:
 		#	self.call(i.name,i)
-		string += "\t\t;Instructions here\n"
+		for i in function.statements:
+			string += self.call(i.command, i.params())
+		#"\t\t;Instructions here\n"
 		# restore save registers
 
 		# restore return address
@@ -170,6 +186,6 @@ a = bas.read()
 
 generator = MipsGenerator()
 generator.Parse(a)
-generator.call("test","")
+#generator.call("ttest","")
 #generator.call("test","")
 

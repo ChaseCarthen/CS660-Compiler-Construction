@@ -1,7 +1,20 @@
-
-
 void main()
 {
+<<<<<<< HEAD
 	int a = 1;
 	int b = a + 1;
+=======
+  int i, j;
+  for(i = 0; i < 10; i++)
+  {
+    if(i < 5)
+    {
+      j = i;
+    }
+    else
+    {
+      j = i + 1;
+    }
+  }
+>>>>>>> dee66e8bb4af70e8dc089723235608d28e8497d4
 }

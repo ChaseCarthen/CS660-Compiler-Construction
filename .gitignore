@@ -17,3 +17,5 @@ parsetab.py
 test.cpp
 *.c
 *.s
+parselog
+*.log

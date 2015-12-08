@@ -29,8 +29,6 @@ if args.source != None:
 	if type(args.tokenfile) != str:
 		args.tokenfile = args.tokenfile[0]
 
-	print args.codeout
-
 	scan = Parser(data, args.parselogfile != " ", args.parselogfile[0], args.tokenfile, args.graphfile, args.tacfile, args.codeout)
 	st = SymbolTable()
 	scan.set_symbol_table(st)

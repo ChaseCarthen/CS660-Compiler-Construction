@@ -32,6 +32,10 @@ class Instruction:
 		self.one = Variable(self.Tuple(string[1]))
 		self.two = Variable(self.Tuple(string[2]))
 		self.three = Variable(self.Tuple(string[3]))
+
+	def params(self):
+		return [self.one, self.two, self.three]
+
 	def Tuple(self,string):
 		if " " in string:
 			strlist = string.split(" ")
@@ -73,7 +77,11 @@ class MipsGenerator:
 
 	def call(self,funcname,parameters):
 		method = funcname
-		callfunc = getattr(self, method, self.undef)
+		callfunc = getattr(self, method, None)
+
+		if not callfunc:
+			print("No Attribute of type " + funcname + " exists.")
+			return "\t\tNot Implemented: " + funcname + "\n"
 		return callfunc(parameters)
 
 	def undef(self,parameters):
@@ -122,6 +130,14 @@ class MipsGenerator:
 		print parameters.one
 		string += "add " + reg + "," + value + "," + value2 + "\n"
 		return string  
+
+	def label(self, parameters):
+		return "\t" + parameters[2].name + ':\n'
+
+	def br(self, parameters):
+		print type(parameters[2])
+		return "\t\tj " + parameters[2].name + '\n'
+
 	def Global(self,globals):
 		self.local = False
 
@@ -148,9 +164,17 @@ class MipsGenerator:
 		string += "\t\tsw $ra," + str(4*ra) + "($sp)\n" 
 
 		# Lets go through the statements
+<<<<<<< HEAD
 		for i in function.statements:
 			string += self.call(i.name,i)
 		string += "\t\t;Instructions here\n"
+=======
+		#for i in function.statements:
+		#	self.call(i.name,i)
+		for i in function.statements:
+			string += self.call(i.command, i.params())
+		#"\t\t;Instructions here\n"
+>>>>>>> dee66e8bb4af70e8dc089723235608d28e8497d4
 		# restore save registers
 
 		# restore return address
@@ -213,7 +237,6 @@ a = bas.read()
 
 generator = MipsGenerator()
 generator.Parse(a)
+#generator.call("ttest","")
 #generator.call("test","")
-
-
 

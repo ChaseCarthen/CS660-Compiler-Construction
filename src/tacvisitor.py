@@ -342,12 +342,12 @@ class ThreeAddressCode(NodeVisitor):
         string += self.printTAC("brne",conditional,0,falselabel,node.text) + "\n" 
         string += truestring
         string += donestring 
-        string += self.compressedTAC("label",falselabel) + "\n"
+        string += self.printTAC("label",'-','-',falselabel) + "\n"
         string += falsestring
         
         
         if first:
-            string += self.compressedTAC("label",self.done) + "\n"
+            string += self.printTAC("label",'-','-',self.done) + "\n"
             self.done = ""
         return string, ""
     # IterStatement: [init*, cond*, next*, stmt*,isdowhile,name] {}

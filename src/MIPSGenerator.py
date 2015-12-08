@@ -1,6 +1,6 @@
 import sys
 import re
-
+from register_allocation import *
 
 class Variable:
 	def __init__(self,string):
@@ -28,7 +28,7 @@ class Variable:
 
 class Instruction:
 	def __init__(self,string):
-		self.command = string[0]
+		self.name = string[0]
 		self.one = Variable(self.Tuple(string[1]))
 		self.two = Variable(self.Tuple(string[2]))
 		self.three = Variable(self.Tuple(string[3]))
@@ -69,6 +69,7 @@ class MipsGenerator:
 	def __init__(self):
 		# the local variable is for handling cases of global statements
 		self.local = False
+		self.registermap = RegisterAllocation()
 
 	def call(self,funcname,parameters):
 		method = funcname
@@ -79,6 +80,48 @@ class MipsGenerator:
 		print "UNDEFINED"
 	def test(self,parameters):
 		print "test"
+	def assign(self,parameters):
+		string = ""
+		# figure out destination
+		dest = parameters.three
+		if dest.type == "local":
+			reg = self.registermap.getSavedRegister(dest.name)
+
+		# Get value
+		value = parameters.one
+
+		if value.type == "cons":
+			val = dest.name
+
+		# Loading constants
+		if value.type == "cons":
+			print reg
+			string += "li " + reg + "," + str(val)  + "\n"
+
+		# make the assignment happen
+		string += "sw " + reg + ",stackarea\n"
+		return string  
+	def registerMap(self,variable):
+		if variable.type == "cons":
+			return variable.name
+		elif variable.type == "local":
+			self.registermap.getSavedRegister(variable.name)
+		elif variable.type == "glob":
+			pass
+		return self.registermap.getTemporaryRegister(variable.name)
+
+	def add(self,parameters):
+		string = ""
+		# figure out destination
+		dest = parameters.three
+		
+		reg = self.registerMap(dest)
+		# Get value
+		value = self.registerMap(parameters.one)
+		value2 = self.registerMap(parameters.two)
+		print parameters.one
+		string += "add " + reg + "," + value + "," + value2 + "\n"
+		return string  
 	def Global(self,globals):
 		self.local = False
 
@@ -105,8 +148,8 @@ class MipsGenerator:
 		string += "\t\tsw $ra," + str(4*ra) + "($sp)\n" 
 
 		# Lets go through the statements
-		#for i in function.statements:
-		#	self.call(i.name,i)
+		for i in function.statements:
+			string += self.call(i.name,i)
 		string += "\t\t;Instructions here\n"
 		# restore save registers
 

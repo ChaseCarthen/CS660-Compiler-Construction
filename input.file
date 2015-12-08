@@ -2,6 +2,6 @@
 
 void main()
 {
-	int b = 50;
-	int a[3][b];
+	int a = 1;
+	int b = a + 1;
 }

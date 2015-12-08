@@ -164,17 +164,9 @@ class MipsGenerator:
 		string += "\t\tsw $ra," + str(4*ra) + "($sp)\n" 
 
 		# Lets go through the statements
-<<<<<<< HEAD
 		for i in function.statements:
 			string += self.call(i.name,i)
-		string += "\t\t;Instructions here\n"
-=======
-		#for i in function.statements:
-		#	self.call(i.name,i)
-		for i in function.statements:
-			string += self.call(i.command, i.params())
-		#"\t\t;Instructions here\n"
->>>>>>> dee66e8bb4af70e8dc089723235608d28e8497d4
+		#string += "\t\t;Instructions here\n"
 		# restore save registers
 
 		# restore return address

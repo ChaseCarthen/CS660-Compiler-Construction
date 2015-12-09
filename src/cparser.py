@@ -38,6 +38,8 @@ class Parser(Scanner):
 
     def p_primary_expression_2(self, p):
         '''primary_expression : CONSTANT'''
+        print len(p[1])
+        raw_input()
         cType = strconv.infer(p[1])
         tNode = Type([cType],[],[])
         p[0] = Constant(tNode,p[1],None)

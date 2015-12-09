@@ -86,3 +86,7 @@ class RegisterAllocation(object):
         return self.registers[index]
 
     return False
+  def clear(self):
+    for i in self.registers:
+      self.registers[i] = None
+

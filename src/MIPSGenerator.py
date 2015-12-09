@@ -214,16 +214,32 @@ class MipsGenerator:
 		savedregisters = 0
 
 		# compute space for stack frame -- include space for return address
-		stackspace = function.localcount + savedregisters + 1
+		stackspace = function.localcount + savedregisters + 8
 		self.stackTracker.UpdateStackSize(stackspace*4)
 		self.stackTracker.SetVariable("$ra",4)
+		self.stackTracker.SetVariable("$s0",4)
+		self.stackTracker.SetVariable("$s1",4)
+		self.stackTracker.SetVariable("$s2",4)
+		self.stackTracker.SetVariable("$s3",4)
+		self.stackTracker.SetVariable("$s4",4)
+		self.stackTracker.SetVariable("$s5",4)
+		self.stackTracker.SetVariable("$s6",4)
+		self.stackTracker.SetVariable("$s7",4)
 		# store save registers
 
 		# push stack frame 
 		string += "\t\taddiu $sp,$sp,-"+str(self.stackTracker.GetStackSize())+"\n"
 
 		# store the return address
-		string += "\t\tsw $ra," + str(self.stackTracker.GetVariable("$ra")) + "($sp)\n" 
+		string += "\t\tsw $ra," + str(self.stackTracker.GetVariable("$ra")) + "($sp)\n"
+		string += "\t\tsw $s0," + str(self.stackTracker.GetVariable("$s0")) + "($sp)\n" 
+		string += "\t\tsw $s1," + str(self.stackTracker.GetVariable("$s1")) + "($sp)\n" 
+		string += "\t\tsw $s2," + str(self.stackTracker.GetVariable("$s2")) + "($sp)\n" 
+		string += "\t\tsw $s3," + str(self.stackTracker.GetVariable("$s3")) + "($sp)\n" 
+		string += "\t\tsw $s4," + str(self.stackTracker.GetVariable("$s4")) + "($sp)\n" 
+		string += "\t\tsw $s5," + str(self.stackTracker.GetVariable("$s5")) + "($sp)\n"
+		string += "\t\tsw $s6," + str(self.stackTracker.GetVariable("$s6")) + "($sp)\n" 
+		string += "\t\tsw $s7," + str(self.stackTracker.GetVariable("$s7")) + "($sp)\n"   
 		
 		# Lets go through the statements
 		for i in function.statements:			
@@ -234,14 +250,21 @@ class MipsGenerator:
 
 		# restore return address
 		string += "\t\tlw $ra," + str(self.stackTracker.GetVariable("$ra")) + "($sp)\n" 
+		string += "\t\tlw $s0," + str(self.stackTracker.GetVariable("$s0")) + "($sp)\n" 
+		string += "\t\tlw $s1," + str(self.stackTracker.GetVariable("$s1")) + "($sp)\n" 
+		string += "\t\tlw $s2," + str(self.stackTracker.GetVariable("$s2")) + "($sp)\n" 
+		string += "\t\tlw $s3," + str(self.stackTracker.GetVariable("$s3")) + "($sp)\n" 
+		string += "\t\tlw $s4," + str(self.stackTracker.GetVariable("$s4")) + "($sp)\n" 
+		string += "\t\tlw $s5," + str(self.stackTracker.GetVariable("$s5")) + "($sp)\n" 
+		string += "\t\tlw $s6," + str(self.stackTracker.GetVariable("$s6")) + "($sp)\n"
+		string += "\t\tlw $s7," + str(self.stackTracker.GetVariable("$s7")) + "($sp)\n"  
 		string += "\t\taddiu $sp,$sp," + str(self.stackTracker.GetStackSize()) + "\n" # pop stack frame
 
  		# end of epilogue
  		string += "\t\tjr $ra" # return
- 		print "============= Assembly ===================\n"
-		print string
-		print "\n============= Assembly ==================="
+
 		self.cleanUpVariableMap()
+		self.registermap.clear()
 		return string
 
 	def Parse(self,string):
@@ -257,7 +280,9 @@ class MipsGenerator:
 
 		for func in Funcs:
 			string += Funcs[func]
+		print "============= Assembly ===================\n"
 		print string
+		print "\n============= Assembly ==================="
 	def Intstructionize(self,li):
 		return map(Instruction,li)
 	def ConstructData(self,functions,Globals):

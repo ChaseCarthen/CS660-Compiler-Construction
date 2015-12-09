@@ -310,6 +310,10 @@ class MipsGenerator:
 			string += "\t\tmult " + reg + "," + temp + "," + value2 + "\n"
 		elif parameters[1].type == "cons":
 			temp = self.registermap.getTemporaryRegister(parameters[1].name)
+			print temp
+			print reg
+			print value
+			raw_input("PRESS ENTER HERE")
 			string += "\t\tmult " + reg + "," + value + "," + temp + "\n"
 		else:
 			string += "\t\tmult " + reg + "," + value + "," + value2 + "\n"
@@ -726,7 +730,7 @@ class MipsGenerator:
 		functionstrings = re.findall(r"@[^\@]*@",string,re.DOTALL)
 
 		string = re.sub(r'@[^\@]*@','',string,re.DOTALL)
-
+		string = re.sub(r';.*','',string)
 		globalstatements = []
 		for i in re.findall(r"\(.*\)",string):
 			stmt = i.replace("(","")

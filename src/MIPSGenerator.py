@@ -109,8 +109,14 @@ class MipsGenerator:
 
 
 	def registerMap(self,variable):
+			
 		if variable.name in self.variableMap:
-			return self.variableMap[variable.name]
+			self.Frequency[variable.name] -= 1
+			value = self.variableMap[variable.name]
+			if self.Frequency[variable.name] <= 0:
+				del self.variableMap[variable.name]
+				self.registermap.freeRegisterByName(variable.name)
+			return value
 		if variable.type == "cons" or variable.type == "char":
 			return variable.name
 		elif variable.type == "local":
@@ -689,10 +695,6 @@ class MipsGenerator:
 	def Instructionize(self,li):
 		return map(Instruction,li)
 	def ConstructData(self,functions,Globals):
-		#self.Frequency.append({})
-		print Globals
-		#print functions 
-		raw_input()
 		if Globals[0][0] != '':
 			Globals = map(Instruction,Globals)
 		functions = map(Function,functions)
@@ -724,10 +726,13 @@ class MipsGenerator:
 				stringstmt = stringstmt.replace(")","")
 				functionlist.append(map(str.strip,stringstmt.split(",")))
 			functions.append(functionlist)
-		#if glob
+
 		Globals = []
 		for i in globalstatements:
 			b = i.split(",")
 			Globals.append(map(str.strip,b))
+
+		if string == "":
+			Globals = []
 
 		return Globals,functions

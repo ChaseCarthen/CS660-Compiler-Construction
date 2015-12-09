@@ -75,7 +75,9 @@ class RegisterAllocation(object):
     return False
 
   def freeRegisterByName(self, name):
-    self.registers[name] = None
+    for i in self.registers:
+      if self.registers[i] == name:
+        self.registers[i] = None
 
   def findRegisterByName(self, name):
     return self.registers[name]

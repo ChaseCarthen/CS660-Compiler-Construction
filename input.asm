@@ -11,15 +11,18 @@ main:
 		sw $s7,32($sp)
 		move $s0,$t0
 		sw $s0,36($sp)
-		li $s0,$s0
+		move $s0,$zero
 		sw $s0,36($sp)
 		j label_100000
 	label_100000:
 		move $a0,$s0
 jal printint
 	label_100001:
-		#Not Implemented: lt
-		#Not Implemented: brne
+		addi $t1,$s0,1
+		move $s0,$t1
+		sw $s0,36($sp)
+		slt $t2,$s0,10
+		bne $zero,$t2,label_100000
 		lw $ra,0($sp)
 		lw $s0,4($sp)
 		lw $s1,8($sp)
@@ -32,6 +35,8 @@ jal printint
 		addiu $sp,$sp,36
 		jr $ra
 
+
+#Adding Generated print functions
 
 .data
 nl:   .asciiz "\n"

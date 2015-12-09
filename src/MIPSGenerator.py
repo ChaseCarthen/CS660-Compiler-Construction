@@ -103,10 +103,16 @@ class MipsGenerator:
 
 
 	def registerMap(self,variable):
+		if variable.type == "cons":
+			if variable.name == '0':
+				return "$zero"
+			return variable.name
+
+		if variable.type == "char":
+			return variable.name
+
 		if variable.name in self.variableMap:
 			return self.variableMap[variable.name]
-		if variable.type == "cons" or variable.type == "char":
-			return variable.name
 		elif variable.type == "local":
 			reg = self.registermap.getSavedRegister(variable.name)
 			self.variableMap[variable.name] = reg
@@ -123,6 +129,7 @@ class MipsGenerator:
 		print "UNDEFINED"
 	def test(self,parameters):
 		print "test"
+
 	def ASSIGN(self,parameters):
 		string = ""
 		# figure out destination
@@ -135,11 +142,11 @@ class MipsGenerator:
 		val = self.registerMap(value)
 
 		# Loading constants
-		if value.type == "cons":
-			print reg
+		if value.type == "cons" and not val.startswith('$'):
+			#print reg
 			string += "\t\tli " + reg + "," + str(val)  + "\n"
 		elif value.type == "char":
-			print reg
+			#print reg
 			string += "\t\tli " + reg + ',' + str(val)  + '\n'
 		else:
 			string += "\t\tmove " + reg + "," + str(val) + "\n"
@@ -148,6 +155,7 @@ class MipsGenerator:
 		# make the assignment happen
 		string += "\t\tsw " + reg + ","+ str(self.stackTracker.GetVariable(dest.name)) + "($sp)"+ "\n"
 		return string
+
 	def VALOUT(self,parameters):
 		string = ""
 		reg = self.arguments[0]
@@ -328,16 +336,16 @@ class MipsGenerator:
 		string += "beq " + value + "," + value2 + "," + dest + "\n"
 		return string 
 
-	def BNE(self,parameters):
+	def BRNE(self,parameters):
 		string = ""
 		
 		# figure out destination
-		dest = parameters[2]
+		dest = parameters[2].name
 
 		# Get value
 		value = self.registerMap(parameters[0])
 		value2 = self.registerMap(parameters[1])
-		string += "bne " + value + "," + value2 + "," + dest + "\n"
+		string += "\t\tbne " + value + "," + value2 + "," + dest + "\n"
 		return string
 
 	def BGEZ(self,parameters):
@@ -410,6 +418,18 @@ class MipsGenerator:
 		value = self.registerMap(parameters[0])
 		value2 = self.registerMap(parameters[1])
 		string += "blt " + value + "," + value2 + "," + dest + "\n"
+		return string
+
+	def LT(self,parameters):
+		string = ""
+		
+		# figure out destination
+		dest = self.registerMap(parameters[2])
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		string += "\t\tslt " + dest + "," + value + "," + value2 + "\n"
 		return string
 
 	def BGE(self,parameters):

@@ -746,12 +746,13 @@ class MipsGenerator:
 				functionlist.append(map(str.strip,stringstmt.split(",")))
 			functions.append(functionlist)
 
-		Globals = []
+		Globals = [['']]
 		for i in globalstatements:
 			b = i.split(",")
 			Globals.append(map(str.strip,b))
 
+		print "Here", Globals
 		if string == "":
-			Globals = []
+			Globals = [['']]
 
 		return Globals,functions

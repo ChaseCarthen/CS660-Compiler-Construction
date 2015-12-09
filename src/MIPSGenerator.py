@@ -30,8 +30,6 @@ class Variable:
 
 class Instruction:
 	def __init__(self,string):
-		#print string
-		#raw_input()
 		self.name = string[0]
 		self.one = Variable(self.Tuple(string[1]))
 		self.two = Variable(self.Tuple(string[2]))
@@ -112,6 +110,7 @@ class MipsGenerator:
 		if variable.type == "cons":
 			if variable.name == '0':
 				return "$zero"
+			print variable.names
 			return variable.name
 
 		if variable.type == "char":
@@ -122,7 +121,11 @@ class MipsGenerator:
 			value = self.variableMap[variable.name]
 			if self.Frequency[variable.name] <= 0:
 				del self.variableMap[variable.name]
+				print self.registermap.registers
 				self.registermap.freeRegisterByName(variable.name)
+				print self.registermap.registers
+				raw_input("HERE NOW YALL")
+				print "FREEING"
 			return value
 		elif variable.type == "local":
 			reg = self.registermap.getSavedRegister(variable.name)
@@ -132,6 +135,7 @@ class MipsGenerator:
 			pass
 		reg = self.registermap.getTemporaryRegister(variable.name)
 		self.variableMap[variable.name] = reg
+		self.Frequency[variable.name] -= 1
 		return reg
 
 	def FUNCCALL(self,parameters):
@@ -160,6 +164,9 @@ class MipsGenerator:
 			#print reg
 			string += "\t\tli " + reg + ',' + str(val)  + '\n'
 		else:
+			print reg
+			print val
+			print dest
 			string += "\t\tmove " + reg + "," + str(val) + "\n"
 
 		self.stackTracker.SetVariable(dest.name,4)
@@ -215,16 +222,16 @@ class MipsGenerator:
 		value = self.registerMap(parameters[2])
 		if parameters[0].type == "cons":
 			Max = self.registermap.getTemporaryRegister(Max)
-			string += "\t\tli " + Max + "," + parameters[0].name + "\n"
+			string += "\t\tli " + str(Max) + "," + str(parameters[0].name) + "\n"
 		if parameters[1].type == "cons":
 			Min = self.registermap.getTemporaryRegister(Max)
-			string += "\t\tli " + Min + "," + parameters[1].name + "\n"
+			string += "\t\tli " + str(Min) + "," + str(parameters[1].name) + "\n"
 		if parameters[2].type == "cons":
 			value = self.registermap.getTemporaryRegister(Max)
-			string += "\t\tli " + value + "," + parameters[2].name + "\n"
+			string += "\t\tli " + str(value) + "," + str(parameters[2].name) + "\n"
 
-		string += "\t\tbgt " + value + "," + Max + ",Halt\n"
-		string += "\t\tblt " + value + "," + Min + ",Halt\n"
+		string += "\t\tbgt " + str(value) + "," + str(Max) + ",Halt\n"
+		string += "\t\tblt " + str(value) + "," + str(Min) + ",Halt\n"
 		return string
 	def ARRAY(self,parameters):
 		string = ""
@@ -268,11 +275,11 @@ class MipsGenerator:
 		value = self.registerMap(parameters[0])
 		value2 = self.registerMap(parameters[1])
 		if parameters[0].type == "cons":
-			string += "\t\taddi " + reg + "," + value2 + "," + value + "\n"
+			string += "\t\taddi " + str(reg) + "," + str(value2) + "," + str(value) + "\n"
 		elif parameters[1].type == "cons":
-			string += "\t\taddi " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\taddi " + str(reg) + "," + str(value) + "," + str(value2) + "\n"
 		else:
-			string += "\t\tadd " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tadd " + str(reg) + "," + str(value) + "," + str(value2) + "\n"
 		return string 
 
 	def SUB(self,parameters):
@@ -310,13 +317,9 @@ class MipsGenerator:
 			string += "\t\tmult " + reg + "," + temp + "," + value2 + "\n"
 		elif parameters[1].type == "cons":
 			temp = self.registermap.getTemporaryRegister(parameters[1].name)
-			print temp
-			print reg
-			print value
-			raw_input("PRESS ENTER HERE")
-			string += "\t\tmult " + reg + "," + value + "," + temp + "\n"
+			string += "\t\tmult " + str(reg) + "," + str(value) + "," + str(temp) + "\n"
 		else:
-			string += "\t\tmult " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tmult " + str(reg) + "," + str(value) + "," + str(value2) + "\n"
 		return string  
 
 	def DIV(self,parameters):
@@ -694,8 +697,6 @@ class MipsGenerator:
 					self.Frequency[param.name] += 1
 				else:
 					self.Frequency[param.name] = 1
-		print self.Frequency
-		raw_input()
 	def Parse(self,string):
 		Global,functions = self.TacSplit(string)
 		Global,functions = self.ConstructData(functions,Global)

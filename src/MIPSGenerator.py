@@ -444,6 +444,7 @@ class MipsGenerator:
 	def GT(self,parameters):
 		string = ""
 		
+		'''
 		# figure out destination
 		dest = self.registerMap(parameters[2])
 
@@ -456,8 +457,14 @@ class MipsGenerator:
 
 		if parameters[1].type == 'cons':
 			string += "\t\tli " + value2 + "," + parameters[1].name + "\n"
+		'''
+
+		reglist, temp = MagicFunction([(parameters[0], True), (parameters[1], True), (parameters[2], False)])
 		
-		string += "\t\tslt " + dest + "," + value2 + "," + value + "\n"
+		string += temp
+		string += "\t\tslt " + reglist[2] + "," + reglist[1] + "," + reglist[0] + "\n"
+
+
 		self.registermap.freeRegisterByName(parameters[0].name)
 		self.registermap.freeRegisterByName(parameters[1].name)
 		return string

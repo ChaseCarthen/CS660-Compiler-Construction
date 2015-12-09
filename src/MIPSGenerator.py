@@ -116,10 +116,11 @@ class MipsGenerator:
 
 
 	def registerMap(self, variable, force_register = False):
-		print self.variableMap
 		if variable.type == "cons" and not force_register:
 			if variable.name == '0':
+				variable.type = "reg"
 				return "$zero"
+			
 			#print variable.name
 			return variable.name
 
@@ -129,25 +130,26 @@ class MipsGenerator:
 
 		check = variable.type + "_" + variable.name
 		if check in self.variableMap:
-			self.Frequency[variable.name] -= 1
+			self.Frequency[check] -= 1
 			value = self.variableMap[check]
-			if self.Frequency[variable.name] <= 0:
-				del self.variableMap[variable.name]
-				#print self.registermap.registers
-				self.registermap.freeRegisterByName(variable.name)
-				#print self.registermap.registers
-				#raw_input("HERE NOW YALL")
-				#print "FREEING"
+			if self.Frequency[check] <= 0:
+				del self.variableMap[check]
+				self.registermap.freeRegisterByName(check)
+			variable.type = "reg"
 			return value
 		elif variable.type == "local":
-			reg = self.registermap.getSavedRegister(variable.name)
+			reg = self.registermap.getSavedRegister(check)
 			self.variableMap["local_" + variable.name] = reg
 			return reg
 		elif variable.type == "glob":
 			pass
-		reg = self.registermap.getTemporaryRegister(variable.name)
-		self.variableMap[variable.name] = reg
-		self.Frequency[variable.name] -= 1
+		reg = self.registermap.getTemporaryRegister(check)
+		variable.type = "reg"
+
+		self.variableMap[check] = reg
+		#print self.Frequency
+		if check in self.Frequency:
+			self.Frequency[check] -= 1
 		return reg
 
 	def FUNCCALL(self,parameters):
@@ -161,6 +163,9 @@ class MipsGenerator:
 		string = ""
 		# figure out destination
 		dest = parameters[2]
+		print "dest name: " + dest.name +dest.type
+		print parameters[0].type + " " + parameters[0].name
+		print parameters[2].type + " " + parameters[2].name
 		#reg = self.registerMap(dest)
 
 		# Get value
@@ -173,26 +178,20 @@ class MipsGenerator:
 		reg = plist[1]
 		val = plist[0]
 
+
 		string += temp
 
 		# Loading constants
-		if value.type == "cons":
+		if value.type == "" or value.type == "cons" or value.type == "char":
 			#print reg
 			string += "\t\tli " + reg + "," + str(val)  + "\n"
-		if value.type == "":
-			#print reg
-			string += "\t\tli " + reg + "," + str(val)  + "\n"
-		elif value.type == "char":
-			#print reg
-			string += "\t\tli " + reg + ',' + str(val)  + '\n'
 		else:
 			string += "\t\tmove " + reg + "," + str(val) + "\n"
 
 		self.stackTracker.SetVariable(dest.name,4)
 		# make the assignment happen
 		string += "\t\tsw " + reg + ","+ str(self.stackTracker.GetVariable(dest.name)) + "($sp)"+ "\n"
-		print self.registermap.registers
-		raw_input("HERE YOU")
+
 		return string
 
 	def VALOUT(self,parameters):
@@ -324,24 +323,27 @@ class MipsGenerator:
 	def MagicFunction(self,parameters):
 		string = ""
 		parameterlist = []
+		freelist = []
 		for params in parameters:
 			force = params[1]
 			i = params[0]
 			if i.name == "-" or i.name == " " or i.name == "_":
-				parameterlist.append('0')
+				#parameterlist.append('0')
+				i.name = '0'
+				#i.type = 'cons'
+				#freelist.append('0')
 			if (i.type == "cons" or i.type == "fcons" or i.type == "char") and force: # Luke use the force
 				reg = self.registerMap(i,force)
 				string += "\t\tli " + reg + "," + i.name + "\n"
 				parameterlist.append(reg)
+				freelist.append(reg)
 			else:
+				#i.type = 'reg'
 				parameterlist.append(self.registerMap(i))
 
-		for params in parameters:
-			force = params[1]
-			params = params[0]
-			if (params.type == "cons" or params.type == "fcons" or params.type == "char") and force:
-				self.registermap.freeRegisterByName(params.name)
-
+		for free in freelist:
+			self.registermap.freeRegisterByName(free)
+		print parameterlist
 		return parameterlist,string
 
 	def MULT(self,parameters):
@@ -747,9 +749,9 @@ class MipsGenerator:
 			params = i.params()
 			for param in params:
 				if param.name in self.Frequency:
-					self.Frequency[param.name] += 1
+					self.Frequency[param.type+"_"+param.name] += 1
 				else:
-					self.Frequency[param.name] = 1
+					self.Frequency[param.type+"_"+param.name] = 1
 	def Parse(self,string):
 		Global,functions = self.TacSplit(string)
 		Global,functions = self.ConstructData(functions,Global)
@@ -778,13 +780,14 @@ class MipsGenerator:
 		return Globals,functions
 
 	def TacSplit(self,string):
+		string = re.sub(r';.*','',string)
 		string = re.sub(r'procentry','@',string)
 		string = re.sub(r'endproc','@',string)
 
 		functionstrings = re.findall(r"@[^\@]*@",string,re.DOTALL)
 
 		string = re.sub(r'@[^\@]*@','',string,re.DOTALL)
-		string = re.sub(r';.*','',string)
+		
 		globalstatements = []
 		for i in re.findall(r"\(.*\)",string):
 			stmt = i.replace("(","")

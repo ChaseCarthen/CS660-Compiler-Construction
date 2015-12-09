@@ -30,8 +30,6 @@ class Variable:
 
 class Instruction:
 	def __init__(self,string):
-		#print string
-		#raw_input()
 		self.name = string[0]
 		self.one = Variable(self.Tuple(string[1]))
 		self.two = Variable(self.Tuple(string[2]))
@@ -112,6 +110,7 @@ class MipsGenerator:
 		if variable.type == "cons" and not force_register:
 			if variable.name == '0':
 				return "$zero"
+			print variable.name
 			return variable.name
 
 		if variable.type == "char" and not force_register:
@@ -122,7 +121,11 @@ class MipsGenerator:
 			value = self.variableMap[variable.name]
 			if self.Frequency[variable.name] <= 0:
 				del self.variableMap[variable.name]
+				print self.registermap.registers
 				self.registermap.freeRegisterByName(variable.name)
+				print self.registermap.registers
+				raw_input("HERE NOW YALL")
+				print "FREEING"
 			return value
 		elif variable.type == "local":
 			reg = self.registermap.getSavedRegister(variable.name)
@@ -132,6 +135,7 @@ class MipsGenerator:
 			pass
 		reg = self.registermap.getTemporaryRegister(variable.name)
 		self.variableMap[variable.name] = reg
+		self.Frequency[variable.name] -= 1
 		return reg
 
 	def FUNCCALL(self,parameters):
@@ -160,6 +164,9 @@ class MipsGenerator:
 			#print reg
 			string += "\t\tli " + reg + ',' + str(val)  + '\n'
 		else:
+			print reg
+			print val
+			print dest
 			string += "\t\tmove " + reg + "," + str(val) + "\n"
 
 		self.stackTracker.SetVariable(dest.name,4)
@@ -212,7 +219,7 @@ class MipsGenerator:
 		string = ""
 		Max = self.registerMap(parameters[0])
 		Min = self.registerMap(parameters[1])
-		value = self.registerMap(parameters[2])
+		val = self.registerMap(parameters[2])
 		if parameters[0].type == "cons" and not val.startswith('$'):
 			Max = self.registermap.getTemporaryRegister(Max)
 			string += "\t\tli " + Max + "," + parameters[0].name + "\n"
@@ -221,10 +228,11 @@ class MipsGenerator:
 			string += "\t\tli " + Min + "," + parameters[1].name + "\n"
 		if parameters[2].type == "cons" and not val.startswith('$'):
 			value = self.registermap.getTemporaryRegister(Max)
-			string += "\t\tli " + value + "," + parameters[2].name + "\n"
+			string += "\t\tli " + str(value) + "," + str(parameters[2].name) + "\n"
 
-		string += "\t\tbgt " + value + "," + Max + ",Halt\n"
-		string += "\t\tblt " + value + "," + Min + ",Halt\n"
+		string += "\t\tbgt " + str(value) + "," + str(Max) + ",Halt\n"
+		string += "\t\tblt " + str(value) + "," + str(Min) + ",Halt\n"
+		self.registermap.freeRegisterByName(Max)
 		return string
 	def ARRAY(self,parameters):
 		string = ""
@@ -238,6 +246,7 @@ class MipsGenerator:
 		val = self.registerMap(value)
 
 		four = self.registermap.getTemporaryRegister(-4)
+		self.registermap.freeRegisterByName(-4)
 		string += "\t\tli " + four + "," + str(-4)
 
 		# Loading constants
@@ -268,11 +277,11 @@ class MipsGenerator:
 		value = self.registerMap(parameters[0])
 		value2 = self.registerMap(parameters[1])
 		if parameters[0].type == "cons":
-			string += "\t\taddi " + reg + "," + value2 + "," + value + "\n"
+			string += "\t\taddi " + str(reg) + "," + str(value2) + "," + str(value) + "\n"
 		elif parameters[1].type == "cons":
-			string += "\t\taddi " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\taddi " + str(reg) + "," + str(value) + "," + str(value2) + "\n"
 		else:
-			string += "\t\tadd " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tadd " + str(reg) + "," + str(value) + "," + str(value2) + "\n"
 		return string 
 
 	def SUB(self,parameters):
@@ -293,6 +302,13 @@ class MipsGenerator:
 		else:
 			string += "\t\tsub " + reg + "," + value + "," + value2 + "\n"
 		return string  
+	def MagicFunction(self,parameters,force = False):
+		for i in parameters:
+			if i.type == "cons" and force: # Luck use the force
+				self.registerMap(i.name,force)
+				self.registermap.freeRegisterByName(i.name)
+			else:
+				self.registerMap(i.name)
 
 	def MULT(self,parameters):
 		string = ""
@@ -301,22 +317,22 @@ class MipsGenerator:
 		dest = parameters[2]
 		reg = self.registerMap(dest)
 
-		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
+
 		
 		if parameters[0].type == "cons":
 			temp = self.registermap.getTemporaryRegister(parameters[0].name)
+			self.registermap.freeRegisterByName(parameters[0].name)
 			string += "\t\tmult " + reg + "," + temp + "," + value2 + "\n"
 		elif parameters[1].type == "cons":
+
 			temp = self.registermap.getTemporaryRegister(parameters[1].name)
-			print temp
-			print reg
-			print value
-			raw_input("PRESS ENTER HERE")
-			string += "\t\tmult " + reg + "," + value + "," + temp + "\n"
+			self.registermap.freeRegisterByName(parameters[1].name)
+			string += "\t\tmult " + str(reg) + "," + str(value) + "," + str(temp) + "\n"
 		else:
-			string += "\t\tmult " + reg + "," + value + "," + value2 + "\n"
+			# Get value
+			value = self.registerMap(parameters[0])
+			value2 = self.registerMap(parameters[1])
+			string += "\t\tmult " + str(reg) + "," + str(value) + "," + str(value2) + "\n"
 		return string  
 
 	def DIV(self,parameters):
@@ -331,9 +347,11 @@ class MipsGenerator:
 		value2 = self.registerMap(parameters[1])
 		if parameters[0].type == "cons":
 			temp = self.registermap.getTemporaryRegister(parameters[0].name)
+			self.registermap.freeRegisterByName(parameters[0].name)
 			string += "\t\tdiv " + reg + "," + temp + "," + value2 + "\n"
 		elif parameters[1].type == "cons":
 			temp = self.registermap.getTemporaryRegister(parameters[1].name)
+			self.registermap.freeRegisterByName(parameters[1].name)
 			string += "\t\tdiv " + reg + "," + value + "," + temp + "\n"
 		else:
 			string += "\t\tdiv " + reg + "," + value + "," + value2 + "\n"
@@ -549,9 +567,11 @@ class MipsGenerator:
 		value2 = self.registerMap(parameters[1])
 		if parameters[0].type == "cons":
 			temp = self.registermap.getTemporaryRegister(parameters[0].name)
+			self.registermap.freeRegisterByName(parameters[0].name)
 			string += "\t\tnor " + reg + "," + temp + "," + value2 + "\n"
 		elif parameters[1].type == "cons":
 			temp = self.registermap.getTemporaryRegister(parameters[1].name)
+			self.registermap.freeRegisterByName(parameters[1].name)
 			string += "\t\tnor " + reg + "," + value + "," + temp + "\n"
 		else:
 			string += "\t\tnor " + reg + "," + value + "," + value2 + "\n"
@@ -724,8 +744,6 @@ class MipsGenerator:
 					self.Frequency[param.name] += 1
 				else:
 					self.Frequency[param.name] = 1
-		print self.Frequency
-		raw_input()
 	def Parse(self,string):
 		Global,functions = self.TacSplit(string)
 		Global,functions = self.ConstructData(functions,Global)

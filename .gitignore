@@ -16,6 +16,6 @@ parsetab.py
 *.tac
 test.cpp
 *.c
-*.s
 parselog
 *.log
+testtest.s

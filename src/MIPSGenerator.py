@@ -301,14 +301,29 @@ class MipsGenerator:
 			string += "\t\taddi " + reg + "," + value + "," + -value2 + "\n"
 		else:
 			string += "\t\tsub " + reg + "," + value + "," + value2 + "\n"
-		return string  
-	def MagicFunction(self,parameters,force = False):
-		for i in parameters:
-			if i.type == "cons" and force: # Luck use the force
-				self.registerMap(i.name,force)
-				self.registermap.freeRegisterByName(i.name)
+		return string
+
+	def MagicFunction(self,parameters):
+		string = ""
+		parameterlist = []
+		for params in parameters:
+			force = params[1]
+			params = params[0]
+			if i.name == "-" or i.name == " " or i.name == "_":
+				continue
+			if (i.type == "cons" or i.type == "fcons" or i.type == "char") and force: # Luke use the force
+				reg = self.registerMap(i.name,force)
+				string += "li " + reg + "," + i.name
+				paramerlist.append(reg)
 			else:
-				self.registerMap(i.name)
+				parameterlist.append(self.registerMap(i.name))
+		for params in parameters:
+			force = params[1]
+			params = params[0]
+			if (i.type == "cons" or i.type == "fcons" or i.type == "char") and force:
+				self.registermap.freeRegisterByName(i.name)
+
+		return parameterlist,string
 
 	def MULT(self,parameters):
 		string = ""

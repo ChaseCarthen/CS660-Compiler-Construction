@@ -379,17 +379,17 @@ class ThreeAddressCode(NodeVisitor):
         return string + self.printTAC('assign', label_1, '-', label_2, node.text,node.lines), ""
 
     def visit_FuncCall(self,node):
-        string = 'args ' + self.compressedTAC("cons",len(node.ParamList.params)) + "\n"
+        string = self.printTAC('args',"-","-",self.compressedTAC("cons",len(node.ParamList.params)))
         for i in node.ParamList.params:
             content, label = self.visit(i)
             string += content
             #raw_input()
             if type(i) == ArrRef or ( i == type(VariableCall) and i.isPtr):
-                string += "refout " + label + "\n"
+                string += self.printTAC("refout", "_","_",label)
             else:
-                string += "valout " + label + "\n"
+                string += self.printTAC("valout ", "_", "_", label) 
             
-        string += "call " + self.compressedTAC("glob",node.name) + "\n"      
+        string += self.printTAC("funccall","_","_",self.compressedTAC("glob",node.name))      
         return string, "ra"
 
     def visit_EmptyStatement(self,node):

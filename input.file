@@ -1,19 +1,9 @@
+int foo(int i)
+{
+	return 1;
+}
+
 void main()
 {
-  int i, j;
-  char a;
-  printint(1);
-  printchar(a);
-
-  for(i = 0; i < 10; i++)
-  {
-    if(i < 5)
-    {
-      j = i;
-    }
-    else
-    {
-      j = i + 1;
-    }
-  }
+	int a = 1 + foo(1);
 }

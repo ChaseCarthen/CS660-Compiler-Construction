@@ -81,7 +81,7 @@ class MipsGenerator:
 		self.variableMap = {}
 		self.removeList = []
 		self.stackTracker = StackTracker()
-
+		self.arguments = []
 	def MarkForRemove(self,parameters):
 		self.removeList.append(parameters[0].name)
 		self.removeList.append(parameters[1].name)
@@ -100,7 +100,8 @@ class MipsGenerator:
 			print("No Attribute of type " + funcname + " exists.")
 			return "\t\tNot Implemented: " + funcname + "\n"
 		return callfunc(parameters)
-
+	def funccall(self,parameters):
+		return "jal " + parameters[2].name + "\n"
 	def undef(self,parameters):
 		print "UNDEFINED"
 	def test(self,parameters):
@@ -142,7 +143,39 @@ class MipsGenerator:
 		reg = self.registermap.getTemporaryRegister(variable.name)
 		self.variableMap[variable.name] = reg
 		return reg
+	def valout(self,parameters):
+		string = ""
+		reg = self.arguments[0]
+		val = self.registerMap(parameters[2])
 
+		if parameters[2].type == "cons":
+			print reg
+			string += "li " + reg + "," + str(val)  + "\n"
+		else:
+			string += "move " + reg + "," + str(val) + "\n"
+
+		del self.arguments[0]
+		return string
+	def refout(self,parameters):
+		string = ""
+		reg = self.arguments[0]
+		val = self.registerMap(parameters[2])
+
+		if parameters[2].type == "cons":
+			print reg
+			string += "li " + reg + "," + str(val)  + "\n"
+		else:
+			string += "move " + reg + "," + str(val) + "\n"
+
+		del self.arguments[0]
+		return string
+	def args(self,parameters):
+		if parameters[2] < 5:
+			for i in range(int(parameters[2].name)):
+				self.arguments.append("$a" + str(i))
+		else:
+			pass
+		return ""
 	def add(self,parameters):
 		string = ""
 		# figure out destination
@@ -155,11 +188,11 @@ class MipsGenerator:
 		value = self.registerMap(parameters[0])
 		value2 = self.registerMap(parameters[1])
 		if parameters[0].type == "cons":
-			string += "addi " + reg + "," + value2 + "," + value + "\n"
+			string += "\t\taddi " + reg + "," + value2 + "," + value + "\n"
 		elif parameters[1].type == "cons":
-			string += "addi " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\taddi " + reg + "," + value + "," + value2 + "\n"
 		else:
-			string += "add " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tadd " + reg + "," + value + "," + value2 + "\n"
 		return string  
 
 	def label(self, parameters):
@@ -187,13 +220,13 @@ class MipsGenerator:
 		# store save registers
 
 		# push stack frame 
-		string += "\t\taddiu $sp,$sp,(-"+str(self.stackTracker.GetStackSize())+")\n"
+		string += "\t\taddiu $sp,$sp,-"+str(self.stackTracker.GetStackSize())+"\n"
 
 		# store the return address
 		string += "\t\tsw $ra," + str(self.stackTracker.GetVariable("$ra")) + "($sp)\n" 
-
+		
 		# Lets go through the statements
-		for i in function.statements:
+		for i in function.statements:			
 			string += self.call(i.name,i.params())
 			self.MarkForRemove(i.params())
 
@@ -209,12 +242,22 @@ class MipsGenerator:
 		print string
 		print "\n============= Assembly ==================="
 		self.cleanUpVariableMap()
+		return string
 
 	def Parse(self,string):
 		Global,functions = self.TacSplit(string)
 		Global,functions = self.ConstructData(functions,Global)
+
+		Funcs = {}
 		for function in functions:
-			self.call("function",function)
+			Funcs[function.name] = self.call("function",function) + "\n"
+		string = Funcs["main"]
+
+		del Funcs["main"]
+
+		for func in Funcs:
+			string += Funcs[func]
+		print string
 	def Intstructionize(self,li):
 		return map(Instruction,li)
 	def ConstructData(self,functions,Globals):

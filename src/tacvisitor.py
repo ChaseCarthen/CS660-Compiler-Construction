@@ -92,6 +92,7 @@ class ThreeAddressCode(NodeVisitor):
         Type = ""
         for i in node.qualifier:
             qualifier += i + " "
+
         for i in node.type:
             Type += i + " "
 

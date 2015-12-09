@@ -38,7 +38,13 @@ class Parser(Scanner):
 
     def p_primary_expression_2(self, p):
         '''primary_expression : CONSTANT'''
-        cType = strconv.infer(p[1])
+ 
+        if p[1].startswith("'") and p[1].endswith("'"):
+            p[1] = p[1][1]
+            cType = 'char'
+        else:
+            cType = strconv.infer(p[1])
+            
         tNode = Type([cType],[],[])
         p[0] = Constant(tNode,p[1],None)
         self.SetNodeInformation(p[0],1,1,p)
@@ -997,6 +1003,7 @@ class Parser(Scanner):
 
         else:
             self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1].type[1:])
+
         if not p[1].GetType().type == p[3].type.type:
             print "ERROR: Bad Type!!!!!!!!!! at line number: " + str(p.lineno(1))
             print p[1].GetType().type

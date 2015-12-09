@@ -120,19 +120,22 @@ class MipsGenerator:
 		# Loading constants
 		if value.type == "cons":
 			print reg
-			string += "li " + reg + "," + str(val)  + "\n"
+			string += "\t\tli " + reg + "," + str(val)  + "\n"
+		elif value.type == "char":
+			print reg
+			string += "\t\tli " + reg + ',' + str(val)  + '\n'
 		else:
-			string += "move " + reg + "," + str(val) + "\n"
+			string += "\t\tmove " + reg + "," + str(val) + "\n"
 
 		self.stackTracker.SetVariable(dest.name,4)
 		# make the assignment happen
-		string += "sw " + reg + ","+ str(self.stackTracker.GetVariable(dest.name)) + "($sp)"+ "\n"
+		string += "\t\tsw " + reg + ","+ str(self.stackTracker.GetVariable(dest.name)) + "($sp)"+ "\n"
 		return string
 
 	def registerMap(self,variable):
 		if variable.name in self.variableMap:
 			return self.variableMap[variable.name]
-		if variable.type == "cons":
+		if variable.type == "cons" or variable.type == "char":
 			return variable.name
 		elif variable.type == "local":
 			reg = self.registermap.getSavedRegister(variable.name)
@@ -150,9 +153,12 @@ class MipsGenerator:
 
 		if parameters[2].type == "cons":
 			print reg
-			string += "li " + reg + "," + str(val)  + "\n"
+			string += "\t\tli " + reg + "," + str(val)  + "\n"
+		elif parameters[2].type == "char":
+			print reg
+			string += "\t\tli " + reg + ',' + str(val)  + '\n'	
 		else:
-			string += "move " + reg + "," + str(val) + "\n"
+			string += "\t\tmove " + reg + "," + str(val) + "\n"
 
 		del self.arguments[0]
 		return string
@@ -163,9 +169,12 @@ class MipsGenerator:
 
 		if parameters[2].type == "cons":
 			print reg
-			string += "li " + reg + "," + str(val)  + "\n"
+			string += "\t\tli " + reg + "," + str(val)  + "\n"
+		elif parameters[2].type == "char":
+			print reg
+			string += "\t\tli " + reg + ',' + str(val)  + '\n'
 		else:
-			string += "move " + reg + "," + str(val) + "\n"
+			string += "\t\tmove " + reg + "," + str(val) + "\n"
 
 		del self.arguments[0]
 		return string
@@ -176,6 +185,55 @@ class MipsGenerator:
 		else:
 			pass
 		return ""
+
+	# (bound,(cons 50),0,(cons 1))
+	def bound(self,parameters):
+		string = ""
+		Max = self.registerMap(parameters[0])
+		Min = self.registerMap(parameters[1])
+		value = self.registerMap(parameters[2])
+		if parameters[0].type == "cons":
+			Max = self.registermap.getTemporaryRegister(Max)
+			string += "\t\tli " + Max + "," + parameters[0].name + "\n"
+		if parameters[1].type == "cons":
+			Min = self.registermap.getTemporaryRegister(Max)
+			string += "\t\tli " + Min + "," + parameters[1].name + "\n"
+		if parameters[2].type == "cons":
+			value = self.registermap.getTemporaryRegister(Max)
+			string += "\t\tli " + value + "," + parameters[2].name + "\n"
+
+		string += "\t\tbgt " + value + "," + Max + ",Halt\n"
+		string += "\t\tblt " + value + "," + Min + ",Halt\n"
+		return string
+	def array(self,parameters):
+		string = ""
+		# figure out destination
+		dest = parameters[2]
+		reg = self.registerMap(dest)
+
+		# Get value
+		value = parameters[0]
+
+		val = self.registerMap(value)
+
+		four = self.registermap.getTemporaryRegister(-4)
+		string += "\t\tli " + four + "," + str(-4)
+
+		# Loading constants
+		string += "\t\tmult " + val + "," + val + "," + four + "\n"
+
+		string += "\t\taddu $sp,$sp,"+val+"\n"
+
+		# -1 
+		string += "\t\tli " + four + "," + str(-1) + "\n"
+
+		# Loading constants
+		string += "\t\tmult " + val + "," + val + "," + four + "\n"
+
+		# Handle here
+		self.stackTracker.SetVariable(dest.name,val)
+
+		return string
 	def add(self,parameters):
 		string = ""
 		# figure out destination
@@ -257,8 +315,19 @@ class MipsGenerator:
 		string += "\t\tlw $s4," + str(self.stackTracker.GetVariable("$s4")) + "($sp)\n" 
 		string += "\t\tlw $s5," + str(self.stackTracker.GetVariable("$s5")) + "($sp)\n" 
 		string += "\t\tlw $s6," + str(self.stackTracker.GetVariable("$s6")) + "($sp)\n"
-		string += "\t\tlw $s7," + str(self.stackTracker.GetVariable("$s7")) + "($sp)\n"  
-		string += "\t\taddiu $sp,$sp," + str(self.stackTracker.GetStackSize()) + "\n" # pop stack frame
+		string += "\t\tlw $s7," + str(self.stackTracker.GetVariable("$s7")) + "($sp)\n"
+
+		result = self.stackTracker.GetStackSize()
+		if type(result) == tuple:
+			i = result[0]
+			a = self.registermap.getTemporaryRegister("temp")
+			string += "\t\tli " + a + "," + str(i) + "\n"
+			temps = result[1]
+			string += "\t\taddu $sp,$sp,"+a + "\n"
+			for i in temps:
+				string += "\t\taddu $sp,$sp,"+i +"\n"
+		else:
+			string += "\t\taddiu $sp,$sp," + str(self.stackTracker.GetStackSize()) + "\n" # pop stack frame
 
  		# end of epilogue
  		string += "\t\tjr $ra" # return

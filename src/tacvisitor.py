@@ -92,6 +92,7 @@ class ThreeAddressCode(NodeVisitor):
         Type = ""
         for i in node.qualifier:
             qualifier += i + " "
+
         for i in node.type:
             Type += i + " "
 
@@ -145,6 +146,8 @@ class ThreeAddressCode(NodeVisitor):
         Qual = TypeOut[1]
         if "int" in Type:
             op = "cons"
+        elif "char" in Type:
+            op = "char"
         else:# Add string check here when we get to it.
             op = "fcons"
         string = self.compressedTAC(op,node.value)
@@ -249,7 +252,7 @@ class ThreeAddressCode(NodeVisitor):
             outstr, label = self.visit(i)
             string +=  outstr
             newlabel = self.inttemp.GetNextTicket()
-            string += self.printTAC("mul",dim,label,newlabel)
+            string += self.printTAC("mult",dim,label,newlabel)
             dim = newlabel
             
         string += self.printTAC("array",dim,"-",self.compressedTAC(op,name),node.text,node.lines) 
@@ -284,21 +287,21 @@ class ThreeAddressCode(NodeVisitor):
         typeSize = self.offset[t]
 
         addTemps = []
-        string += self.printTAC("bound",dims[len(subscripts)-1],0,subscripts[len(subscripts)-1])
+        string += self.printTAC("bound",dims[len(subscripts)-1],self.compressedTAC("cons",0),subscripts[len(subscripts)-1])
         temp = self.inttemp.GetNextTicket()
         addTemps.append(temp)
-        string += self.printTAC("multiply", typeSize, subscripts[len(subscripts)-1], temp, "-")
+        string += self.printTAC("mult", typeSize, subscripts[len(subscripts)-1], temp, "-")
 
         for i in reversed(range(len(subscripts)-1)):
-            string += self.printTAC("bound",dims[i],0,subscripts[i])
+            string += self.printTAC("bound",dims[i],self.compressedTAC("cons",0),subscripts[i])
             temp1 = self.inttemp.GetNextTicket()
-            string += self.printTAC("multiply", typeSize, subscripts[len(subscripts)-1], temp1, "-")
+            string += self.printTAC("mult", typeSize, subscripts[len(subscripts)-1], temp1, "-")
 
             final = ""
             current1 = temp1
             for j in range(i+1, len(subscripts)):
                 final = self.inttemp.GetNextTicket()
-                string += self.printTAC("multiply", current1, subscripts[j], final, "-")
+                string += self.printTAC("mult", current1, subscripts[j], final, "-")
                 current1 = final
 
             addTemps.append(final)
@@ -335,7 +338,7 @@ class ThreeAddressCode(NodeVisitor):
             self.done = self.labelticket.GetNextTicket()
             first = True
 
-        donestring = self.printTAC("br","_","_",self.compressedTAC("label",self.done),"") + "\n"
+        donestring = self.printTAC("br","_","_",self.done,"") + "\n"
         if node.falsecond != None:
             falsestring,flabel = self.visit(node.falsecond)
 

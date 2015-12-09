@@ -1,2 +1,8 @@
-/*char a = 'a' ; */
-CHAR IDENTIFIER = CONSTANT SEMI 
+/*void main ( ) */
+VOID IDENTIFIER OPENPARAN CLOSEPARAN 
+/*{ */
+OPENBRACE 
+/*int b [ 50 ] ; */
+INT IDENTIFIER [ CONSTANT ] SEMI 
+/*b [ 1 ] = 1 ; */
+IDENTIFIER [ CONSTANT ] = CONSTANT SEMI 

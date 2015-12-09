@@ -4,14 +4,21 @@ class StackTracker:
 		self.size = 0
 		self.variables = {}
 		self.offset = 0
+		self.extra = []
 	def GetStackSize(self):
-		return self.size
+		if len(self.extra) == 0:
+			return self.size
+		else:
+			return self.size,self.extra
 	def UpdateStackSize(self,size):
 		self.size += size
-	def SetVariable(self,variable,size=4):
+	def SetVariable(self,variable,size):
 		if not variable in self.variables:
 			self.variables[variable] = self.offset
-			self.offset += size
+			if type(size) == int:
+				self.offset += size
+			else:
+				self.extra.append(size)
 	def GetVariable(self,variable):
 		return self.variables[variable]
 	def Clear(self):

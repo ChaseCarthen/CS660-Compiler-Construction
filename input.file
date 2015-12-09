@@ -1,1 +1,5 @@
-char a = 'a';
+void main()
+{
+	int b[50];
+	b[1] = 1;
+}

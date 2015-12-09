@@ -342,7 +342,7 @@ class ThreeAddressCode(NodeVisitor):
         if node.falsecond != None:
             falsestring,flabel = self.visit(node.falsecond)
 
-        string += self.printTAC("brne",conditional,0,falselabel,node.text) + "\n" 
+        string += self.printTAC("bre",conditional,'(cons 0)',falselabel,node.text) + "\n" 
         string += truestring
         string += donestring 
         string += self.printTAC("label",'-','-',falselabel) + "\n"

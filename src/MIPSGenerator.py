@@ -661,8 +661,11 @@ class MipsGenerator:
 
 		for func in Funcs:
 			string += Funcs[func]
-		print "============= Assembly ===================\n"
-		print string
+
+		printdata = open("src/print.s", "r")
+		string += "\n\n" + printdata.read()
+		printdata.close()
+		return string
 
 	def Instructionize(self,li):
 		return map(Instruction,li)
@@ -705,12 +708,3 @@ class MipsGenerator:
 			Globals.append(map(str.strip,b))
 
 		return Globals,functions
-
-bas = open("log/3AC.tac",'r')
-a = bas.read()
-
-generator = MipsGenerator()
-generator.Parse(a)
-#generator.call("ttest","")
-#generator.call("test","")
-

@@ -130,7 +130,7 @@ class MipsGenerator:
 		check = variable.type + "_" + variable.name
 		if check in self.variableMap:
 			self.Frequency[variable.name] -= 1
-			value = self.variableMap[variable.name]
+			value = self.variableMap[check]
 			if self.Frequency[variable.name] <= 0:
 				del self.variableMap[variable.name]
 				#print self.registermap.registers
@@ -168,13 +168,18 @@ class MipsGenerator:
 
 		#val = self.registerMap(value)
 
-		plist = self.MagicFunction(  ( (parameters[0],False), (parameters[2],False) ) )
+		plist, temp = self.MagicFunction(  [(parameters[0],False), (parameters[2],False) ] )
 
 		reg = plist[1]
 		val = plist[0]
 
+		string += temp
+
 		# Loading constants
-		if value.type == "cons" and not val.startswith('$'):
+		if value.type == "cons":
+			#print reg
+			string += "\t\tli " + reg + "," + str(val)  + "\n"
+		if value.type == "":
 			#print reg
 			string += "\t\tli " + reg + "," + str(val)  + "\n"
 		elif value.type == "char":
@@ -323,7 +328,7 @@ class MipsGenerator:
 			force = params[1]
 			i = params[0]
 			if i.name == "-" or i.name == " " or i.name == "_":
-				continue
+				parameterlist.append('0')
 			if (i.type == "cons" or i.type == "fcons" or i.type == "char") and force: # Luke use the force
 				reg = self.registerMap(i,force)
 				string += "\t\tli " + reg + "," + i.name + "\n"

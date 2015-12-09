@@ -5,9 +5,9 @@ from stack_tracker import *
 
 class Variable:
 	def __init__(self,string):
-		self.type = None
-		self.name = None
-		self.modifier = None
+		self.type = ""
+		self.name = ""
+		self.modifier = ""
 		self.Frequency = 0
 		if (len(string) == 1):
 			self.name = string[0]
@@ -20,11 +20,11 @@ class Variable:
 			self.name = string[2]
 	def  __str__(self):
 		string = ""
-		if self.modifier != None:
+		if self.modifier != "":
 			string += self.modifier + " "
-		if self.type != None:
+		if self.type != "":
 			string += self.type + " "
-		if self.name != None:
+		if self.name != "":
 			string += self.name
 		return string
 
@@ -86,9 +86,18 @@ class MipsGenerator:
 		self.arguments = []
 		self.Frequency = {}
 	def MarkForRemove(self,parameters):
-		self.removeList.append(parameters[0].name)
-		self.removeList.append(parameters[1].name)
-		self.removeList.append(parameters[2].name)
+		if parameters[0].type == "local" or parameters[0].type == "glob":
+			self.removeList.append(parameters[0].type + "_" + parameters[0].name)
+		else:
+			self.removeList.append(parameters[0].name)
+		if parameters[1].type == "local" or parameters[1].type == "glob":
+			self.removeList.append(parameters[1].type + "_" + parameters[1].name)
+		else:
+			self.removeList.append(parameters[0].name)
+		if parameters[2].type == "local" or parameters[2].type == "glob":
+			self.removeList.append(parameters[2].type + "_" + parameters[2].name)
+		else:
+			self.removeList.append(parameters[2].name)
 
 	def cleanUpVariableMap(self):
 		for i in self.removeList:
@@ -149,12 +158,17 @@ class MipsGenerator:
 		string = ""
 		# figure out destination
 		dest = parameters[2]
-		reg = self.registerMap(dest)
+		#reg = self.registerMap(dest)
 
 		# Get value
 		value = parameters[0]
 
-		val = self.registerMap(value)
+		#val = self.registerMap(value)
+
+		plist = self.MagicFunction(  ( (parameters[0],False), (parameters[2],False) ) )
+
+		reg = plist[1]
+		val = plist[0]
 
 		# Loading constants
 		if value.type == "cons" and not val.startswith('$'):
@@ -164,14 +178,13 @@ class MipsGenerator:
 			#print reg
 			string += "\t\tli " + reg + ',' + str(val)  + '\n'
 		else:
-			print reg
-			print val
-			print dest
 			string += "\t\tmove " + reg + "," + str(val) + "\n"
 
 		self.stackTracker.SetVariable(dest.name,4)
 		# make the assignment happen
 		string += "\t\tsw " + reg + ","+ str(self.stackTracker.GetVariable(dest.name)) + "($sp)"+ "\n"
+		print self.registermap.registers
+		raw_input("HERE YOU")
 		return string
 
 	def VALOUT(self,parameters):
@@ -236,52 +249,49 @@ class MipsGenerator:
 		return string
 	def ARRAY(self,parameters):
 		string = ""
+
+		plist = self.MagicFunction(((parameters[0]), (parameters[2])))
+
 		# figure out destination
 		dest = parameters[2]
-		reg = self.registerMap(dest)
+		#reg = self.registerMap(dest)
 
 		# Get value
-		value = parameters[0]
+		#value = parameters[0]
 
-		val = self.registerMap(value)
+		#val = self.registerMap(value)
 
 		four = self.registermap.getTemporaryRegister(-4)
 		self.registermap.freeRegisterByName(-4)
+
 		string += "\t\tli " + four + "," + str(-4)
 
 		# Loading constants
-		string += "\t\tmult " + val + "," + val + "," + four + "\n"
+		string += "\t\tmult " + plist[0] + "," + val + "," + four + "\n"
 
-		string += "\t\taddu $sp,$sp,"+val+"\n"
+		string += "\t\taddu $sp,$sp,"+plist[0]+"\n"
 
 		# -1 
 		string += "\t\tli " + four + "," + str(-1) + "\n"
 
 		# Loading constants
-		string += "\t\tmult " + val + "," + val + "," + four + "\n"
+		string += "\t\tmult " + plist[0] + "," + plist[0] + "," + four + "\n"
 
+		#string += "\t\tsw " + plist[1] + "," + str(self.stackTracker.GetVariable(dest.name))+ "($sp)"
 		# Handle here
-		self.stackTracker.SetVariable(dest.name,val)
+		self.stackTracker.SetVariable(dest.name,plist[1])
 
 		return string
 
 	def ADD(self,parameters):
 		string = ""
-		# figure out destination
-		dest = parameters[2]
-		
-		reg = self.registerMap(dest)
-		# Get value
-
-		
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
+		plist,s = self.MagicFunction( ((parameters[0],False),(parameters[1],False), (parameters[2],False)) )
 		if parameters[0].type == "cons":
-			string += "\t\taddi " + str(reg) + "," + str(value2) + "," + str(value) + "\n"
+			string += "\t\taddi " + str(plist[2]) + "," + str(plist[1]) + "," + str(plist[0]) + "\n"
 		elif parameters[1].type == "cons":
-			string += "\t\taddi " + str(reg) + "," + str(value) + "," + str(value2) + "\n"
+			string += "\t\taddi " + str(plist[2]) + "," + str(plist[0]) + "," + str(plist[1]) + "\n"
 		else:
-			string += "\t\tadd " + str(reg) + "," + str(value) + "," + str(value2) + "\n"
+			string += "\t\tadd " + str(plist[2]) + "," + str(plist[1]) + "," + str(plist[0]) + "\n"
 		return string 
 
 	def SUB(self,parameters):
@@ -313,14 +323,14 @@ class MipsGenerator:
 				continue
 			if (params.type == "cons" or params.type == "fcons" or params.type == "char") and force: # Luke use the force
 				reg = self.registerMap(params,force)
-				string += "li " + reg + "," + params.name + "\n"
+				string += "\t\tli " + reg + "," + params.name + "\n"
 				parameterlist.append(reg)
 			else:
 				parameterlist.append(self.registerMap(params))
 		for params in parameters:
 			force = params[1]
 			params = params[0]
-			if (parmas.type == "cons" or params.type == "fcons" or params.type == "char") and force:
+			if (params.type == "cons" or params.type == "fcons" or params.type == "char") and force:
 				self.registermap.freeRegisterByName(params.name)
 
 		return parameterlist,string
@@ -333,15 +343,15 @@ class MipsGenerator:
 		reg = self.registerMap(dest)
 
 		if parameters[0].type == "cons":
-			plist,s = self.MagicFunction((parameters[0],True),(parameters[1],False) (parameters[2],False))
+			plist,s = self.MagicFunction( ((parameters[0],True),(parameters[1],False), (parameters[2],False)) )
 			string += s
 			string += "\t\tmult " + plist[0] + "," + plist[1] + "," + plist[2] + "\n"
 		elif parameters[1].type == "cons":
-			plist,s = self.MagicFunction((parameters[0],False),(parameters[1],True) (parameters[2],False))
+			plist,s = self.MagicFunction( ((parameters[0],False),(parameters[1],True), (parameters[2],False)) )
 			string += s
 			string += "\t\tmult " + plist[0] + "," + plist[1] + "," + plist[2] + "\n"
 		else:
-			plist,s = self.MagicFunction((parameters[0],False),(parameters[1],False) (parameters[2],False))
+			plist,s = self.MagicFunction( ((parameters[0],False),(parameters[1],False), (parameters[2],False)) )
 			string += s
 			string += "\t\tmult " + plist[0] + "," + plist[1] + "," + plist[2] + "\n"
 		return string  
@@ -353,19 +363,18 @@ class MipsGenerator:
 		dest = parameters[2]
 		reg = self.registerMap(dest)
 
-		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
 		if parameters[0].type == "cons":
-			temp = self.registermap.getTemporaryRegister(parameters[0].name)
-			self.registermap.freeRegisterByName(parameters[0].name)
-			string += "\t\tdiv " + reg + "," + temp + "," + value2 + "\n"
+			plist,s = self.MagicFunction( ((parameters[0],True),(parameters[1],False), (parameters[2],False)) )
+			string += s
+			string += "\t\tdiv " + plist[0] + "," + plist[1] + "," + plist[2] + "\n"
 		elif parameters[1].type == "cons":
-			temp = self.registermap.getTemporaryRegister(parameters[1].name)
-			self.registermap.freeRegisterByName(parameters[1].name)
-			string += "\t\tdiv " + reg + "," + value + "," + temp + "\n"
+			plist,s = self.MagicFunction( ((parameters[0],False),(parameters[1],True), (parameters[2],False)) )
+			string += s
+			string += "\t\tdiv " + plist[0] + "," + plist[1] + "," + plist[2] + "\n"
 		else:
-			string += "\t\tdiv " + reg + "," + value + "," + value2 + "\n"
+			plist,s = self.MagicFunction( ((parameters[0],False),(parameters[1],False), (parameters[2],False)) )
+			string += s
+			string += "\t\tdiv " + plist[0] + "," + plist[1] + "," + plist[2] + "\n"
 		return string  
 
 	def BRE(self,parameters):

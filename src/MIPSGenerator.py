@@ -130,11 +130,14 @@ class MipsGenerator:
 
 		check = variable.type + "_" + variable.name
 		if check in self.variableMap:
-			self.Frequency[check] -= 1
+			if check in self.Frequency:
+				self.Frequency[check] -= 1
 			value = self.variableMap[check]
-			if self.Frequency[check] <= 0:
+			if check in self.Frequency and self.Frequency[check] <= 0:
 				del self.variableMap[check]
 				self.registermap.freeRegisterByName(check)
+				print check
+				raw_input("FREEING")
 			variable.type = "reg"
 			return value
 		elif variable.type == "local":
@@ -331,18 +334,21 @@ class MipsGenerator:
 				#parameterlist.append('0')
 				i.name = '0'
 				#i.type = 'cons'
-				#freelist.append('0')
+				freelist.append(i.type + "_" + '0')
 			if (i.type == "cons" or i.type == "fcons" or i.type == "char") and force: # Luke use the force
+				print i.type + "_" + i.name
+				freelist.append(i.type + "_" + i.name)
 				reg = self.registerMap(i,force)
 				string += "\t\tli " + reg + "," + i.name + "\n"
 				parameterlist.append(reg)
-				freelist.append(reg)
 			else:
+				print i.type + "_" + i.name
+				#freelist.append(i.type + "_" + i.name)
 				#i.type = 'reg'
 				parameterlist.append(self.registerMap(i))
-
 		for free in freelist:
 			self.registermap.freeRegisterByName(free)
+		print freelist
 		print parameterlist
 		return parameterlist,string
 
@@ -748,7 +754,7 @@ class MipsGenerator:
 		for i in instructions:
 			params = i.params()
 			for param in params:
-				if param.name in self.Frequency:
+				if param.type+"_"+param.name in self.Frequency:
 					self.Frequency[param.type+"_"+param.name] += 1
 				else:
 					self.Frequency[param.type+"_"+param.name] = 1

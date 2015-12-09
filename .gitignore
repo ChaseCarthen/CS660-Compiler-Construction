@@ -19,3 +19,6 @@ test.cpp
 parselog
 *.log
 testtest.s
+input.file
+input.asm
+log/tokenfile.log

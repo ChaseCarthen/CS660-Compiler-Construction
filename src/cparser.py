@@ -90,7 +90,6 @@ class Parser(Scanner):
                 oldnode = node
                 node = node.FindField(p[1].field.name)
                 #print type(node)
-                #raw_input()
                 typenode.type.append(oldnode.GetTypeName())
 
             dimension = []
@@ -173,7 +172,7 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(p[1].value + One.value))
         else:
             one,two,Typed = self.StrongestType(p[1],One)
-            p[0] = AddOp(one,two,Typed)
+            p[0] = AssignOp(one,AddOp(one,two,Typed))
             self.SetNodeInformation(p[0],1,2,p)
 
     def p_postfix_expression_8(self, p):
@@ -235,7 +234,7 @@ class Parser(Scanner):
             p[0]= Constant(rType,str(p[2].value + One.value))
         else:
             one,two,Typed = self.StrongestType(p[2],One)
-            p[0] = AddOp(one,two,Typed)
+            p[0] = AssignOp(one,AddOp(one,two,Typed))
             self.SetNodeInformation(p[0],1,2,p)
 
     def p_unary_expression_3(self, p):

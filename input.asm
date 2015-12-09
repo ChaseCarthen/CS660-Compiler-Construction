@@ -9,12 +9,11 @@ main:
 		sw $s5,24($sp)
 		sw $s6,28($sp)
 		sw $s7,32($sp)
-		li $s0,'r'
+		li $s0,$s0
 		sw $s0,36($sp)
-		li $a0,1
-jal printint
-		move $a0,$s0
-jal printchar
+		addi $t0,$s0,1
+		move $s0,$t0
+		sw $s0,36($sp)
 		lw $ra,0($sp)
 		lw $s0,4($sp)
 		lw $s1,8($sp)
@@ -27,6 +26,8 @@ jal printchar
 		addiu $sp,$sp,36
 		jr $ra
 
+
+#Adding Generated print functions
 
 .data
 nl:   .asciiz "\n"

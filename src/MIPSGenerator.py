@@ -8,6 +8,7 @@ class Variable:
 		self.type = None
 		self.name = None
 		self.modifier = None
+		self.Frequency = 0
 		if (len(string) == 1):
 			self.name = string[0]
 		elif(len(string) == 2):
@@ -29,6 +30,8 @@ class Variable:
 
 class Instruction:
 	def __init__(self,string):
+		#print string
+		#raw_input()
 		self.name = string[0]
 		self.one = Variable(self.Tuple(string[1]))
 		self.two = Variable(self.Tuple(string[2]))
@@ -71,9 +74,10 @@ class Function:
 
 
 
+
 class MipsGenerator:
 
-	Frequency = []
+	
 	def __init__(self):
 		# the local variable is for handling cases of global statements
 		self.local = False
@@ -82,6 +86,7 @@ class MipsGenerator:
 		self.removeList = []
 		self.stackTracker = StackTracker()
 		self.arguments = []
+		self.Frequency = {}
 	def MarkForRemove(self,parameters):
 		self.removeList.append(parameters[0].name)
 		self.removeList.append(parameters[1].name)
@@ -91,6 +96,7 @@ class MipsGenerator:
 		for i in self.removeList:
 			if i in self.variableMap:
 				del self.variableMap[i]
+		self.Frequency.clear()
 
 	def call(self,funcname,parameters):
 		method = funcname.upper()
@@ -98,7 +104,7 @@ class MipsGenerator:
 
 		if not callfunc:
 			print("No Attribute of type " + funcname + " exists.")
-			return "\t\tNot Implemented: " + funcname + "\n"
+			return "\t\t#Not Implemented: " + funcname + "\n"
 		return callfunc(parameters)
 
 
@@ -575,6 +581,9 @@ class MipsGenerator:
 		self.local = False
 
 	def FUNCTION(self,function):
+
+		self.CountFrequency(function.statements)
+
 		self.local = True
 		# Thank you https://courses.cs.washington.edu/courses/cse410/09sp/examples/MIPSCallingConventionsSummary.pdf
 		string = function.name + ":\n"
@@ -648,6 +657,16 @@ class MipsGenerator:
 		self.registermap.clear()
 		return string
 
+	def CountFrequency(self,instructions):
+		for i in instructions:
+			params = i.params()
+			for param in params:
+				if param.name in self.Frequency:
+					self.Frequency[param.name] += 1
+				else:
+					self.Frequency[param.name] = 1
+		print self.Frequency
+		raw_input()
 	def Parse(self,string):
 		Global,functions = self.TacSplit(string)
 		Global,functions = self.ConstructData(functions,Global)
@@ -663,15 +682,19 @@ class MipsGenerator:
 			string += Funcs[func]
 
 		printdata = open("src/print.s", "r")
-		string += "\n\n" + printdata.read()
+		string += "\n\n#Adding Generated print functions\n\n" + printdata.read()
 		printdata.close()
 		return string
 
 	def Instructionize(self,li):
 		return map(Instruction,li)
 	def ConstructData(self,functions,Globals):
-		self.Frequency.append({})
-		Globals = map(Instruction,Globals)
+		#self.Frequency.append({})
+		print Globals
+		#print functions 
+		raw_input()
+		if Globals[0][0] != '':
+			Globals = map(Instruction,Globals)
 		functions = map(Function,functions)
 		return Globals,functions
 
@@ -701,7 +724,7 @@ class MipsGenerator:
 				stringstmt = stringstmt.replace(")","")
 				functionlist.append(map(str.strip,stringstmt.split(",")))
 			functions.append(functionlist)
-
+		#if glob
 		Globals = []
 		for i in globalstatements:
 			b = i.split(",")

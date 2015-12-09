@@ -404,8 +404,7 @@ class ArrayNode(SymbolTreeNode):
         dims.append(Constant( Type(["int"],[],[]),str(dim)))
       else:
         dims.append(dim)
-    print dims
-    raw_input()
+
     return dims
 
   def GetWordSize(self):

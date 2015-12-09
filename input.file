@@ -1,5 +1,6 @@
 void main()
 {
-	int b[50];
-	b[1] = 1;
+  char a = 'r';
+  printint(1);
+  printchar(a);
 }

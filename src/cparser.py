@@ -146,7 +146,6 @@ class Parser(Scanner):
         p[1].field = VariableCall( Type(symbolnode2.GetType(), symbolnode2.GetQualifiers(), None), symbolnode2.GetName(), type(symbolnode) == PointerNode or type(symbolnode) == ArrayNode)
         p[1].offset = symbolnode.GetOffset(p[3])
         p[0] = p[1]
-        raw_input("HERE")
 
     def p_postfix_expression_6(self, p):
         '''postfix_expression : postfix_expression PTR_OP IDENTIFIER'''

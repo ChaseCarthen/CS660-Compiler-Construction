@@ -432,7 +432,16 @@ class MipsGenerator:
 		# Get value
 		value = self.registerMap(parameters[0], True)
 		value2 = self.registerMap(parameters[1], True)
+
+		if parameters[0].type == 'cons':
+			string += "\t\tli " + value1 + "," + parameters[0].name + "\n"
+
+		if parameters[1].type == 'cons':
+			string += "\t\tli " + value2 + "," + parameters[1].name + "\n"
+		
 		string += "\t\tslt " + dest + "," + value2 + "," + value + "\n"
+		self.registermap.freeRegisterByName(parameters[0].name)
+		self.registermap.freeRegisterByName(parameters[1].name)
 		return string
 
 	def BLT(self,parameters):
@@ -456,7 +465,16 @@ class MipsGenerator:
 		# Get value
 		value = self.registerMap(parameters[0], True)
 		value2 = self.registerMap(parameters[1], True)
+
+		if parameters[0].type == 'cons':
+			string += "\t\tli " + value1 + "," + parameters[0].name + "\n"
+
+		if parameters[1].type == 'cons':
+			string += "\t\tli " + value2 + "," + parameters[1].name + "\n"
+
 		string += "\t\tslt " + dest + "," + value + "," + value2 + "\n"
+		self.registermap.freeRegisterByName(parameters[0].name)
+		self.registermap.freeRegisterByName(parameters[1].name)
 		return string
 
 	def BGE(self,parameters):

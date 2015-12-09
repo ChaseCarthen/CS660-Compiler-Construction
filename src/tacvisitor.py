@@ -365,10 +365,12 @@ class ThreeAddressCode(NodeVisitor):
         string += self.printTAC("label",'-','-',top,"") 
         temp, dummy = self.visit(node.stmt)
         string += temp
-        string += self.printTAC("label",'-','-',bottom,"") 
+        string += self.printTAC("label",'-','-',bottom,"")
+        temp, label = self.visit(node.next)
+        string += temp
         temp, label = self.visit(node.cond)
         string += temp
-        string += self.printTAC("brne",'0',label,top,"") 
+        string += self.printTAC("brne",'(cons 0)',label,top,"") 
         return string, None
 
     def visit_AssignOp(self, node):

@@ -176,7 +176,7 @@ class MipsGenerator:
 		else:
 			pass
 		return ""
-	def add(self,parameters):
+	def ADD(self,parameters):
 		string = ""
 		# figure out destination
 		dest = parameters[2]
@@ -195,7 +195,7 @@ class MipsGenerator:
 			string += "\t\tadd " + reg + "," + value + "," + value2 + "\n"
 		return string 
 
-	def sub(self,parameters):
+	def SUB(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -214,7 +214,7 @@ class MipsGenerator:
 			string += "\t\tsub " + reg + "," + value + "," + value2 + "\n"
 		return string  
 
-	def mult(self,parameters):
+	def MULT(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -235,7 +235,7 @@ class MipsGenerator:
 			string += "\t\tmult " + reg + "," + value + "," + value2 + "\n"
 		return string  
 
-	def div(self,parameters):
+	def DIV(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -255,7 +255,7 @@ class MipsGenerator:
 			string += "\t\tdiv " + reg + "," + value + "," + value2 + "\n"
 		return string  
 
-	def beq(self,parameters):
+	def BEQ(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -267,7 +267,7 @@ class MipsGenerator:
 		string += "beq " + value + "," + value2 + "," + dest + "\n"
 		return string 
 
-	def bne(self,parameters):
+	def BNE(self,parameters):
 		string = ""
 		
 		# figure out destination
@@ -279,7 +279,7 @@ class MipsGenerator:
 		string += "bne " + value + "," + value2 + "," + dest + "\n"
 		return string
 
-	def bgez(self,parameters):
+	def BGEZ(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -291,7 +291,7 @@ class MipsGenerator:
 		string += "bgez " + value + "," + value2 + "," + dest + "\n"
 		return string 
 
-	def blez(self,parameters):
+	def BLEZ(self,parameters):
 		string = ""
 		
 		# figure out destination
@@ -303,7 +303,7 @@ class MipsGenerator:
 		string += "blez " + value + "," + value2 + "," + dest + "\n"
 		return string
 
-	def bgtz(self,parameters):
+	def BGTZ(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -315,7 +315,7 @@ class MipsGenerator:
 		string += "bgtz " + value + "," + value2 + "," + dest + "\n"
 		return string 
 
-	def bltz(self,parameters):
+	def BLTZ(self,parameters):
 		string = ""
 		
 		# figure out destination
@@ -327,7 +327,7 @@ class MipsGenerator:
 		string += "bltz " + value + "," + value2 + "," + dest + "\n"
 		return string
 
-	def bgt(self,parameters):
+	def BGT(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -339,7 +339,7 @@ class MipsGenerator:
 		string += "bgt " + value + "," + value2 + "," + dest + "\n"
 		return string 
 
-	def blt(self,parameters):
+	def BLT(self,parameters):
 		string = ""
 		
 		# figure out destination
@@ -351,7 +351,7 @@ class MipsGenerator:
 		string += "blt " + value + "," + value2 + "," + dest + "\n"
 		return string
 
-	def bge(self,parameters):
+	def BGE(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -363,7 +363,7 @@ class MipsGenerator:
 		string += "bge " + value + "," + value2 + "," + dest + "\n"
 		return string 
 
-	def ble(self,parameters):
+	def BLE(self,parameters):
 		string = ""
 		
 		# figure out destination
@@ -375,7 +375,7 @@ class MipsGenerator:
 		string += "ble " + value + "," + value2 + "," + dest + "\n"
 		return string
 
-	def and(self,parameters):
+	def AND(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -393,7 +393,7 @@ class MipsGenerator:
 			string += "\t\tand " + reg + "," + value + "," + value2 + "\n"
 		return string 
 
-	def or(self,parameters):
+	def OR(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -411,7 +411,7 @@ class MipsGenerator:
 			string += "\t\tor " + reg + "," + value + "," + value2 + "\n"
 		return string 
 
-	def nor(self,parameters):
+	def NOR(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -431,7 +431,7 @@ class MipsGenerator:
 			string += "\t\tnor " + reg + "," + value + "," + value2 + "\n"
 		return string 
 
-	def xor(self,parameters):
+	def XOR(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -449,7 +449,7 @@ class MipsGenerator:
 			string += "\t\txor " + reg + "," + value + "," + value2 + "\n"
 		return string 
 
-	def sllv(self,parameters):
+	def SLLV(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -467,7 +467,7 @@ class MipsGenerator:
 			string += "\t\tsllv " + reg + "," + value + "," + value2 + "\n"
 		return string
 
-	def srlv(self,parameters):
+	def SRLV(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -485,7 +485,7 @@ class MipsGenerator:
 			string += "\t\tsrlv " + reg + "," + value + "," + value2 + "\n"
 		return string		
 
-	def srav(self,parameters):
+	def SRAV(self,parameters):
 		string = ""
 
 		# figure out destination

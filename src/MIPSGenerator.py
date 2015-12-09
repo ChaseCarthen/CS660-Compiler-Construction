@@ -309,19 +309,19 @@ class MipsGenerator:
 		for params in parameters:
 			force = params[1]
 			params = params[0]
-			if i.name == "-" or i.name == " " or i.name == "_":
+			if params.name == "-" or params.name == " " or params.name == "_":
 				continue
-			if (i.type == "cons" or i.type == "fcons" or i.type == "char") and force: # Luke use the force
-				reg = self.registerMap(i.name,force)
-				string += "li " + reg + "," + i.name
-				paramerlist.append(reg)
+			if (params.type == "cons" or params.type == "fcons" or params.type == "char") and force: # Luke use the force
+				reg = self.registerMap(params,force)
+				string += "li " + reg + "," + params.name + "\n"
+				parameterlist.append(reg)
 			else:
-				parameterlist.append(self.registerMap(i.name))
+				parameterlist.append(self.registerMap(params))
 		for params in parameters:
 			force = params[1]
 			params = params[0]
-			if (i.type == "cons" or i.type == "fcons" or i.type == "char") and force:
-				self.registermap.freeRegisterByName(i.name)
+			if (parmas.type == "cons" or params.type == "fcons" or params.type == "char") and force:
+				self.registermap.freeRegisterByName(params.name)
 
 		return parameterlist,string
 
@@ -332,22 +332,18 @@ class MipsGenerator:
 		dest = parameters[2]
 		reg = self.registerMap(dest)
 
-
-		
 		if parameters[0].type == "cons":
-			temp = self.registermap.getTemporaryRegister(parameters[0].name)
-			self.registermap.freeRegisterByName(parameters[0].name)
-			string += "\t\tmult " + reg + "," + temp + "," + value2 + "\n"
+			plist,s = self.MagicFunction((parameters[0],True),(parameters[1],False) (parameters[2],False))
+			string += s
+			string += "\t\tmult " + plist[0] + "," + plist[1] + "," + plist[2] + "\n"
 		elif parameters[1].type == "cons":
-
-			temp = self.registermap.getTemporaryRegister(parameters[1].name)
-			self.registermap.freeRegisterByName(parameters[1].name)
-			string += "\t\tmult " + str(reg) + "," + str(value) + "," + str(temp) + "\n"
+			plist,s = self.MagicFunction((parameters[0],False),(parameters[1],True) (parameters[2],False))
+			string += s
+			string += "\t\tmult " + plist[0] + "," + plist[1] + "," + plist[2] + "\n"
 		else:
-			# Get value
-			value = self.registerMap(parameters[0])
-			value2 = self.registerMap(parameters[1])
-			string += "\t\tmult " + str(reg) + "," + str(value) + "," + str(value2) + "\n"
+			plist,s = self.MagicFunction((parameters[0],False),(parameters[1],False) (parameters[2],False))
+			string += s
+			string += "\t\tmult " + plist[0] + "," + plist[1] + "," + plist[2] + "\n"
 		return string  
 
 	def DIV(self,parameters):

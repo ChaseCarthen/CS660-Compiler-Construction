@@ -1,6 +1,8 @@
 void main()
 {
-  char a = 'r';
-  printint(1);
-  printchar(a);
+  int i;
+  for(i = 0; i < 10; i++)
+  {
+    printint(i);
+  }
 }

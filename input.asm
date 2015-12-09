@@ -9,12 +9,17 @@ main:
 		sw $s5,24($sp)
 		sw $s6,28($sp)
 		sw $s7,32($sp)
-		li $s0,'r'
+		move $s0,$t0
 		sw $s0,36($sp)
-		li $a0,1
-jal printint
+		li $s0,$s0
+		sw $s0,36($sp)
+		j label_100000
+	label_100000:
 		move $a0,$s0
-jal printchar
+jal printint
+	label_100001:
+		#Not Implemented: lt
+		#Not Implemented: brne
 		lw $ra,0($sp)
 		lw $s0,4($sp)
 		lw $s1,8($sp)

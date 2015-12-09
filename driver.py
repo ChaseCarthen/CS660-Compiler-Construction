@@ -46,7 +46,7 @@ if args.source != None:
 	for i in temp[:len(temp)-1]:
 		filename += i
 		filename += "."
-	filename += "s"
+	filename += "asm"
 	asm = open(filename, "w")
 	asm.write(assembly)
 	asm.close()

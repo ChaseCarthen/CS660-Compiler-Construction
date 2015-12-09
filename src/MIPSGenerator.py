@@ -98,7 +98,7 @@ class MipsGenerator:
 
 		if not callfunc:
 			print("No Attribute of type " + funcname + " exists.")
-			return "\t\tNot Implemented: " + funcname + "\n"
+			return "\t\t#Not Implemented: " + funcname + "\n"
 		return callfunc(parameters)
 
 
@@ -663,7 +663,7 @@ class MipsGenerator:
 			string += Funcs[func]
 
 		printdata = open("src/print.s", "r")
-		string += "\n\n" + printdata.read()
+		string += "\n\n#Adding Generated print functions\n\n" + printdata.read()
 		printdata.close()
 		return string
 

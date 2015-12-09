@@ -93,20 +93,37 @@ class MipsGenerator:
 				del self.variableMap[i]
 
 	def call(self,funcname,parameters):
-		method = funcname
+		method = funcname.upper()
 		callfunc = getattr(self, method, None)
 
 		if not callfunc:
 			print("No Attribute of type " + funcname + " exists.")
 			return "\t\tNot Implemented: " + funcname + "\n"
 		return callfunc(parameters)
-	def funccall(self,parameters):
+
+
+	def registerMap(self,variable):
+		if variable.name in self.variableMap:
+			return self.variableMap[variable.name]
+		if variable.type == "cons" or variable.type == "char":
+			return variable.name
+		elif variable.type == "local":
+			reg = self.registermap.getSavedRegister(variable.name)
+			self.variableMap[variable.name] = reg
+			return reg
+		elif variable.type == "glob":
+			pass
+		reg = self.registermap.getTemporaryRegister(variable.name)
+		self.variableMap[variable.name] = reg
+		return reg
+
+	def FUNCCALL(self,parameters):
 		return "jal " + parameters[2].name + "\n"
 	def undef(self,parameters):
 		print "UNDEFINED"
 	def test(self,parameters):
 		print "test"
-	def assign(self,parameters):
+	def ASSIGN(self,parameters):
 		string = ""
 		# figure out destination
 		dest = parameters[2]
@@ -131,22 +148,7 @@ class MipsGenerator:
 		# make the assignment happen
 		string += "\t\tsw " + reg + ","+ str(self.stackTracker.GetVariable(dest.name)) + "($sp)"+ "\n"
 		return string
-
-	def registerMap(self,variable):
-		if variable.name in self.variableMap:
-			return self.variableMap[variable.name]
-		if variable.type == "cons" or variable.type == "char":
-			return variable.name
-		elif variable.type == "local":
-			reg = self.registermap.getSavedRegister(variable.name)
-			self.variableMap[variable.name] = reg
-			return reg
-		elif variable.type == "glob":
-			pass
-		reg = self.registermap.getTemporaryRegister(variable.name)
-		self.variableMap[variable.name] = reg
-		return reg
-	def valout(self,parameters):
+	def VALOUT(self,parameters):
 		string = ""
 		reg = self.arguments[0]
 		val = self.registerMap(parameters[2])
@@ -162,7 +164,7 @@ class MipsGenerator:
 
 		del self.arguments[0]
 		return string
-	def refout(self,parameters):
+	def REFOUT(self,parameters):
 		string = ""
 		reg = self.arguments[0]
 		val = self.registerMap(parameters[2])
@@ -178,7 +180,7 @@ class MipsGenerator:
 
 		del self.arguments[0]
 		return string
-	def args(self,parameters):
+	def ARGS(self,parameters):
 		if parameters[2] < 5:
 			for i in range(int(parameters[2].name)):
 				self.arguments.append("$a" + str(i))
@@ -187,7 +189,7 @@ class MipsGenerator:
 		return ""
 
 	# (bound,(cons 50),0,(cons 1))
-	def bound(self,parameters):
+	def BOUND(self,parameters):
 		string = ""
 		Max = self.registerMap(parameters[0])
 		Min = self.registerMap(parameters[1])
@@ -205,7 +207,7 @@ class MipsGenerator:
 		string += "\t\tbgt " + value + "," + Max + ",Halt\n"
 		string += "\t\tblt " + value + "," + Min + ",Halt\n"
 		return string
-	def array(self,parameters):
+	def ARRAY(self,parameters):
 		string = ""
 		# figure out destination
 		dest = parameters[2]
@@ -234,7 +236,8 @@ class MipsGenerator:
 		self.stackTracker.SetVariable(dest.name,val)
 
 		return string
-	def add(self,parameters):
+
+	def ADD(self,parameters):
 		string = ""
 		# figure out destination
 		dest = parameters[2]
@@ -251,18 +254,327 @@ class MipsGenerator:
 			string += "\t\taddi " + reg + "," + value + "," + value2 + "\n"
 		else:
 			string += "\t\tadd " + reg + "," + value + "," + value2 + "\n"
+		return string 
+
+	def SUB(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+		reg = self.registerMap(dest)
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+
+		if parameters[0].type == "cons":
+			string += "\t\taddi " + reg + "," + value2 + "," + -value + "\n"
+		elif parameters[1].type == "cons":
+			string += "\t\taddi " + reg + "," + value + "," + -value2 + "\n"
+		else:
+			string += "\t\tsub " + reg + "," + value + "," + value2 + "\n"
 		return string  
 
-	def label(self, parameters):
+	def MULT(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+		reg = self.registerMap(dest)
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		
+		if parameters[0].type == "cons":
+			temp = self.registermap.getTemporaryRegister(parameters[0].name)
+			string += "\t\tmult " + reg + "," + temp + "," + value2 + "\n"
+		elif parameters[1].type == "cons":
+			temp = self.registermap.getTemporaryRegister(parameters[1].name)
+			string += "\t\tmult " + reg + "," + value + "," + temp + "\n"
+		else:
+			string += "\t\tmult " + reg + "," + value + "," + value2 + "\n"
+		return string  
+
+	def DIV(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+		reg = self.registerMap(dest)
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		if parameters[0].type == "cons":
+			temp = self.registermap.getTemporaryRegister(parameters[0].name)
+			string += "\t\tdiv " + reg + "," + temp + "," + value2 + "\n"
+		elif parameters[1].type == "cons":
+			temp = self.registermap.getTemporaryRegister(parameters[1].name)
+			string += "\t\tdiv " + reg + "," + value + "," + temp + "\n"
+		else:
+			string += "\t\tdiv " + reg + "," + value + "," + value2 + "\n"
+		return string  
+
+	def BEQ(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		string += "beq " + value + "," + value2 + "," + dest + "\n"
+		return string 
+
+	def BNE(self,parameters):
+		string = ""
+		
+		# figure out destination
+		dest = parameters[2]
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		string += "bne " + value + "," + value2 + "," + dest + "\n"
+		return string
+
+	def BGEZ(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		string += "bgez " + value + "," + value2 + "," + dest + "\n"
+		return string 
+
+	def BLEZ(self,parameters):
+		string = ""
+		
+		# figure out destination
+		dest = parameters[2]
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		string += "blez " + value + "," + value2 + "," + dest + "\n"
+		return string
+
+	def BGTZ(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		string += "bgtz " + value + "," + value2 + "," + dest + "\n"
+		return string 
+
+	def BLTZ(self,parameters):
+		string = ""
+		
+		# figure out destination
+		dest = parameters[2]
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		string += "bltz " + value + "," + value2 + "," + dest + "\n"
+		return string
+
+	def BGT(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		string += "bgt " + value + "," + value2 + "," + dest + "\n"
+		return string 
+
+	def BLT(self,parameters):
+		string = ""
+		
+		# figure out destination
+		dest = parameters[2]
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		string += "blt " + value + "," + value2 + "," + dest + "\n"
+		return string
+
+	def BGE(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		string += "bge " + value + "," + value2 + "," + dest + "\n"
+		return string 
+
+	def BLE(self,parameters):
+		string = ""
+		
+		# figure out destination
+		dest = parameters[2]
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		string += "ble " + value + "," + value2 + "," + dest + "\n"
+		return string
+
+	def AND(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+		reg = self.registerMap(dest)
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		if parameters[0].type == "cons":
+			string += "\t\tandi " + reg + "," + value2 + "," + value + "\n"
+		elif parameters[1].type == "cons":
+			string += "\t\tandi " + reg + "," + value + "," + value2 + "\n"
+		else:
+			string += "\t\tand " + reg + "," + value + "," + value2 + "\n"
+		return string 
+
+	def OR(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+		reg = self.registerMap(dest)
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		if parameters[0].type == "cons":
+			string += "\t\tori " + reg + "," + value2 + "," + value + "\n"
+		elif parameters[1].type == "cons":
+			string += "\t\tori " + reg + "," + value + "," + value2 + "\n"
+		else:
+			string += "\t\tor " + reg + "," + value + "," + value2 + "\n"
+		return string 
+
+	def NOR(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+		reg = self.registerMap(dest)
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		if parameters[0].type == "cons":
+			temp = self.registermap.getTemporaryRegister(parameters[0].name)
+			string += "\t\tnor " + reg + "," + temp + "," + value2 + "\n"
+		elif parameters[1].type == "cons":
+			temp = self.registermap.getTemporaryRegister(parameters[1].name)
+			string += "\t\tnor " + reg + "," + value + "," + temp + "\n"
+		else:
+			string += "\t\tnor " + reg + "," + value + "," + value2 + "\n"
+		return string 
+
+	def XOR(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+		reg = self.registerMap(dest)
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		if parameters[0].type == "cons":
+			string += "\t\txori " + reg + "," + value2 + "," + value + "\n"
+		elif parameters[1].type == "cons":
+			string += "\t\txori " + reg + "," + value + "," + value2 + "\n"
+		else:
+			string += "\t\txor " + reg + "," + value + "," + value2 + "\n"
+		return string 
+
+	def SLLV(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+		reg = self.registerMap(dest)
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		if parameters[0].type == "cons":
+			string += "\t\tsll " + reg + "," + value2 + "," + value + "\n"
+		elif parameters[1].type == "cons":
+			string += "\t\tsll " + reg + "," + value + "," + value2 + "\n"
+		else:
+			string += "\t\tsllv " + reg + "," + value + "," + value2 + "\n"
+		return string
+
+	def SRLV(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+		reg = self.registerMap(dest)
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		if parameters[0].type == "cons":
+			string += "\t\tsrl " + reg + "," + value2 + "," + value + "\n"
+		elif parameters[1].type == "cons":
+			string += "\t\tsrl " + reg + "," + value + "," + value2 + "\n"
+		else:
+			string += "\t\tsrlv " + reg + "," + value + "," + value2 + "\n"
+		return string		
+
+	def SRAV(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2]
+		reg = self.registerMap(dest)
+
+		# Get value
+		value = self.registerMap(parameters[0])
+		value2 = self.registerMap(parameters[1])
+		if parameters[0].type == "cons":
+			string += "\t\tsra " + reg + "," + value2 + "," + value + "\n"
+		elif parameters[1].type == "cons":
+			string += "\t\tsra " + reg + "," + value + "," + value2 + "\n"
+		else:
+			string += "\t\tsrav " + reg + "," + value + "," + value2 + "\n"
+		return string
+
+
+	def LABEL(self, parameters):
 		return "\t" + parameters[2].name + ':\n'
 
-	def br(self, parameters):
+	def BR(self, parameters):
 		return "\t\tj " + parameters[2].name + '\n'
 
 	def Global(self,globals):
 		self.local = False
 
-	def function(self,function):
+	def FUNCTION(self,function):
 		self.local = True
 		# Thank you https://courses.cs.washington.edu/courses/cse410/09sp/examples/MIPSCallingConventionsSummary.pdf
 		string = function.name + ":\n"
@@ -351,8 +663,8 @@ class MipsGenerator:
 			string += Funcs[func]
 		print "============= Assembly ===================\n"
 		print string
-		print "\n============= Assembly ==================="
-	def Intstructionize(self,li):
+
+	def Instructionize(self,li):
 		return map(Instruction,li)
 	def ConstructData(self,functions,Globals):
 		self.Frequency.append({})

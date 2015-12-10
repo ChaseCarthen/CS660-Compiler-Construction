@@ -355,6 +355,7 @@ class MipsGenerator:
 	def ADD(self,parameters):
 		string = ""
 		plist,s = self.MagicFunction( ((parameters[0],False),(parameters[1],False), (parameters[2],False)) )
+		string += s
 		if parameters[0].type == "cons":
 			string += "\t\taddi " + str(plist[2]) + "," + str(plist[1]) + "," + str(plist[0]) + "\n"
 		elif parameters[1].type == "cons":
@@ -405,7 +406,8 @@ class MipsGenerator:
 				#i.type = 'reg'
 				reg = self.registerMap(i)
 				if i.modifier == "indr" and indr:
-					string += "\t\tlw " + reg + "," + "(" + reg + ")# indr here" + "\n"
+					string += "\t\tlw " + reg + "," + "(" + reg + ")# load indr here" + "\n"
+					#raw_input("LOADING")
 				parameterlist.append(reg)
 		for free in freelist:
 			self.registermap.freeRegisterByName(free)

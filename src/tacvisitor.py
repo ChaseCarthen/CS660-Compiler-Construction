@@ -256,7 +256,7 @@ class ThreeAddressCode(NodeVisitor):
             dim = newlabel
             
         string += self.printTAC("array",dim,"-",self.compressedTAC(op,name),node.text,node.lines) 
-        string += self.printTAC("assign",initvalue,"-",self.compressedTAC(op,name),node.text,node.lines) 
+        #string += self.printTAC("assign",initvalue,"-",self.compressedTAC(op,name),node.text,node.lines) 
 
         # We need to add strings
         return string,self.compressedTAC(op,name)
@@ -278,7 +278,7 @@ class ThreeAddressCode(NodeVisitor):
 
         # Gets the base address to a temp
         baseAddress = self.inttemp.GetNextTicket()
-        string += self.printTAC("assign",self.compressedTAC("indr",variableName),"-",baseAddress)
+        string += self.printTAC("assign",variableName,"-",baseAddress)
 
         # Build types as a full string
         t = ''
@@ -290,12 +290,12 @@ class ThreeAddressCode(NodeVisitor):
         string += self.printTAC("bound",dims[len(subscripts)-1],self.compressedTAC("cons",0),subscripts[len(subscripts)-1])
         temp = self.inttemp.GetNextTicket()
         addTemps.append(temp)
-        string += self.printTAC("mult", typeSize, subscripts[len(subscripts)-1], temp, "-")
+        string += self.printTAC("mult", self.compressedTAC("cons",typeSize*4), subscripts[len(subscripts)-1], temp, "-")
 
         for i in reversed(range(len(subscripts)-1)):
             string += self.printTAC("bound",dims[i],self.compressedTAC("cons",0),subscripts[i])
             temp1 = self.inttemp.GetNextTicket()
-            string += self.printTAC("mult", typeSize, subscripts[len(subscripts)-1], temp1, "-")
+            string += self.printTAC("mult", self.compressedTAC("cons",typeSize*4), subscripts[len(subscripts)-1], temp1, "-")
 
             final = ""
             current1 = temp1
@@ -312,8 +312,8 @@ class ThreeAddressCode(NodeVisitor):
         string += self.printTAC("add", baseAddress, addTemps[0], assignment, "-")
         for i in range(1, len(addTemps)):
             string += self.printTAC("add", addTemps[i], assignment, assignment, "-")
-
-        return string, assignment
+        #string += self.printTAC("assign",self.compressedTAC("indr",assignment),"-",assignment)
+        return string, self.compressedTAC("indr",assignment)
 
     def visit_AddOp(self,node):
         return self.OPCommand("add",node)

@@ -31,11 +31,16 @@ class RegisterAllocation(object):
       self.temporary[i] =  "$t" + str(i-8)
     self.temporary[24] = "$t" + str(24)
     self.temporary[25] = "$t" + str(25)
+    self.recentmap = []
 
+  def ClearRecentMap(self):
+    del self.recentmap[:]
+  def InsertIntoRecentMap(self,item):
+    self.recentmap.append(item)
   # Get the next temporary register
   def getTemporaryRegister(self, name):
     for index in temporary:
-      if not self.registers[index]:
+      if not self.registers[index] and not self.temporary[index] in self.recentmap:
         self.registers[index] = name
         return self.temporary[index]
 

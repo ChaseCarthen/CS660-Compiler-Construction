@@ -139,11 +139,9 @@ class Parser(Scanner):
         #print p[1]
         symbolnode = self.symbol_table.Retrieve(p[1].name)
         symbolnode2 = symbolnode.FindField(p[3])
-        print p[3]
-        print symbolnode2.GetName()
-        print p[1]
         p[1].field = VariableCall( Type(symbolnode2.GetType(), symbolnode2.GetQualifiers(), None), symbolnode2.GetName(), type(symbolnode) == PointerNode or type(symbolnode) == ArrayNode)
         p[1].offset = symbolnode.GetOffset(p[3])
+        p[1].type.type = symbolnode2.GetType()
         p[0] = p[1]
 
     def p_postfix_expression_6(self, p):
@@ -937,6 +935,8 @@ class Parser(Scanner):
             #print type(p[1])
             #print self.typelist
             if type(p[1]) != ArrayNode:
+                #print self.typelist[-1].GetName()
+                #raw_input("HERE")
                 structnode = StructVariableNode(self.typelist[-1],"",p[1].GetName(),p.linespan(1),p.lexpos(1))
                 p[0] = makeParserDict(structnode,Struct(p[1].GetName(),self.typelist[-1].fields,self.typelist[-1].GetTotalWordSize()))
             else:
@@ -1106,7 +1106,12 @@ class Parser(Scanner):
         '''struct_declaration : specifier_qualifier_list struct_declarator_list SEMI'''
         l = []
         for name in p[2]:
+            print p[1].type
+            print name
+            
             name.SetType(p[1].type)
+            print name 
+            #raw_input("TYPE")
             l.append(name)
         p[0] = l
 

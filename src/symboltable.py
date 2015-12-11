@@ -17,8 +17,10 @@ class SymbolTable(object):
 
     intparam = VariableNode(None, ['int'], 'a', 0, 0)
     charparam = VariableNode(None, ['char'], 'a', 0, 0)
+
     self.InsertNode(FunctionNode([intparam], ['void'], 'printint', 0,0))
     self.InsertNode(FunctionNode([charparam], ['void'], 'printchar', 0,0))
+
 
   def Retrieve(self, name):
     self.pointer = None
@@ -467,6 +469,7 @@ class StructNode(SymbolTreeNode):
 class StructVariableNode(StructNode):
   '''Struct Variable Node'''
   def __init__(self, structtype= "", type_var ="", name = "", line = "", line_loc = "" ):
+    self.type_var = type_var
     self.structtype = structtype
     self.name = name
     super(StructVariableNode, self).__init__(type_var = type_var, name = name, line = line, line_loc = line_loc)

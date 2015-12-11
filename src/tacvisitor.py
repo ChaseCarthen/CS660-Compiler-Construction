@@ -585,9 +585,9 @@ class ThreeAddressCode(NodeVisitor):
         
         templabel = self.GetTempLabel("int")
         string += self.printTAC("assign",name,"_",templabel,node.text,node.lines)
-        string += self.printTAC("add",self.compressedTAC("cons",node.offset), templabel,templabel,"",None)
-        string += self.printTAC("assign",self.compressedTAC("indr",templabel), "-", templabel,"",None)
-        return string,templabel
+        string += self.printTAC("add",self.compressedTAC("cons",4*node.offset), templabel,templabel,"",None)
+        #string += self.printTAC("assign",self.compressedTAC("indr",templabel), "-", templabel,"",None)
+        return string,self.compressedTAC("indr",templabel)
 
     #name,[name,type*,offset*]
     def visit_PtrRef(self,node):

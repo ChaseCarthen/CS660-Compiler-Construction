@@ -237,8 +237,11 @@ class MipsGenerator:
 
 	def VALOUT(self,parameters):
 		string = ""
+		string = ""
+		plist,string = self.MagicFunction( [ ( parameters[2] ,True)  ] )
 		reg = self.arguments[0]
-		val = self.registerMap(parameters[2])
+		val = plist[0]
+		#val = self.registerMap(parameters[2])
 
 		if parameters[2].type == "cons" and not val.startswith('$'):
 			#print reg
@@ -305,7 +308,7 @@ class MipsGenerator:
 	def ARRAY(self,parameters):
 		string = ""
 
-		plist,temp = self.MagicFunction([(parameters[0],False), (parameters[2],False)])
+		plist,temp = self.MagicFunction([(parameters[0],True), (parameters[2],True)])
 
 		string += temp
 

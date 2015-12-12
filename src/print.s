@@ -9,7 +9,7 @@ printint:
   la    $a0, nl
   li    $v0, 4
   syscall
-  j $ra
+  jr $ra
 
 .globl printchar
 printchar:
@@ -18,4 +18,4 @@ printchar:
   la    $a0, nl
   li    $v0, 4
   syscall
-  j $ra
+  jr $ra

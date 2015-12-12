@@ -729,6 +729,25 @@ class MipsGenerator:
 	def BR(self, parameters):
 		return "\t\tj " + parameters[2].name + '\n'
 
+	def RETURN(self, parameters):
+		string = ""
+
+		# restore return address
+		string += "#Restoring Stack\n"
+		string += self.LoadOntoStack("$ra","$ra") 
+		string += self.LoadOntoStack("$s0","$s0")
+		string += self.LoadOntoStack("$s1","$s1")
+		string += self.LoadOntoStack("$s2","$s2")
+		string += self.LoadOntoStack("$s3","$s3")
+		string += self.LoadOntoStack("$s4","$s4")
+		string += self.LoadOntoStack("$s5","$s5")
+		string += self.LoadOntoStack("$s6","$s6")
+		string += self.LoadOntoStack("$s7","$s7")
+
+ 		# end of epilogue
+ 		string += "\t\tjr $ra" # return
+		return string
+
 	def Global(self,globals):
 		self.local = False
 

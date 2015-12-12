@@ -466,11 +466,11 @@ class ThreeAddressCode(NodeVisitor):
     # Return: [expr*]
     def visit_Return(self,node):
         string = ""
-        string += self.printTAC("return") + "\n"
         if node.expr != node:
             exprstring, exprlabel = self.visit(node.expr)
             string += exprstring
-            string += self.printTAC("assign",exprlabel,"_","ra",node.text,node.lines)
+            string += self.printTAC("return","_","_",exprlabel,node.text,node.lines)
+        #string += self.printTAC("return") + "\n"
         return string,""
 
     def visit_ParamList(self,node):

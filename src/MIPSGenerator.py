@@ -746,6 +746,15 @@ class MipsGenerator:
 		string += "\t\tlw " + register + ",(" + reg +")\n"
 		return string 
 
+	def ADDR(self,parameters):
+		# 
+		string = ""
+		parameters[0].modifier = "indr"
+		plist,string = self.MagicFunction([ (parameters[0],True),(parameters[2],True)  ])
+		string += "\t\tmove " + plist[1] + "," + plist[0] + "# ADDR HERE\n"
+
+		return string
+
 	def FUNCTION(self,function):
 		reg = self.registermap.getTemporaryRegister("stack")
 		self.stackTracker.SetStackSymbol(reg)
@@ -792,7 +801,7 @@ class MipsGenerator:
 		string += self.StoreOntoStack("$s5","$s5")
 		string += self.StoreOntoStack("$s6","$s6")
 		string += self.StoreOntoStack("$s7","$s7")
-		sreg = self.registermap.getSavedRegister("stack")
+		sreg = self.registermap.getSavedRegister("stack1")
 		string += self.stackTracker.updateStackSymbol(sreg)
 		self.registermap.freeRegisterByName("stack")
 		
@@ -815,7 +824,7 @@ class MipsGenerator:
 		string += self.LoadOntoStack("$s5","$s5")
 		string += self.LoadOntoStack("$s6","$s6")
 		string += self.LoadOntoStack("$s7","$s7")
-
+		self.registermap.freeRegisterByName("stack1")
 		string += self.stackTracker.ResetStack()
  		# end of epilogue
  		string += "\t\tjr $ra" # return

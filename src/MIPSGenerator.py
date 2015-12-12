@@ -146,6 +146,8 @@ class MipsGenerator:
 		if variable.type == "char" and not force_register:
 			return variable.name
 
+		if variable.type == "arg":
+			return variable.name
 
 		check = variable.type + "_" + variable.name
 		if check in self.variableMap:
@@ -393,6 +395,9 @@ class MipsGenerator:
 		for params in parameters:
 			force = params[1]
 			i = params[0]
+			if i.name == "$v0":
+				parameterlist.append(i.name)
+				continue
 			if i.name == "-" or i.name == " " or i.name == "_":
 				#parameterlist.append('0')
 				i.name = '0'
@@ -728,6 +733,30 @@ class MipsGenerator:
 
 	def BR(self, parameters):
 		return "\t\tj " + parameters[2].name + '\n'
+
+	def RETURN(self, parameters):
+		string = ""
+
+		reg, temp = self.MagicFunction([(parameters[2],True)])
+
+		string += temp
+		string += "\t\tmove " + "$v0, " + reg[0] + "\n"
+
+		# restore return address
+		string += "#Restoring Stack\n"
+		string += self.LoadOntoStack("$ra","$ra") 
+		string += self.LoadOntoStack("$s0","$s0")
+		string += self.LoadOntoStack("$s1","$s1")
+		string += self.LoadOntoStack("$s2","$s2")
+		string += self.LoadOntoStack("$s3","$s3")
+		string += self.LoadOntoStack("$s4","$s4")
+		string += self.LoadOntoStack("$s5","$s5")
+		string += self.LoadOntoStack("$s6","$s6")
+		string += self.LoadOntoStack("$s7","$s7")
+
+ 		# end of epilogue
+ 		string += "\t\tjr $ra" # return
+		return string
 
 	def Global(self,globals):
 		self.local = False

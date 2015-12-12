@@ -98,9 +98,9 @@ class MipsGenerator:
 
 		plist, temp = self.MagicFunction([(Variable(["tempor"]),True)])
 		string += temp
-		string += "\t\taddi " + plist[0] + "," + stacksymbol + ",-" + fixedsize + "\n"
-		string += "\t\taddi " + plist[0] + "," + plist[0] + "," + offset + "\n"
-		string += "\t\tadd " + plist[0] + ",$sp,"+plist[0] + "\n"
+		string += "\t\taddiu " + plist[0] + "," + stacksymbol + ",-" + fixedsize + "\n"
+		string += "\t\taddiu " + plist[0] + "," + plist[0] + "," + offset + "\n"
+		string += "\t\taddu " + plist[0] + ",$sp,"+plist[0] + "\n"
 		return plist[0],string
 		# addi temp reg, stack symbol, -size
 		# addi temp reg, temp reg, -offset
@@ -146,6 +146,8 @@ class MipsGenerator:
 		if variable.type == "char" and not force_register:
 			return variable.name
 
+		if variable.type == "arg":
+			return variable.name
 
 		check = variable.type + "_" + variable.name
 		if check in self.variableMap:
@@ -766,7 +768,7 @@ class MipsGenerator:
 		return string 
 
 	def FUNCTION(self,function):
-		reg = self.registermap.getSavedRegister("stack")
+		reg = self.registermap.getTemporaryRegister("stack")
 		self.stackTracker.SetStackSymbol(reg)
 		self.CountFrequency(function.statements)
 
@@ -779,7 +781,7 @@ class MipsGenerator:
 		savedregisters = 0
 
 		# compute space for stack frame -- include space for return address
-		stackspace = function.localcount + savedregisters + 8
+		stackspace = function.localcount + savedregisters + 9
 		self.stackTracker.UpdateStackSize(stackspace*4)
 		self.stackTracker.SetVariable("$ra",4)
 		self.stackTracker.SetVariable("$s0",4)
@@ -798,7 +800,7 @@ class MipsGenerator:
 		v = Variable(["cons",str(self.stackTracker.GetStackSize())])
 		reg, temp = self.MagicFunction([(v,True)])
 		string += temp
-		string += self.stackTracker.AddToStack(reg[0])
+		string += self.stackTracker.AddToStack(reg[0],True)
 
 		# store the return address
 		string += "#Setting Stack\n"
@@ -811,6 +813,10 @@ class MipsGenerator:
 		string += self.StoreOntoStack("$s5","$s5")
 		string += self.StoreOntoStack("$s6","$s6")
 		string += self.StoreOntoStack("$s7","$s7")
+		sreg = self.registermap.getSavedRegister("stack")
+		string += self.stackTracker.updateStackSymbol(sreg)
+		self.registermap.freeRegisterByName("stack")
+		
 
 		# Lets go through the statements
 		for i in function.statements:			
@@ -837,6 +843,7 @@ class MipsGenerator:
 
 		self.cleanUpVariableMap()
 		self.registermap.clear()
+		self.stackTracker.Clear()
 		return string
 
 	def CountFrequency(self,instructions):

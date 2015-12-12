@@ -146,6 +146,8 @@ class MipsGenerator:
 		if variable.type == "char" and not force_register:
 			return variable.name
 
+		if variable.type == "arg":
+			return variable.name
 
 		check = variable.type + "_" + variable.name
 		if check in self.variableMap:

@@ -19,6 +19,7 @@ class ThreeAddressCode(NodeVisitor):
         self.local = False # If this this is true we are in a local scope
         #self.globals = {}
         self.locals = [] # pop off of this guy if leaving a scope
+        self.arg = []
         self.done = ""
         self.localcount = 0
         self.CODE = code
@@ -37,11 +38,18 @@ class ThreeAddressCode(NodeVisitor):
         for local in self.locals:
             if name in local:
                 return self.compressedTAC("local",local[name])
+
+        for arg in self.arg:
+            if name in arg:
+                return self.compressedTAC("arg",arg[name])
+
         return self.compressedTAC("glob",name)
     def InsertLocalScope(self):
         self.locals.append({})
+        self.arg.append({})
     def PopLocalScope(self):
         self.locals.pop()
+        self.arg.pop()
     def insertVariable(self,name,label):
         if len(self.locals):
             self.locals[-1][name] = label
@@ -173,6 +181,14 @@ class ThreeAddressCode(NodeVisitor):
         self.InsertLocalScope()
         local = {}
         #raw_input()
+
+        temp = self.arg.pop()
+        index = 0
+        for name in node.ParamList.params:
+            temp[name.name] = "$a" + str(index)
+            index += 1
+
+        self.arg.append(temp)
 
         string2,s = self.visit(node.expression)
         string = "\n"+ self.commentify(node.text,node.lines)

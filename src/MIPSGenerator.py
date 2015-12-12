@@ -754,6 +754,7 @@ class MipsGenerator:
 		string += self.LoadOntoStack("$s6","$s6")
 		string += self.LoadOntoStack("$s7","$s7")
 
+		string += self.stackTracker.ResetStack()
  		# end of epilogue
  		string += "\t\tjr $ra" # return
 		return string

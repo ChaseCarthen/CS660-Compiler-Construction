@@ -411,7 +411,7 @@ class ThreeAddressCode(NodeVisitor):
                 string += self.printTAC("valout ", "_", "_", label) 
             
         string += self.printTAC("funccall","_","_",self.compressedTAC("glob",node.name))      
-        return string, "ra"
+        return string, "$v0"
 
     def visit_EmptyStatement(self,node):
         return "", ""

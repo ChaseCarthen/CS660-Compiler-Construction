@@ -395,6 +395,9 @@ class MipsGenerator:
 		for params in parameters:
 			force = params[1]
 			i = params[0]
+			if i.name == "$v0":
+				parameterlist.append(i.name)
+				continue
 			if i.name == "-" or i.name == " " or i.name == "_":
 				#parameterlist.append('0')
 				i.name = '0'
@@ -733,6 +736,11 @@ class MipsGenerator:
 
 	def RETURN(self, parameters):
 		string = ""
+
+		reg, temp = self.MagicFunction([(parameters[2],True)])
+
+		string += temp
+		string += "\t\tmove " + "$v0, " + reg[0] + "\n"
 
 		# restore return address
 		string += "#Restoring Stack\n"

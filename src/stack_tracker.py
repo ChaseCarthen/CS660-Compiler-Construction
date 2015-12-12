@@ -8,13 +8,17 @@ class StackTracker:
 		self.stacksymbol = "$s0"
 	def SetStackSymbol(self,symbol):
 		self.stacksymbol = symbol
-	def AddToStack(self,reg):
+	def AddToStack(self,reg,beginning=False):
+		string = ""
 		#raw_input(type(reg))
-		string = "\t\tadd " + self.stacksymbol + "," + self.stacksymbol + "," + reg + "\n"
+		if not beginning:
+			string = "\t\taddu " + self.stacksymbol + "," + self.stacksymbol + "," + reg + "\n"
+		else:
+			string = "\t\tmove " + self.stacksymbol + "," + reg + "\n"
 		string += "\t\tsubu $sp,$sp,"+reg+"\n"
 		return string
 	def ResetStack(self):
-		return "\t\tadd " + "$sp,$sp," + self.stacksymbol + "\n" 
+		return "\t\taddu " + "$sp,$sp," + self.stacksymbol + "\n" 
 	def GetStackSize(self):
 		if len(self.extra) == 0:
 			return self.size
@@ -39,8 +43,12 @@ class StackTracker:
 		return self.size
 	def GetVariable(self,variable):
 		return self.variables[variable]
-
+	def updateStackSymbol(self,sreg):
+		string = "\t\tmove " + sreg + "," + self.stacksymbol + "\n"
+		self.stacksymbol = sreg
+		return string
 	def Clear(self):
 		self.variables.clear()
 		self.size = 0
 		self.offset = 0
+		del self.extra[:]

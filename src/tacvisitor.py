@@ -460,10 +460,10 @@ class ThreeAddressCode(NodeVisitor):
         else:
             finallabel = self.compressedTAC(op,name)
             #lets get down to the meat
-            for i in range(node.numindirections):
-                nextlabel = self.GetTempLabel("int")
-                string += self.printTAC("assign",self.compressedTAC("indr",finallabel),"-",nextlabel,node.text,node.lines)
-                finallabel = nextlabel
+            #for i in range(node.numindirections):
+            #    nextlabel = self.GetTempLabel("int")
+            #    string += self.printTAC("assign",self.compressedTAC("indr",finallabel),"-",nextlabel,node.text,node.lines)
+            #    finallabel = nextlabel
             #raw_input()
             string += self.printTAC("assign",initvalue,"-",finallabel,node.text,node.lines) 
         # We need to add strings
@@ -482,11 +482,13 @@ class ThreeAddressCode(NodeVisitor):
     # Return: [expr*]
     def visit_Return(self,node):
         string = ""
+
         if node.expr != node:
             exprstring, exprlabel = self.visit(node.expr)
             string += exprstring
             string += self.printTAC("return","_","_",exprlabel,node.text,node.lines)
         #string += self.printTAC("return") + "\n"
+
         return string,""
 
     def visit_ParamList(self,node):

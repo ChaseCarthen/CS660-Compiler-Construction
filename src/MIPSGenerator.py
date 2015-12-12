@@ -396,6 +396,7 @@ class MipsGenerator:
 			force = params[1]
 			i = params[0]
 			if i.name == "$v0":
+				i.type = "reg"
 				parameterlist.append(i.name)
 				continue
 			if i.name == "-" or i.name == " " or i.name == "_":
@@ -742,6 +743,12 @@ class MipsGenerator:
 		string += temp
 		string += "\t\tmove " + "$v0, " + reg[0] + "\n"
 
+		treg = self.registermap.getTemporaryRegister("stack")
+
+		string += "\t\tmove " + treg + "," + self.stackTracker.GetStackSymbol() + "\n"
+
+		self.stackTracker.SetStackSymbol(treg)
+
 		# restore return address
 		string += "#Restoring Stack\n"
 		string += self.LoadOntoStack("$ra","$ra") 
@@ -755,8 +762,9 @@ class MipsGenerator:
 		string += self.LoadOntoStack("$s7","$s7")
 
 		string += self.stackTracker.ResetStack()
+		self.registermap.freeRegisterByName("stack")
  		# end of epilogue
- 		string += "\t\tjr $ra" # return
+ 		string += "\t\tjr $ra\n" # return
 		return string
 
 	def Global(self,globals):
@@ -836,13 +844,18 @@ class MipsGenerator:
 		self.registermap.freeRegisterByName("stack")
 		
 
+
 		# Lets go through the statements
 		for i in function.statements:			
 			string += self.call(i.name,i.params())
 			self.MarkForRemove(i.params())
 
 		# restore save registers
+		treg = self.registermap.getTemporaryRegister("stack")
 
+		string += "\t\tmove " + treg + "," + self.stackTracker.GetStackSymbol() + "\n"
+
+		self.stackTracker.SetStackSymbol(treg)
 		# restore return address
 		string += "#Restoring Stack\n"
 		string += self.LoadOntoStack("$ra","$ra") 
@@ -855,6 +868,8 @@ class MipsGenerator:
 		string += self.LoadOntoStack("$s6","$s6")
 		string += self.LoadOntoStack("$s7","$s7")
 		self.registermap.freeRegisterByName("stack1")
+		self.registermap.freeRegisterByName("stack")
+
 		string += self.stackTracker.ResetStack()
  		# end of epilogue
  		string += "\t\tjr $ra" # return

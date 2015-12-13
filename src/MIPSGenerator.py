@@ -471,6 +471,18 @@ class MipsGenerator:
 		string += "\t\tbeq " + plist[0] + "," + plist[1] + "," + dest + "\n"
 		return string 
 
+	def EQ(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2].name
+
+		# Get value
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tbeq " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		return string 
+
 	def BRNE(self,parameters):
 		string = ""
 
@@ -482,7 +494,18 @@ class MipsGenerator:
 		string += temp
 		string += "\t\tbrne " + plist[0] + "," + plist[1] + "," + dest + "\n"
 		return string 
-		return string
+
+	def NE(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2].name
+
+		# Get value
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tbeq " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		return string 
 
 	def BGEZ(self,parameters):
 		string = ""
@@ -586,6 +609,18 @@ class MipsGenerator:
 		string += "\t\tbge " + plist[0] + "," + plist[1] + "," + dest + "\n"
 		return string 
 
+	def GE(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2].name
+
+		# Get value
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tbeq " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		return string 
+
 	def BLE(self,parameters):
 		string = ""
 
@@ -597,6 +632,37 @@ class MipsGenerator:
 		string += temp
 		string += "\t\tble " + plist[0] + "," + plist[1] + "," + dest + "\n"
 		return string 
+
+	def LE(self,parameters):
+		string = ""
+
+		# figure out destination
+		dest = parameters[2].name
+
+		# Get value
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tbeq " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		return string 
+
+	def LAND(self,parameters):
+		string = ""
+
+		# Get value
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
+		string += temp
+		string += "\t\tnor " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
+		return string 
+
+	def LOR(self,parameters):
+		string = ""
+
+		# Get value
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
+		string += temp
+		string += "\t\tnor " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
+		return string 
+
 	def AND(self,parameters):
 		string = ""
 

@@ -466,8 +466,6 @@ class MipsGenerator:
 		dest = parameters[2].name
 
 		# Get value
-		#value = self.registerMap(parameters[0])
-		#value2 = self.registerMap(parameters[1])
 		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
 		string += temp
 		string += "\t\tbeq " + plist[0] + "," + plist[1] + "," + dest + "\n"
@@ -475,75 +473,75 @@ class MipsGenerator:
 
 	def BRNE(self,parameters):
 		string = ""
-		
+
 		# figure out destination
 		dest = parameters[2].name
 
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-		string += "\t\tbne " + value + "," + value2 + "," + dest + "\n"
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tbrne " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		return string 
 		return string
 
 	def BGEZ(self,parameters):
 		string = ""
 
 		# figure out destination
-		dest = parameters[2]
+		dest = parameters[2].name
 
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-		string += "bgez " + value + "," + value2 + "," + dest + "\n"
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tbgez " + plist[0] + "," + plist[1] + "," + dest + "\n"
 		return string 
-
 	def BLEZ(self,parameters):
 		string = ""
-		
+
 		# figure out destination
-		dest = parameters[2]
+		dest = parameters[2].name
 
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-		string += "blez " + value + "," + value2 + "," + dest + "\n"
-		return string
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tblez " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		return string 
 
 	def BGTZ(self,parameters):
 		string = ""
 
 		# figure out destination
-		dest = parameters[2]
+		dest = parameters[2].name
 
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-		string += "bgtz " + value + "," + value2 + "," + dest + "\n"
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tbgtz " + plist[0] + "," + plist[1] + "," + dest + "\n"
 		return string 
 
 	def BLTZ(self,parameters):
 		string = ""
-		
+
 		# figure out destination
-		dest = parameters[2]
+		dest = parameters[2].name
 
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-		string += "bltz " + value + "," + value2 + "," + dest + "\n"
-		return string
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tbltz " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		return string 
 
 	def BGT(self,parameters):
 		string = ""
 
 		# figure out destination
-		dest = parameters[2]
+		dest = parameters[2].name
 
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-		string += "bgt " + value + "," + value2 + "," + dest + "\n"
-		return string
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tbgt " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		return string 
 
 	def GT(self,parameters):
 		string = ""
@@ -557,15 +555,15 @@ class MipsGenerator:
 
 	def BLT(self,parameters):
 		string = ""
-		
+
 		# figure out destination
-		dest = parameters[2]
+		dest = parameters[2].name
 
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-		string += "blt " + value + "," + value2 + "," + dest + "\n"
-		return string
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tblt " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		return string 
 
 	def LT(self,parameters):
 		string = ""
@@ -580,154 +578,122 @@ class MipsGenerator:
 		string = ""
 
 		# figure out destination
-		dest = parameters[2]
+		dest = parameters[2].name
 
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-		string += "bge " + value + "," + value2 + "," + dest + "\n"
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tbge " + plist[0] + "," + plist[1] + "," + dest + "\n"
 		return string 
 
 	def BLE(self,parameters):
 		string = ""
-		
+
 		# figure out destination
-		dest = parameters[2]
+		dest = parameters[2].name
 
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-		string += "ble " + value + "," + value2 + "," + dest + "\n"
-		return string
-
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tble " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		return string 
 	def AND(self,parameters):
 		string = ""
 
-		# figure out destination
-		dest = parameters[2]
-		reg = self.registerMap(dest)
-
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
+		string += temp
+
 		if parameters[0].type == "cons":
-			string += "\t\tandi " + reg + "," + value2 + "," + value + "\n"
+			string += "\t\tandi " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
 		elif parameters[1].type == "cons":
-			string += "\t\tandi " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tandi " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		else:
-			string += "\t\tand " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tand " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		return string 
 
 	def OR(self,parameters):
 		string = ""
 
-		# figure out destination
-		dest = parameters[2]
-		reg = self.registerMap(dest)
-
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
+		string += temp
+
 		if parameters[0].type == "cons":
-			string += "\t\tori " + reg + "," + value2 + "," + value + "\n"
+			string += "\t\tori " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
 		elif parameters[1].type == "cons":
-			string += "\t\tori " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tori " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		else:
-			string += "\t\tor " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tor " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		return string 
 
 	def NOR(self,parameters):
 		string = ""
 
-		# figure out destination
-		dest = parameters[2]
-		reg = self.registerMap(dest)
-
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-		if parameters[0].type == "cons":
-			temp = self.registermap.getTemporaryRegister(parameters[0].name)
-			self.registermap.freeRegisterByName(parameters[0].name)
-			string += "\t\tnor " + reg + "," + temp + "," + value2 + "\n"
-		elif parameters[1].type == "cons":
-			temp = self.registermap.getTemporaryRegister(parameters[1].name)
-			self.registermap.freeRegisterByName(parameters[1].name)
-			string += "\t\tnor " + reg + "," + value + "," + temp + "\n"
-		else:
-			string += "\t\tnor " + reg + "," + value + "," + value2 + "\n"
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
+		string += temp
+		string += "\t\tnor " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		return string 
 
 	def XOR(self,parameters):
 		string = ""
 
-		# figure out destination
-		dest = parameters[2]
-		reg = self.registerMap(dest)
-
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
+		string += temp
+
 		if parameters[0].type == "cons":
-			string += "\t\txori " + reg + "," + value2 + "," + value + "\n"
+			string += "\t\txori " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
 		elif parameters[1].type == "cons":
-			string += "\t\txori " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\txori " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		else:
-			string += "\t\txor " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\txor " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		return string 
 
 	def SLLV(self,parameters):
 		string = ""
 
-		# figure out destination
-		dest = parameters[2]
-		reg = self.registerMap(dest)
-
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
+		string += temp
+		
 		if parameters[0].type == "cons":
-			string += "\t\tsll " + reg + "," + value2 + "," + value + "\n"
+			string += "\t\tsll " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
 		elif parameters[1].type == "cons":
-			string += "\t\tsll " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tsll " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		else:
-			string += "\t\tsllv " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tsllv " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		return string
 
 	def SRLV(self,parameters):
 		string = ""
 
-		# figure out destination
-		dest = parameters[2]
-		reg = self.registerMap(dest)
-
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
+		string += temp
+		
 		if parameters[0].type == "cons":
-			string += "\t\tsrl " + reg + "," + value2 + "," + value + "\n"
+			string += "\t\tsrl " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
 		elif parameters[1].type == "cons":
-			string += "\t\tsrl " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tsrl " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		else:
-			string += "\t\tsrlv " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tsrlv " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		return string		
 
 	def SRAV(self,parameters):
 		string = ""
 
-		# figure out destination
-		dest = parameters[2]
-		reg = self.registerMap(dest)
-
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
+		string += temp
+		
 		if parameters[0].type == "cons":
-			string += "\t\tsra " + reg + "," + value2 + "," + value + "\n"
+			string += "\t\tsra " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
 		elif parameters[1].type == "cons":
-			string += "\t\tsra " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tsra " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		else:
-			string += "\t\tsrav " + reg + "," + value + "," + value2 + "\n"
+			string += "\t\tsrav " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		return string
 
 

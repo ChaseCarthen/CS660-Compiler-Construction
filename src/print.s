@@ -4,34 +4,40 @@ nl:   .asciiz "\n"
 
 .globl printint
 printint:
+  addi $sp,$sp,-8
+  sw $a0, ($sp)
+  sw $v0, 4($sp)
+
   li    $v0, 1
   syscall
 
-  addi $sp,$sp,-4
-  sw $a0, ($sp)
 
   la    $a0, nl
   li    $v0, 4
   syscall
 
-  lw $a0,($sp)
-  addi $sp,$sp,4
+  lw $a0, ($sp)
+  lw $v0, 4($sp)
+  addi $sp,$sp,8
 
   jr $ra
 
 .globl printchar
 printchar:
+  addi $sp,$sp,-8
+  sw $a0, ($sp)
+  sw $v0, 4($sp)
   li    $v0, 11
   syscall
 
-  addi $sp,$sp,-4
-  sw $a0, ($sp)
+
 
   la    $a0, nl
   li    $v0, 4
   syscall
 
-  lw $a0,($sp)
+  lw $a0, ($sp)
+  lw $v0, 4($sp)
   addi $sp,$sp,4
 
   jr $ra

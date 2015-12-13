@@ -379,13 +379,16 @@ class ThreeAddressCode(NodeVisitor):
         if not node.isdowhile:
             string = string + self.printTAC("br",'-','-',top,node.text.replace("\n", "")) 
         string += self.printTAC("label",'-','-',top,"") 
-        temp, dummy = self.visit(node.stmt)
-        string += temp
+        if (node.stmt != None):
+            temp, dummy = self.visit(node.stmt)
+            string += temp
         string += self.printTAC("label",'-','-',bottom,"")
-        temp, label = self.visit(node.next)
-        string += temp
-        temp, label = self.visit(node.cond)
-        string += temp
+        if(node.next != None):
+            temp, label = self.visit(node.next)
+            string += temp
+        if(node.cond != None):
+            temp, label = self.visit(node.cond)
+            string += temp
         string += self.printTAC("brne",'(cons 0)',label,top,"") 
         return string, None
 

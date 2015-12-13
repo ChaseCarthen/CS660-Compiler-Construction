@@ -872,7 +872,7 @@ class MipsGenerator:
 
 		string += self.stackTracker.ResetStack()
  		# end of epilogue
- 		string += "\t\tjr $ra" # return
+ 		string += "\t\tjr $ra\n" # return
 
 		self.cleanUpVariableMap()
 		self.registermap.clear()
@@ -902,7 +902,7 @@ class MipsGenerator:
 			string += Funcs[func]
 		printdata = open("src/print.s", "r")
 		string += "\n\n#Adding Generated print functions\n\n" + printdata.read()
-		string += "Halt: " + "\n"
+		string += "\nHalt: " + "\n"
 		printdata.close()
 		return string
 

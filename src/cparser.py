@@ -22,7 +22,10 @@ class Parser(Scanner):
                 p[0] = VariableCall( Type(p[0].GetType(), p[0].GetQualifiers(), None), p[0].GetName(), type(p[0]) == PointerNode or type(p[0]) == ArrayNode)
                 self.SetNodeInformation(p[0],1,1,p)
             elif type(p[0]) == StructVariableNode:
+                #print p[1]
+                #raw_input("HERE")
                 p[0] = StructRef(p[1],None,None,Type([],[],[]))# StructRef: [name,field*] {}
+
             else:
                 # FuncCall: [ParamList**,type*,name]{}
                 typelist = []
@@ -84,17 +87,15 @@ class Parser(Scanner):
             
                 for i in node.GetQualifiers():
                     typenode.qualifier.append(i)
+
             else:
-                #print p[1].name + "!!!!!!"
-                #print node
                 oldnode = node
                 node = node.FindField(p[1].field.name)
-                #print type(node)
-                typenode.type.append(oldnode.GetTypeName())
-
+                typenode.type.append(node.GetType()[0])
             dimension = []
             for i in node.dimensions:
                 dimension.append(i)
+
             if type(node) == StructVariableNode:
                 p[0] = ArrRef(p[1].field.name, [p[3]], typenode, dimension)
             else:
@@ -128,6 +129,7 @@ class Parser(Scanner):
             if p[1].ParamList.params[index].type != p[3][index].type.type:
                 print("Needs to fail for improper parameter types at parameter location " + str(index) + ". " 
                        + str(p[3][index].type.type) + " given and " + str(p[1].ParamList.params[index].type) + " expected.")
+                print (type(p[3][index]))
                 sys.exit()
             else:
                 paramlist.params.append(p[3][index])
@@ -139,6 +141,7 @@ class Parser(Scanner):
         #print p[1]
         symbolnode = self.symbol_table.Retrieve(p[1].name)
         symbolnode2 = symbolnode.FindField(p[3])
+
         p[1].field = VariableCall( Type(symbolnode2.GetType(), symbolnode2.GetQualifiers(), None), symbolnode2.GetName(), type(symbolnode) == PointerNode or type(symbolnode) == ArrayNode)
         p[1].offset = symbolnode.GetOffset(p[3])
         p[1].type.type = symbolnode2.GetType()
@@ -1106,11 +1109,11 @@ class Parser(Scanner):
         '''struct_declaration : specifier_qualifier_list struct_declarator_list SEMI'''
         l = []
         for name in p[2]:
-            print p[1].type
-            print name
+            #print p[1].type
+            #print name
             
             name.SetType(p[1].type)
-            print name 
+            #print name 
             #raw_input("TYPE")
             l.append(name)
         p[0] = l
@@ -1200,7 +1203,7 @@ class Parser(Scanner):
     def p_direct_declarator_3(self, p):
         '''direct_declarator : direct_declarator '[' constant_expression ']' '''
         if type(p[1]) == type(VariableNode()):
-            print("Here: ", p[3])
+            #print("Here: ", p[3])
             p[1] = ArrayNode(type_var = p[1].GetType(), name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation(), dim = p[3])
         else:
             #p[1].IncrementDimensions()

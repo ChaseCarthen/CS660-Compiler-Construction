@@ -19,8 +19,9 @@ class SymbolTable(object):
     charparam = VariableNode(None, ['char'], 'a', 0, 0)
 
     self.InsertNode(FunctionNode([intparam], ['void'], 'printint', 0,0))
+    self.InsertNode(FunctionNode([intparam], ['void'], 'sleep', 0,0))
     self.InsertNode(FunctionNode([charparam], ['void'], 'printchar', 0,0))
-
+    self.InsertNode(FunctionNode([intparam,intparam,intparam,intparam],['void'],'playsound',0,0 ))
 
   def Retrieve(self, name):
     self.pointer = None

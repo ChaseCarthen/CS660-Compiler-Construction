@@ -19,3 +19,25 @@ printchar:
   li    $v0, 4
   syscall
   jr $ra
+
+
+# a0 - sleep duration
+.globl sleep
+sleep:
+la $v0,32
+syscall
+jr $ra
+
+# a0 - pitch
+# a1 - duration
+# a2 - instrument
+# a3 - volume
+.globl playsound
+# Play Sound
+playsound:
+la $v0, 33
+syscall
+#move $a0,$a1
+#la $v0,32
+#syscall
+jr $ra

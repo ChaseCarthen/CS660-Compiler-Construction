@@ -480,13 +480,11 @@ class MipsGenerator:
 	def EQ(self,parameters):
 		string = ""
 
-		# figure out destination
-		dest = parameters[2].name
-
 		# Get value
-		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
 		string += temp
-		string += "\t\tbeq " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		string += "\t\txor " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
+		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
 		return string 
 
 	def BRNE(self,parameters):
@@ -504,13 +502,10 @@ class MipsGenerator:
 	def NE(self,parameters):
 		string = ""
 
-		# figure out destination
-		dest = parameters[2].name
-
 		# Get value
-		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
 		string += temp
-		string += "\t\tbeq " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		string += "\t\txor " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
 		return string 
 
 	def BGEZ(self,parameters):
@@ -618,13 +613,15 @@ class MipsGenerator:
 	def GE(self,parameters):
 		string = ""
 
-		# figure out destination
-		dest = parameters[2].name
-
 		# Get value
-		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
 		string += temp
-		string += "\t\tbeq " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		string += "\t\txor " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
+		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
+		treg = self.registermap.getTemporaryRegister("GETemp")
+		string += "\t\tslt " + treg + "," + plist[1] + "," + plist[0] + "\n"
+		string += "\t\tand " + plist[2] + "," + plist[2] + "," + treg + "\n"
+		self.registermap.freeRegisterByName("GETemp")
 		return string 
 
 	def BLE(self,parameters):
@@ -642,13 +639,15 @@ class MipsGenerator:
 	def LE(self,parameters):
 		string = ""
 
-		# figure out destination
-		dest = parameters[2].name
-
 		# Get value
-		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
 		string += temp
-		string += "\t\tbeq " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		string += "\t\txor " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
+		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
+		treg = self.registermap.getTemporaryRegister("GETemp")
+		string += "\t\tslt " + treg + "," + plist[0] + "," + plist[1] + "\n"
+		string += "\t\tand " + plist[2] + "," + plist[2] + "," + treg + "\n"
+		self.registermap.freeRegisterByName("GETemp")
 		return string 
 
 	def LAND(self,parameters):
@@ -657,7 +656,8 @@ class MipsGenerator:
 		# Get value
 		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
 		string += temp
-		string += "\t\tnor " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
+		string += "\t\tand " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
+		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
 		return string 
 
 	def LOR(self,parameters):
@@ -666,7 +666,8 @@ class MipsGenerator:
 		# Get value
 		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
 		string += temp
-		string += "\t\tnor " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
+		string += "\t\tor " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
+		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
 		return string 
 
 	def AND(self,parameters):
@@ -768,6 +769,14 @@ class MipsGenerator:
 			string += "\t\tsrav " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		return string
 
+	def MOD(self,parameters):
+		string = ""
+
+		# Get value
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
+		string += temp
+		string += "\t\trem " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
+		return string 
 
 	def LABEL(self, parameters):
 		return "\t" + parameters[2].name + ':\n'

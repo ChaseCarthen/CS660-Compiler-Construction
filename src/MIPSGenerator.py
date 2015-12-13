@@ -184,7 +184,13 @@ class MipsGenerator:
 		return reg
 
 	def FUNCCALL(self,parameters):
-		return "\t\tjal " + parameters[2].name + "\n"
+		string = ""
+		string += "\t\tjal " + parameters[2].name + "\n"
+		string += self.LoadOntoStack("$a0","$a0")
+		string += self.LoadOntoStack("$a1","$a1")
+		string += self.LoadOntoStack("$a2","$a2")
+		string += self.LoadOntoStack("$a3","$a3")
+		return string
 	def undef(self,parameters):
 		print "UNDEFINED"
 	def test(self,parameters):
@@ -244,7 +250,7 @@ class MipsGenerator:
 		reg = self.arguments[0]
 		val = plist[0]
 		#val = self.registerMap(parameters[2])
-
+		string += self.StoreOntoStack(reg,reg)
 		if parameters[2].type == "cons" and not val.startswith('$'):
 			#print reg
 			string += "\t\tli " + reg + "," + str(val)  + "\n"
@@ -801,7 +807,6 @@ class MipsGenerator:
 		string += self.LoadOntoStack("$a1","$a1")
 		string += self.LoadOntoStack("$a2","$a2")
 		string += self.LoadOntoStack("$a3","$a3")
-		string += self.LoadOntoStack("$v0","$v0")
 		string += self.stackTracker.ResetStack()
 		self.registermap.freeRegisterByName("stack")
 		self.stackTracker.SetStackSymbol(oldstacksymbol)
@@ -850,7 +855,7 @@ class MipsGenerator:
 		savedregisters = 0
 
 		# compute space for stack frame -- include space for return address
-		stackspace = function.localcount + savedregisters + 14
+		stackspace = function.localcount + savedregisters + 13
 		self.stackTracker.UpdateStackSize(stackspace*4)
 		self.stackTracker.SetVariable("$ra",4)
 		self.stackTracker.SetVariable("$s0",4)
@@ -865,7 +870,6 @@ class MipsGenerator:
 		self.stackTracker.SetVariable("$a1",4)
 		self.stackTracker.SetVariable("$a2",4)
 		self.stackTracker.SetVariable("$a3",4)
-		self.stackTracker.SetVariable("$v0",4)
 		# store save registers
 
 		# push stack frame 
@@ -890,7 +894,6 @@ class MipsGenerator:
 		string += self.StoreOntoStack("$a1","$a1")
 		string += self.StoreOntoStack("$a2","$a2")
 		string += self.StoreOntoStack("$a3","$a3")
-		string += self.StoreOntoStack("$v0","$v0")
 		sreg = self.registermap.getSavedRegister("stack1")
 		string += self.stackTracker.updateStackSymbol(sreg)
 		self.registermap.freeRegisterByName("stack")
@@ -924,7 +927,6 @@ class MipsGenerator:
 		string += self.LoadOntoStack("$a1","$a1")
 		string += self.LoadOntoStack("$a2","$a2")
 		string += self.LoadOntoStack("$a3","$a3")
-		string += self.LoadOntoStack("$v0","$v0")
 		self.registermap.freeRegisterByName("stack1")
 		self.registermap.freeRegisterByName("stack")
 		string += "#Restoring Stack Complete\n\n"

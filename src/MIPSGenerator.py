@@ -744,7 +744,10 @@ class MipsGenerator:
 		string += "\t\tmove " + "$v0, " + reg[0] + "\n"
 
 		treg = self.registermap.getTemporaryRegister("stack")
-
+		#print self.stackTracker.GetStackSymbol()
+		#print treg
+		#raw_input("a")
+		oldstacksymbol = self.stackTracker.GetStackSymbol()
 		string += "\t\tmove " + treg + "," + self.stackTracker.GetStackSymbol() + "\n"
 
 		self.stackTracker.SetStackSymbol(treg)
@@ -760,9 +763,13 @@ class MipsGenerator:
 		string += self.LoadOntoStack("$s5","$s5")
 		string += self.LoadOntoStack("$s6","$s6")
 		string += self.LoadOntoStack("$s7","$s7")
-
+		string += self.LoadOntoStack("$a0","$a0")
+		string += self.LoadOntoStack("$a1","$a1")
+		string += self.LoadOntoStack("$a2","$a2")
+		string += self.LoadOntoStack("$a3","$a3")
 		string += self.stackTracker.ResetStack()
 		self.registermap.freeRegisterByName("stack")
+		self.stackTracker.SetStackSymbol(oldstacksymbol)
  		# end of epilogue
  		string += "\t\tjr $ra\n" # return
 		return string
@@ -818,7 +825,10 @@ class MipsGenerator:
 		self.stackTracker.SetVariable("$s5",4)
 		self.stackTracker.SetVariable("$s6",4)
 		self.stackTracker.SetVariable("$s7",4)
-
+		self.stackTracker.SetVariable("$a0",4)
+		self.stackTracker.SetVariable("$a1",4)
+		self.stackTracker.SetVariable("$a2",4)
+		self.stackTracker.SetVariable("$a3",4)
 		# store save registers
 
 		# push stack frame 
@@ -839,6 +849,10 @@ class MipsGenerator:
 		string += self.StoreOntoStack("$s5","$s5")
 		string += self.StoreOntoStack("$s6","$s6")
 		string += self.StoreOntoStack("$s7","$s7")
+		string += self.StoreOntoStack("$a0","$a0")
+		string += self.StoreOntoStack("$a1","$a1")
+		string += self.StoreOntoStack("$a2","$a2")
+		string += self.StoreOntoStack("$a3","$a3")
 		sreg = self.registermap.getSavedRegister("stack1")
 		string += self.stackTracker.updateStackSymbol(sreg)
 		self.registermap.freeRegisterByName("stack")
@@ -867,6 +881,10 @@ class MipsGenerator:
 		string += self.LoadOntoStack("$s5","$s5")
 		string += self.LoadOntoStack("$s6","$s6")
 		string += self.LoadOntoStack("$s7","$s7")
+		string += self.LoadOntoStack("$a0","$a0")
+		string += self.LoadOntoStack("$a1","$a1")
+		string += self.LoadOntoStack("$a2","$a2")
+		string += self.LoadOntoStack("$a3","$a3")
 		self.registermap.freeRegisterByName("stack1")
 		self.registermap.freeRegisterByName("stack")
 

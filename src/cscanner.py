@@ -126,7 +126,7 @@ class Scanner():
     graph = open(self.graphfile + ".dot", 'w')
     graph.write(string)
     graph.close()
-    os.system("dot -Tpng " + self.graphfile + ".dot > " + self.graphfile)
+    #os.system("dot -Tpng " + self.graphfile + ".dot > " + self.graphfile)
 
   def scan(self,string):
     self.lexer.input(string)

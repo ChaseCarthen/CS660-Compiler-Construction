@@ -35,7 +35,7 @@ jr $ra
 .globl playsound
 # Play Sound
 playsound:
-la $v0, 33
+la $v0, 31
 syscall
 #move $a0,$a1
 #la $v0,32

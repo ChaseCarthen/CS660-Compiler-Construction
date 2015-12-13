@@ -6,18 +6,34 @@ nl:   .asciiz "\n"
 printint:
   li    $v0, 1
   syscall
+
+  addi $sp,$sp,-4
+  sw $a0, ($sp)
+
   la    $a0, nl
   li    $v0, 4
   syscall
+
+  lw $a0,($sp)
+  addi $sp,$sp,4
+
   jr $ra
 
 .globl printchar
 printchar:
   li    $v0, 11
   syscall
+
+  addi $sp,$sp,-4
+  sw $a0, ($sp)
+
   la    $a0, nl
   li    $v0, 4
   syscall
+
+  lw $a0,($sp)
+  addi $sp,$sp,4
+
   jr $ra
 
 

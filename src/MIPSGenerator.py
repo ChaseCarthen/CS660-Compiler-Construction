@@ -219,7 +219,7 @@ class MipsGenerator:
 			#print reg
 			string += "\t\tli " + tempor + "," + str(val)  + "\n"
 		else:
-			string += "\t\tmove " + tempor + "," + str(val) + "#assig\n"
+			string += "\t\tmove " + tempor + "," + str(val) + "\n"
 
 		#self.stackTracker.SetVariable(dest.type+"_"+dest.name,4)
 		if parameters[2].type == "local" and not parameters[2].type == "indr":
@@ -466,9 +466,11 @@ class MipsGenerator:
 		dest = parameters[2].name
 
 		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-		string += "beq " + value + "," + value2 + "," + dest + "\n"
+		#value = self.registerMap(parameters[0])
+		#value2 = self.registerMap(parameters[1])
+		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
+		string += temp
+		string += "\t\tbeq " + plist[0] + "," + plist[1] + "," + dest + "\n"
 		return string 
 
 	def BRNE(self,parameters):
@@ -753,7 +755,7 @@ class MipsGenerator:
 		self.stackTracker.SetStackSymbol(treg)
 
 		# restore return address
-		string += "#Restoring Stack\n"
+		string += "\n#Restoring Stack\n"
 		string += self.LoadOntoStack("$ra","$ra") 
 		string += self.LoadOntoStack("$s0","$s0")
 		string += self.LoadOntoStack("$s1","$s1")
@@ -770,6 +772,7 @@ class MipsGenerator:
 		string += self.stackTracker.ResetStack()
 		self.registermap.freeRegisterByName("stack")
 		self.stackTracker.SetStackSymbol(oldstacksymbol)
+		string += "#Restoring Stack Complete\n\n"
  		# end of epilogue
  		string += "\t\tjr $ra\n" # return
 		return string
@@ -814,7 +817,7 @@ class MipsGenerator:
 		savedregisters = 0
 
 		# compute space for stack frame -- include space for return address
-		stackspace = function.localcount + savedregisters + 9
+		stackspace = function.localcount + savedregisters + 13
 		self.stackTracker.UpdateStackSize(stackspace*4)
 		self.stackTracker.SetVariable("$ra",4)
 		self.stackTracker.SetVariable("$s0",4)
@@ -839,7 +842,7 @@ class MipsGenerator:
 		string += self.stackTracker.AddToStack(reg[0],True)
 
 		# store the return address
-		string += "#Setting Stack\n"
+		string += "\n#Setting Stack\n"
 		string += self.StoreOntoStack("$ra","$ra")
 		string += self.StoreOntoStack("$s0","$s0")
 		string += self.StoreOntoStack("$s1","$s1")
@@ -856,6 +859,7 @@ class MipsGenerator:
 		sreg = self.registermap.getSavedRegister("stack1")
 		string += self.stackTracker.updateStackSymbol(sreg)
 		self.registermap.freeRegisterByName("stack")
+		string += "#Setting Stack Complete\n\n"
 		
 
 
@@ -871,7 +875,7 @@ class MipsGenerator:
 
 		self.stackTracker.SetStackSymbol(treg)
 		# restore return address
-		string += "#Restoring Stack\n"
+		string += "\n#Restoring Stack\n"
 		string += self.LoadOntoStack("$ra","$ra") 
 		string += self.LoadOntoStack("$s0","$s0")
 		string += self.LoadOntoStack("$s1","$s1")
@@ -887,6 +891,7 @@ class MipsGenerator:
 		string += self.LoadOntoStack("$a3","$a3")
 		self.registermap.freeRegisterByName("stack1")
 		self.registermap.freeRegisterByName("stack")
+		string += "#Restoring Stack Complete\n\n"
 
 		string += self.stackTracker.ResetStack()
  		# end of epilogue

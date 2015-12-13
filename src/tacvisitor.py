@@ -98,8 +98,9 @@ class ThreeAddressCode(NodeVisitor):
     def visit_Type(self,node):
         qualifier = ""
         Type = ""
-        for i in node.qualifier:
-            qualifier += i + " "
+        if node.qualifier:
+            for i in node.qualifier:
+                qualifier += i + " "
 
         for i in node.type:
             Type += i + " "

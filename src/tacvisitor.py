@@ -516,9 +516,9 @@ class ThreeAddressCode(NodeVisitor):
     def visit_XorOp(self,node):
         return self.OPCommand("xor",node)
     def visit_LandOp(self,node):
-        return self.OPCommand("andi",node)
+        return self.OPCommand("Land",node)
     def visit_LorOp(self,node):
-        return self.OPCommand("ori",node)
+        return self.OPCommand("Lor",node)
     def visit_TernaryOp(self,node):
         return None, None
     def visit_NEqualOp(self,node):

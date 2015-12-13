@@ -769,6 +769,7 @@ class MipsGenerator:
 		string += self.LoadOntoStack("$a1","$a1")
 		string += self.LoadOntoStack("$a2","$a2")
 		string += self.LoadOntoStack("$a3","$a3")
+		string += self.LoadOntoStack("$v0","$v0")
 		string += self.stackTracker.ResetStack()
 		self.registermap.freeRegisterByName("stack")
 		self.stackTracker.SetStackSymbol(oldstacksymbol)
@@ -817,7 +818,7 @@ class MipsGenerator:
 		savedregisters = 0
 
 		# compute space for stack frame -- include space for return address
-		stackspace = function.localcount + savedregisters + 13
+		stackspace = function.localcount + savedregisters + 14
 		self.stackTracker.UpdateStackSize(stackspace*4)
 		self.stackTracker.SetVariable("$ra",4)
 		self.stackTracker.SetVariable("$s0",4)
@@ -832,6 +833,7 @@ class MipsGenerator:
 		self.stackTracker.SetVariable("$a1",4)
 		self.stackTracker.SetVariable("$a2",4)
 		self.stackTracker.SetVariable("$a3",4)
+		self.stackTracker.SetVariable("$v0",4)
 		# store save registers
 
 		# push stack frame 
@@ -856,6 +858,7 @@ class MipsGenerator:
 		string += self.StoreOntoStack("$a1","$a1")
 		string += self.StoreOntoStack("$a2","$a2")
 		string += self.StoreOntoStack("$a3","$a3")
+		string += self.StoreOntoStack("$v0","$v0")
 		sreg = self.registermap.getSavedRegister("stack1")
 		string += self.stackTracker.updateStackSymbol(sreg)
 		self.registermap.freeRegisterByName("stack")
@@ -889,6 +892,7 @@ class MipsGenerator:
 		string += self.LoadOntoStack("$a1","$a1")
 		string += self.LoadOntoStack("$a2","$a2")
 		string += self.LoadOntoStack("$a3","$a3")
+		string += self.LoadOntoStack("$v0","$v0")
 		self.registermap.freeRegisterByName("stack1")
 		self.registermap.freeRegisterByName("stack")
 		string += "#Restoring Stack Complete\n\n"

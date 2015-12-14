@@ -252,7 +252,7 @@ class MipsGenerator:
 		reg = self.arguments[0]
 		val = plist[0]
 		#val = self.registerMap(parameters[2])
-		#string += self.StoreOntoStack(reg,reg)
+		string += self.StoreOntoStack(reg,reg)
 		if parameters[2].type == "cons" and not val.startswith('$'):
 			#print reg
 			string += "\t\tli " + reg + "," + str(val)  + "\n"

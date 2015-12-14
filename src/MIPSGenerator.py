@@ -377,22 +377,10 @@ class MipsGenerator:
 
 	def SUB(self,parameters):
 		string = ""
-
-		# figure out destination
-		dest = parameters[2]
-		reg = self.registerMap(dest)
-
-		# Get value
-		value = self.registerMap(parameters[0])
-		value2 = self.registerMap(parameters[1])
-
-		if parameters[0].type == "cons":
-			string += "\t\taddi " + reg + "," + value2 + "," + '-' + value + "\n"
-		elif parameters[1].type == "cons":
-			string += "\t\taddi " + reg + "," + value + "," + '-' + value2 + "\n"
-		else:
-			string += "\t\tsub " + reg + "," + value + "," + value2 + "\n"
-		return string
+		plist,s = self.MagicFunction( ((parameters[0],True),(parameters[1],True), (parameters[2],True)) )
+		string += s
+		string += "\t\tsub " + str(plist[2]) + "," + str(plist[1]) + "," + str(plist[0]) + "\n"
+		return string 
 
 	def MagicFunction(self,parameters,indr=True):
 		string = ""
@@ -487,7 +475,7 @@ class MipsGenerator:
 		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
 		return string 
 
-	def BRNE(self,parameters):
+	def BNE(self,parameters):
 		string = ""
 
 		# figure out destination
@@ -496,7 +484,7 @@ class MipsGenerator:
 		# Get value
 		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
 		string += temp
-		string += "\t\tbrne " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		string += "\t\tbne " + plist[0] + "," + plist[1] + "," + dest + "\n"
 		return string 
 
 	def NE(self,parameters):
@@ -658,6 +646,7 @@ class MipsGenerator:
 		string += temp
 		string += "\t\tand " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
+		string += "\t\txori " + plist[2] + "," + plist[1] + "," + "1\n"
 		return string 
 
 	def LOR(self,parameters):
@@ -668,6 +657,7 @@ class MipsGenerator:
 		string += temp
 		string += "\t\tor " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
+		string += "\t\txori " + plist[2] + "," + plist[1] + "," + "1\n"
 		return string 
 
 	def AND(self,parameters):

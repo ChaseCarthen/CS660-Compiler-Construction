@@ -390,7 +390,7 @@ class ThreeAddressCode(NodeVisitor):
         if(node.cond != None):
             temp, label = self.visit(node.cond)
             string += temp
-        string += self.printTAC("brne",'(cons 0)',label,top,"") 
+        string += self.printTAC("bne",'(cons 0)',label,top,"") 
         return string, None
 
     def visit_AssignOp(self, node):

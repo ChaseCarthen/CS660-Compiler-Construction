@@ -12,7 +12,7 @@ int main()
    //printf("What factorial(n) do you wish to compute (n=): ");
    //scanf("%d", &n);
 
-   printint(iterfact(n));
+   //printint(iterfact(n));
    printint(recurfact(n));
 }
 

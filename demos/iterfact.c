@@ -8,7 +8,7 @@ int iterfact(int n);
 
 int main()
 {
-   int n = 10;
+   int n = 5;
    //printf("What factorial(n) do you wish to compute (n=): ");
    //scanf("%d", &n);
 
@@ -19,13 +19,14 @@ int main()
 
 int recurfact(int n)
 {
-   if (n == 1 || n <= 0)
+   if (n < 2)
    {
       return 1;
    }
    else
    {
-      return n * recurfact(n - 1);
+      //int value = n - 1;
+      return recurfact(n-1) * n;
    }
 }
 

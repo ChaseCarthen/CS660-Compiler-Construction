@@ -252,7 +252,7 @@ class MipsGenerator:
 		reg = self.arguments[0]
 		val = plist[0]
 		#val = self.registerMap(parameters[2])
-		string += self.StoreOntoStack(reg,reg)
+		#string += self.StoreOntoStack(reg,reg)
 		if parameters[2].type == "cons" and not val.startswith('$'):
 			#print reg
 			string += "\t\tli " + reg + "," + str(val)  + "\n"
@@ -381,7 +381,7 @@ class MipsGenerator:
 		string = ""
 		plist,s = self.MagicFunction( ((parameters[0],True),(parameters[1],True), (parameters[2],True)) )
 		string += s
-		string += "\t\tsub " + str(plist[2]) + "," + str(plist[1]) + "," + str(plist[0]) + "\n"
+		string += "\t\tsub " + str(plist[2]) + "," + str(plist[0]) + "," + str(plist[1]) + "\n"
 		return string 
 
 	def MagicFunction(self,parameters,indr=True):
@@ -609,8 +609,8 @@ class MipsGenerator:
 		string += "\t\txor " + plist[2] + "," + plist[1] + "," + plist[0] + "\n"
 		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
 		treg = self.registermap.getTemporaryRegister("GETemp")
-		string += "\t\tslt " + treg + "," + plist[1] + "," + plist[0] + "\n"
-		string += "\t\tand " + plist[2] + "," + plist[2] + "," + treg + "\n"
+		string += "\t\tslt " + treg + "," + plist[1] + "," + plist[0] + "#GETEMP\n"
+		string += "\t\tor " + plist[2] + "," + plist[2] + "," + treg + "\n"
 		self.registermap.freeRegisterByName("GETemp")
 		return string 
 
@@ -628,7 +628,6 @@ class MipsGenerator:
 
 	def LE(self,parameters):
 		string = ""
-
 		# Get value
 		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True), (parameters[2],True) ])
 		string += temp
@@ -636,7 +635,7 @@ class MipsGenerator:
 		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
 		treg = self.registermap.getTemporaryRegister("GETemp")
 		string += "\t\tslt " + treg + "," + plist[0] + "," + plist[1] + "\n"
-		string += "\t\tand " + plist[2] + "," + plist[2] + "," + treg + "\n"
+		string += "\t\tor " + plist[2] + "," + plist[2] + "," + treg + "#LETEMP\n"
 		self.registermap.freeRegisterByName("GETemp")
 		return string 
 
@@ -648,7 +647,7 @@ class MipsGenerator:
 		string += temp
 		string += "\t\tand " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
-		string += "\t\txori " + plist[2] + "," + plist[1] + "," + "1\n"
+		string += "\t\txori " + plist[2] + "," + plist[2] + "," + "1\n"
 		return string 
 
 	def LOR(self,parameters):
@@ -659,7 +658,7 @@ class MipsGenerator:
 		string += temp
 		string += "\t\tor " + plist[2] + "," + plist[0] + "," + plist[1] + "\n"
 		string += "\t\tslti " + plist[2] + "," + plist[2] + "," + "1" + "\n"
-		string += "\t\txori " + plist[2] + "," + plist[1] + "," + "1\n"
+		string += "\t\txori " + plist[2] + "," + plist[2] + "," + "1\n"
 		return string 
 
 	def AND(self,parameters):

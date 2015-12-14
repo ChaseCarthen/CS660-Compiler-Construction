@@ -232,7 +232,7 @@ class MipsGenerator:
 		#self.stackTracker.SetVariable(dest.type+"_"+dest.name,4)
 		if parameters[2].type == "local" and not parameters[2].type == "indr":
 			#raw_input(reg)
-			string += self.StoreOntoStack(tempor,reg)
+			string += self.StoreOntoStack(tempor, parameters[2].type + "_" +parameters[2].name)
 			string += "\t\tmove " + reg + "," + tempor + "\n" 
 		elif parameters[2].modifier == "indr":
 			string += "\t\tsw " + tempor + "," + "(" + reg + ")# indr here" + "\n"
@@ -252,7 +252,8 @@ class MipsGenerator:
 		reg = self.arguments[0]
 		val = plist[0]
 		#val = self.registerMap(parameters[2])
-		string += self.StoreOntoStack(reg,reg)
+		if parameters[2].type == "local":
+			string += self.StoreOntoStack(reg,parameters[2].type+ "_" + parameters[2].name)
 		if parameters[2].type == "cons" and not val.startswith('$'):
 			#print reg
 			string += "\t\tli " + reg + "," + str(val)  + "\n"
@@ -870,6 +871,9 @@ class MipsGenerator:
 		self.stackTracker.SetVariable("$a1",4)
 		self.stackTracker.SetVariable("$a2",4)
 		self.stackTracker.SetVariable("$a3",4)
+
+		for i in range(function.localcount):
+			self.stackTracker.SetVariable("local_" + str(i),4)
 		# store save registers
 
 		# push stack frame 

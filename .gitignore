@@ -22,3 +22,4 @@ testtest.s
 input.file
 input.asm
 log/tokenfile.log
+*.asm

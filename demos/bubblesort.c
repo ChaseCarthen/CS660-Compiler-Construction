@@ -37,18 +37,13 @@ int main()
 
         // Swap with dummy
         temp = arr[i];
-        temp_2 = arr[j];
-        //arr[i] = arr[j];
-        //arr[j] = temp;
-        //printint(2000);
-        //printint(temp);
-        //printint(temp_2);
-        //printint(2000);
+        arr[i] = arr[j];
+        arr[j] = temp;
 
         // Swap with math
-        arr[j] = arr[j] - arr[i];
-        arr[i] = arr[j] + arr[i];
-        arr[j] = arr[i] - arr[j];
+        //arr[j] = arr[j] - arr[i];
+        //arr[i] = arr[j] + arr[i];
+        //arr[j] = arr[i] - arr[j];
       }
     }
   }

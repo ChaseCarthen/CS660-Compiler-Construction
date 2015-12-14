@@ -379,7 +379,7 @@ class MipsGenerator:
 		string = ""
 		plist,s = self.MagicFunction( ((parameters[0],True),(parameters[1],True), (parameters[2],True)) )
 		string += s
-		string += "\t\tsub " + str(plist[2]) + "," + str(plist[1]) + "," + str(plist[0]) + "\n"
+		string += "\t\tsub " + str(plist[2]) + "," + str(plist[0]) + "," + str(plist[1]) + "\n"
 		return string 
 
 	def MagicFunction(self,parameters,indr=True):

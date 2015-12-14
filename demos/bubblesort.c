@@ -1,61 +1,73 @@
-// This function will do a bubble sort on a list of ints.
-void bubblesort(int* list, int size);
 
-// A generic swap function using pointers.. I assuming references will be passed in
-void swap(int* a, int* b);
+//void swap(int *s, int *d);
 
-int main()
+int main() 
 {
-   // I have programed a static value, but this can be easily changed.
-   int a[20];
+  int arr[10];
+  int i, j;
+  int index;
+  int temp;
+  int temp_2;
 
-   //  Iterate through and create random numbers that are between 0 and 1000.
-   int i = 0;
-   for (i = 0; i < 20; i++)
-   {
-      a[i] = i;
-   }
 
-   // sort the list 
-   bubblesort(a, 20);
+  arr[0] = 45;
+  arr[1] = 20;
+  arr[2] = 10;
+  arr[3] = 654;
+  arr[4] = 78;
+  arr[5] = 124;
+  arr[6] = 678;
+  arr[7] = 4;
+  arr[8] = 13;
+  arr[9] = 35;
+  
 
-   return 0;
+  for(index = 0; index < 10; index++) {
+    printint(arr[index]);
+  }
+  
+  for(i = 0; i < 10; i++)
+  {
+    for(j = i+1; j < 10; j++)
+    {
+      if(arr[i] > arr[j]) 
+      {
+        // Swap function
+        //swap(&arr[i], &arr[j]);
+
+        // Swap with dummy
+        temp = arr[i];
+        temp_2 = arr[j];
+        //arr[i] = arr[j];
+        //arr[j] = temp;
+        //printint(2000);
+        //printint(temp);
+        //printint(temp_2);
+        //printint(2000);
+
+        // Swap with math
+        arr[j] = arr[j] - arr[i];
+        arr[i] = arr[j] + arr[i];
+        arr[j] = arr[i] - arr[j];
+      }
+    }
+  }
+
+  printint(0);
+  printint(0);
+  printint(0);
+  for(index = 0; index < 10; index++) {
+    printint(arr[index]);
+  }
+
+  return 0;
 }
 
-void bubblesort(int* list, int size)
+/*
+void swap(int *s, int *d)
 {
-   int i = 0;
-   int j = 0;
-   for (i = 0; i < size; i++)
-   {
-      int min = 10000000;
-      int minindex = -1;
-
-      for (j = i; j < size; j++ )
-      {
-         // I know that I could do my swapping here.
-         if (list[j] < min)
-         {
-            minindex = j;
-            min = list[j];
-         }
-      }
-
-      // swap the min -- but I am doing it here
-      if (minindex != -1)
-      {
-         int temp = list[i];
-         list[i] = list[minindex];
-         list[minindex] = temp;
-      }
-         //swap(&list[i], &list[minindex]);
-   }
+  int temp = *d;
+  *d = *s;
+  *s = temp;
 }
-
-/*void swap(int* a, int* b)
-{
-   // swapping values, but not pointers.
-   int temp = *a;
-   *a = *b;
-   *b = temp;
-}*/
+*/

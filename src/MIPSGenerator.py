@@ -496,7 +496,7 @@ class MipsGenerator:
 		# Get value
 		plist,temp = self.MagicFunction([ (parameters[0],True), (parameters[1],True) ])
 		string += temp
-		string += "\t\tbrne " + plist[0] + "," + plist[1] + "," + dest + "\n"
+		string += "\t\tbne " + plist[0] + "," + plist[1] + "," + dest + "\n"
 		return string 
 
 	def NE(self,parameters):

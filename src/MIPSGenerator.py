@@ -213,6 +213,8 @@ class MipsGenerator:
 		reg = plist[1]
 		val = plist[0]
 
+		if parameters[0].modifier == "indr":
+			string += "\t\tlw " + val + "," + "(" + val + ")# load indr here" + "\n"
 
 		string += temp
 

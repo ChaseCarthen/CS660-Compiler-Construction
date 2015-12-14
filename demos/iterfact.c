@@ -8,12 +8,12 @@ int iterfact(int n);
 
 int main()
 {
-   int n;
+   int n = 10;
    //printf("What factorial(n) do you wish to compute (n=): ");
    //scanf("%d", &n);
 
-   iterfact(n);
-   recurfact(n);
+   printint(iterfact(n));
+   printint(recurfact(n));
 }
 
 

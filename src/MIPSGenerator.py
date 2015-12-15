@@ -168,7 +168,7 @@ class MipsGenerator:
 		elif variable.type == "glob":
 			pass
 		reg = self.registermap.getTemporaryRegister(check)
-		if "i_" in variable.name or variable.type == "cons":
+		if "i_" in variable.name or variable.type == "cons" or "save_" in variable.name:
 			self.registermap.InsertIntoRecentMap(reg)
 		
 
@@ -212,6 +212,7 @@ class MipsGenerator:
 
 		reg = plist[1]
 		val = plist[0]
+
 
 		if parameters[0].modifier == "indr":
 			string += "\t\tlw " + val + "," + "(" + val + ")# load indr here" + "\n"
@@ -389,9 +390,42 @@ class MipsGenerator:
 		string = ""
 		parameterlist = []
 		freelist = []
+
 		for params in parameters:
+
 			force = params[1]
 			i = params[0]
+
+			#if self.stackTracker.saved and self.stackTracker.GetSaveName() == i.name:
+			#	reg = self.registerMap(i)
+			#	string += "\t\tlw " +reg + "," + "($sp) # BLAD\n"
+			#	string += self.stackTracker.PopOffStack()
+			#	parameterlist.append(reg)
+			#	raw_input("HERE")
+			#	self.stackTracker.SetSaved(False)
+
+			# Got to love this patch that uses a save_ keyword for storing stuff onto stack temporaily
+			if not indr and "save_" in i.name:
+				if self.Frequency["_"+i.name] > 1:
+					string += self.stackTracker.PushOntoStack()
+					
+					reg = self.registerMap(i,True)
+
+					parameterlist.append(reg)
+				else:
+					#i.type = "reg"
+					parameterlist.append("$v0")
+				continue
+			elif "save_" in i.name:
+				reg = self.registerMap(i,True)
+				#reg = self.registermap.getTemporaryRegister("$test")
+				string += "\t\tlw " +reg + "," + "($sp)\n"
+				if self.Frequency["_"+i.name] == 0:
+					string += self.stackTracker.PopOffStack()
+				#self.registermap.freeRegisterByName("$test")
+				parameterlist.append(reg)
+				continue
+
 			if i.name == "$v0":
 				i.type = "reg"
 				parameterlist.append(i.name)
@@ -841,7 +875,17 @@ class MipsGenerator:
 		string += "\t\tmove " + plist[1] + "," + plist[0] + "# ADDR HERE\n"
 
 		return string
-
+	def CheckSave(self,params):
+		string = ""
+		if "save_" in params[0].name and "save_" in params[1].name:
+			# Store onto stack
+			self.stackTracker.SetSaveName(params[2].name)
+			string += self.stackTracker.PushOntoStack()
+			self.stackTracker.SetSaved(True)
+			#print "\t\tsw " + self.variableMap["_"+params[2].name] + ",($sp)\n"
+			string += "\t\tsw " + self.variableMap["_"+params[2].name] + ",($sp)# APPLE HERE\n"
+			return string
+		return ""
 	def FUNCTION(self,function):
 		reg = self.registermap.getTemporaryRegister("stack")
 		self.stackTracker.SetStackSymbol(reg)
@@ -906,8 +950,9 @@ class MipsGenerator:
 
 
 		# Lets go through the statements
-		for i in function.statements:			
+		for i in function.statements:
 			string += self.call(i.name,i.params())
+			#string += self.CheckSave(i.params())
 			self.MarkForRemove(i.params())
 
 		# restore save registers

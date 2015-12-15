@@ -14,7 +14,7 @@ class ThreeAddressCode(NodeVisitor):
     inttemp = TicketCounter("i_")
     localticket = TicketCounter("l_")
     labelticket = TicketCounter("label_")
-
+    saveticket = TicketCounter("save_")
     def __init__(self, code):
         self.local = False # If this this is true we are in a local scope
         #self.globals = {}
@@ -414,8 +414,12 @@ class ThreeAddressCode(NodeVisitor):
             else:
                 string += self.printTAC("valout ", "_", "_", label) 
             
-        string += self.printTAC("funccall","_","_",self.compressedTAC("glob",node.name))      
-        return string, "$v0"
+        string += self.printTAC("funccall","_","_",self.compressedTAC("glob",node.name)) 
+        temp = "$v0"
+        if "int" in node.type.type or "float" in node.type.type: 
+            temp = self.saveticket.GetNextTicket()
+            string += self.printTAC("assign","$v0","_",temp)
+        return string, temp
 
     def visit_EmptyStatement(self,node):
         return "", ""
@@ -487,10 +491,12 @@ class ThreeAddressCode(NodeVisitor):
     def visit_Return(self,node):
         string = ""
 
-        if node.expr != node:
+        if node.expr != None and node.expr != node:
             exprstring, exprlabel = self.visit(node.expr)
             string += exprstring
             string += self.printTAC("return","_","_",exprlabel,node.text,node.lines)
+        else:
+            string += self.printTAC("return","_","_","_",node.text,node.lines)
         #string += self.printTAC("return") + "\n"
 
         return string,""

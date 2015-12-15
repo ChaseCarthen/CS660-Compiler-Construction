@@ -6,6 +6,14 @@ class StackTracker:
 		self.offset = 0
 		self.extra = []
 		self.stacksymbol = "$s0"
+		self.saved = False
+		self.savename = ""
+	def SetSaved(self,save):
+		self.saved = save
+	def GetSaveName(self):
+		return self.savename
+	def SetSaveName(self,name):
+		self.savename = name
 	def SetStackSymbol(self,symbol):
 		self.stacksymbol = symbol
 	def AddToStack(self,reg,beginning=False):
@@ -52,3 +60,11 @@ class StackTracker:
 		self.size = 0
 		self.offset = 0
 		del self.extra[:]
+	# This will always be $v0 -- This could be used for arrays in the future
+	def PushOntoStack(self):
+		string = "\t\taddiu $sp,$sp,-4\n"
+		string += "\t\tsw $v0,($sp)\n"
+		return string
+	def PopOffStack(self):
+		string = "\t\taddiu $sp,$sp,4\n"
+		return string

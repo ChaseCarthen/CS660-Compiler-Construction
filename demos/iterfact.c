@@ -18,7 +18,7 @@ int recurfact(int n)
    }
    else
    {
-      return recurfact(n-1) * n;
+      return n *recurfact(n-1);
    }
 }
 
@@ -28,7 +28,7 @@ int iterfact(int n)
    int i = 1;
    for(i = 2; i <= n; i++)
    {
-      printint(10);
+      //printint(10);
       product = product * i;
    }
    return product;

@@ -43,7 +43,7 @@ class RegisterAllocation(object):
       if not self.registers[index] and not self.temporary[index] in self.recentmap:
         self.registers[index] = name
         return self.temporary[index]
-
+    print self.registers
     return 0
   # Get the next saved register
   def getSavedRegister(self, name):

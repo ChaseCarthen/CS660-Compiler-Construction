@@ -38,7 +38,7 @@ printchar:
 
   lw $a0, ($sp)
   lw $v0, 4($sp)
-  addi $sp,$sp,4
+  addi $sp,$sp,8
 
   jr $ra
 

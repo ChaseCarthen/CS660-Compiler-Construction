@@ -1000,11 +1000,13 @@ class MipsGenerator:
 	def Parse(self,string):
 		Global,functions = self.TacSplit(string)
 		Global,functions = self.ConstructData(functions,Global)
-
+		string = ""
+		for i in Global:
+			string += self.call(i.name,i.params())
 		Funcs = {}
 		for function in functions:
 			Funcs[function.name] = self.call("function",function) + "\n"
-		string = Funcs["main"]
+		string += Funcs["main"]
 
 		del Funcs["main"]
 
@@ -1019,9 +1021,11 @@ class MipsGenerator:
 	def Instructionize(self,li):
 		return map(Instruction,li)
 	def ConstructData(self,functions,Globals):
-		if Globals[0][0] != '':
+		if len(Globals) != 0:
 			Globals = map(Instruction,Globals)
 		functions = map(Function,functions)
+		print Globals
+		raw_input("HERE")
 		return Globals,functions
 
 	def TacSplit(self,string):
@@ -1052,7 +1056,7 @@ class MipsGenerator:
 				functionlist.append(map(str.strip,stringstmt.split(",")))
 			functions.append(functionlist)
 
-		Globals = [['']]
+		Globals = []
 		for i in globalstatements:
 			b = i.split(",")
 			Globals.append(map(str.strip,b))

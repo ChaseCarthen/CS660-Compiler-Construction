@@ -121,7 +121,8 @@ class ThreeAddressCode(NodeVisitor):
         name = node.name
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(1)) # hard codeness
+            string += self.printTAC("global",name," ",str(4)) # hard codeness
+            return string,self.compressedTAC(op,name)
         else:
             op = "local"
             # Create a local counter
@@ -239,9 +240,18 @@ class ThreeAddressCode(NodeVisitor):
         assignOP = ""
         string = ""
         name = node.name
+
+        TypeOut,variable = self.visit(node.type)
+        print variable
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(1)) # hard codeness
+            #dims = map(int,node.dim)
+            prod = 1
+            for i in node.dim:
+                prod *= int(i.value)
+
+            string += self.printTAC("global",name,"_",str(prod*self.offset[variable])) # hard codeness
+            return string,self.compressedTAC(op,name)
         else:
             op = "local"
             # Create a local counter
@@ -250,8 +260,7 @@ class ThreeAddressCode(NodeVisitor):
             self.localcount += 1
             self.insertVariable(previousname,name)
         
-        TypeOut,variable = self.visit(node.type)
-        print variable
+
         #Type = TypeOut[0]
         #Qual = TypeOut[1]
         #string += TypeOut
@@ -282,6 +291,9 @@ class ThreeAddressCode(NodeVisitor):
     def visit_ArrRef(self, node):
         #print "ARRREF"
         variableName = self.searchForVariable(node.name)
+        if "glob" in variableName:
+            variableName = self.compressedTAC("arrglob",node.name)
+
         subscripts = []
         dims = []
         string = ""
@@ -443,7 +455,8 @@ class ThreeAddressCode(NodeVisitor):
         name = node.name
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(1)) # hard codeness
+            string += self.printTAC("global",name," ",str(4)) # hard codeness
+            return string,self.compressedTAC(op,name)
         else:
             op = "local"
             # Create a local counter
@@ -577,7 +590,8 @@ class ThreeAddressCode(NodeVisitor):
         name = node.name
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(1)) # hard codeness
+            string += self.printTAC("global",name,"_",str(4)) # hard codeness
+            return string,self.compressedTAC(op,name)
         else:
             op = "local"
             # Create a local counter
@@ -603,11 +617,13 @@ class ThreeAddressCode(NodeVisitor):
 
     # StructRef: [name,field*,offset,type]
     def visit_StructRef(self,node):
-        print "STRUCT REF"
+        #print "STRUCT REF"
         op = ""
         assignOP = ""
         string = ""
         name = variableName = self.searchForVariable(node.name)
+        if "glob" in name:
+            name = variableName = self.compressedTAC("compressedTAC",node.name)
 
         fieldstring, fieldvalue = self.visit(node.field)
         

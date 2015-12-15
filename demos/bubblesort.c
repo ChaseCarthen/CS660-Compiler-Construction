@@ -1,5 +1,5 @@
 
-//void swap(int *s, int *d);
+void swap(int *s, int *d);
 
 int main() 
 {
@@ -33,12 +33,12 @@ int main()
       if(arr[i] > arr[j]) 
       {
         // Swap function
-        //swap(&arr[i], &arr[j]);
+        swap(&arr[i], &arr[j]);
 
         // Swap with dummy
-        temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
+        //temp = arr[i];
+        //arr[i] = arr[j];
+        //arr[j] = temp;
 
         // Swap with math
         //arr[j] = arr[j] - arr[i];
@@ -58,11 +58,11 @@ int main()
   return 0;
 }
 
-/*
+
 void swap(int *s, int *d)
 {
   int temp = *d;
   *d = *s;
   *s = temp;
 }
-*/
+

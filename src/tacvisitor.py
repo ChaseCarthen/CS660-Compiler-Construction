@@ -278,7 +278,7 @@ class ThreeAddressCode(NodeVisitor):
             newlabel = self.inttemp.GetNextTicket()
             string += self.printTAC("mult",dim,label,newlabel)
             dim = newlabel
-            
+        
         string += self.printTAC("array",dim,"-",self.compressedTAC(op,name),node.text,node.lines) 
         #string += self.printTAC("assign",initvalue,"-",self.compressedTAC(op,name),node.text,node.lines) 
 
@@ -298,13 +298,14 @@ class ThreeAddressCode(NodeVisitor):
         for i in node.subscript:
             temp, label = self.visit(i)
             string += temp
-            print label
             subscripts.append(label)
+            string += strings
 
         for i in node.dim:
             temp, label = self.visit(i)
             string += temp
             dims.append(label)
+            string += strings
 
         # Gets the base address to a temp
         baseAddress = self.inttemp.GetNextTicket()

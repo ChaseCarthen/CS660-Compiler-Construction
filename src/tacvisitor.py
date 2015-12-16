@@ -235,14 +235,12 @@ class ThreeAddressCode(NodeVisitor):
 
     #ArrDecl: [name,type*,init*,dim**] {}
     def visit_ArrDecl(self,node):
-        print "ARRDECL"
         op = ""
         assignOP = ""
         string = ""
         name = node.name
 
         TypeOut,variable = self.visit(node.type)
-        print variable
         if not self.local:
             op = "glob"
             #dims = map(int,node.dim)
@@ -583,7 +581,6 @@ class ThreeAddressCode(NodeVisitor):
         return self.UnaryOp("neg",node)
 
     def visit_Struct(self,node):
-        print "STRUCT"
         op = ""
         assignOP = ""
         string = ""
@@ -612,7 +609,6 @@ class ThreeAddressCode(NodeVisitor):
         return string,self.compressedTAC(op,name)
     def visit_StructDecl(self,node):
         self.offset[node.name] = node.size
-        print "STRUCT DECL"
         return "",node.name
 
     # StructRef: [name,field*,offset,type]

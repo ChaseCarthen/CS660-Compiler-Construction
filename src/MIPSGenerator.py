@@ -160,7 +160,8 @@ class MipsGenerator:
 			if check in self.Frequency and self.Frequency[check] <= 0:
 				del self.variableMap[check]
 				self.registermap.freeRegisterByName(check)
-			variable.type = "reg"
+			if variable.type != "local" and variable.type != "glob" and variable.type != "arrglob":
+				variable.type = "reg"
 			if "i_" in variable.name:
 				self.registermap.InsertIntoRecentMap(value)
 			return value
@@ -198,7 +199,8 @@ class MipsGenerator:
 
 		if variable.type != "cons":
 			self.variableMap[check] = reg
-		variable.type = "reg"
+		if variable.type != "local" and variable.type != "glob" and variable.type != "arrglob":
+			variable.type = "reg"
 		#print self.Frequency
 		if check in self.Frequency:
 			#print check
@@ -221,6 +223,7 @@ class MipsGenerator:
 		print "test"
 
 	def ASSIGN(self,parameters):
+		print "ASSIGN"
 		string = "#assign \n"
 		# figure out destination
 		dest = parameters[2]
@@ -265,6 +268,7 @@ class MipsGenerator:
 		if parameters[2].type == "local" and not parameters[2].type == "indr":
 			#raw_input(reg)
 			#raw_input("TEST")
+			print parameters[2].type,parameters[2].name
 			string += self.StoreOntoStack(tempor, parameters[2].type + "_" +parameters[2].name)
 			string += "\t\tmove " + reg + "," + tempor + "\n"
 		elif parameters[2].type == "glob" and not parameters[2].type == "indr":
@@ -277,10 +281,6 @@ class MipsGenerator:
 			string += "\t\tmove " + reg + "," + tempor + "\n"
 
 		# make the assignment happen
-		#string += "\t\tsw " + reg + ","+ str(self.stackTracker.GetVariable(dest.type+"_"+dest.name)) + "($sp)"+ "\n"
-		#if ty == "glob" and ty2 == "glob":
-		#	string += "\t\tla " + tempor + ", GLOBAL_" + parameters[2].name + "\n"
-		#	string += "\t\tsw " + reg + ",(" + tempor + ")\n"
 		if ty == "glob":
 			#raw_input("HERE")
 			regs = self.registermap.getTemporaryRegister("ss")
@@ -288,8 +288,6 @@ class MipsGenerator:
 			string += "\t\tsw " + reg + ",(" + regs + ") # glob\n"
 			self.registermap.freeRegisterByName("ss")
 		self.registermap.freeRegisterByName("test")
-		#elif ty2 == "glob":
-		#	string += "\t\tlw " + val + ",(" + val + ")\n" 
 		return string
 
 	def VALOUT(self,parameters):
@@ -1061,9 +1059,16 @@ class MipsGenerator:
 		Global,functions = self.TacSplit(string)
 		Global,functions = self.ConstructData(functions,Global)
 		string = ".data\n"
+		after = ""
+
 		for i in Global:
-			string += self.call(i.name,i.params())
+			if i.name == "global":
+				string += self.call(i.name,i.params())
+			else:
+				after += self.call(i.name,i.params())
 		string += "\n.text\n"
+		string += after
+
 		Funcs = {}
 		for function in functions:
 			Funcs[function.name] = self.call("function",function) + "\n"

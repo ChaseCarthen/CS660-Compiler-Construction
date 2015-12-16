@@ -77,11 +77,12 @@ class Parser(Scanner):
             p[0] = PtrRef(p[1].name,Type(node.GetType(),[],[]),p[3])
         elif type(p[1]) != type(ArrRef(None, None, None, None)):
             node = self.symbol_table.Retrieve(p[1].name)
-            if type(node) != type(ArrayNode()):
+            if type(node) != ArrayNode or type(node) != StructRef:
                 print "ERROR: Bad Type at line number: " + str(p.lineno(1))
-                print p[1].GetType().type
+                print p[1].type.type
+                print type(p[1])
                 print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
-                sys.exit()
+                #sys.exit()
 
             # ArrRef: [name,subscript*,type*,dim**]
             typenode = Type([],[],[])

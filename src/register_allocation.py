@@ -29,8 +29,8 @@ class RegisterAllocation(object):
       self.saved[i] = "$s"+str(i-16)
     for i in range(8,16):
       self.temporary[i] =  "$t" + str(i-8)
-    self.temporary[24] = "$t" + str(24)
-    self.temporary[25] = "$t" + str(25)
+    self.temporary[24] = "$" + str(24)
+    self.temporary[25] = "$" + str(25)
     self.recentmap = []
 
   def ClearRecentMap(self):
@@ -70,7 +70,11 @@ class RegisterAllocation(object):
         return index
 
     return 0
-
+  # we will free s1
+  def freeASavedRegister(self):
+    name = self.registers[saved[1]]
+    self.freeRegisterByName(name)
+    return name
   def freeRegisterByValue(self, item):
     for index, value in self.registers.items():
       if value == item:

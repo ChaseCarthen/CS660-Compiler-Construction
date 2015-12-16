@@ -96,25 +96,28 @@ class MipsGenerator:
 		fixedsize = str(self.stackTracker.GetFixedStackSize())
 		stacksymbol = self.stackTracker.GetStackSymbol()
 
-		plist, temp = self.MagicFunction([(Variable(["tempor"]),True)])
-		string += temp
-		string += "\t\taddiu " + plist[0] + "," + stacksymbol + ",-" + fixedsize + "\n"
-		string += "\t\taddiu " + plist[0] + "," + plist[0] + "," + offset + "\n"
-		string += "\t\taddu " + plist[0] + ",$sp,"+plist[0] + "\n"
-		return plist[0],string
+		#plist, temp = self.MagicFunction([(Variable(["tempor"]),True)])
+		treg = self.registermap.getTemporaryRegister("ss")
+		#raw_input(stacksymbol + "_" + treg)
+		#string += temp
+		string += "\t\taddiu " + treg + "," + stacksymbol + ",-" + fixedsize + "\n"
+		string += "\t\taddiu " + treg + "," + treg + "," + offset + "\n"
+		string += "\t\taddu " + treg + ",$sp,"+treg + "\n"
+		self.registermap.freeRegisterByName("ss")
+		return treg,string
 		# addi temp reg, stack symbol, -size
 		# addi temp reg, temp reg, -offset
 		# add temp reg, $sp, temp reg
 	def MarkForRemove(self,parameters):
-		if parameters[0].type == "local" or parameters[0].type == "glob":
+		if parameters[0].type == "local" or parameters[0].type == "glob" or parameters[0].type == "arrglob":
 			self.removeList.append(parameters[0].type + "_" + parameters[0].name)
 		else:
 			self.removeList.append(parameters[0].name)
-		if parameters[1].type == "local" or parameters[1].type == "glob":
+		if parameters[1].type == "local" or parameters[1].type == "glob" or parameters[1].type == "arrglob":
 			self.removeList.append(parameters[1].type + "_" + parameters[1].name)
 		else:
 			self.removeList.append(parameters[0].name)
-		if parameters[2].type == "local" or parameters[2].type == "glob":
+		if parameters[2].type == "local" or parameters[2].type == "glob" or parameters[2].type == "arrglob":
 			self.removeList.append(parameters[2].type + "_" + parameters[2].name)
 		else:
 			self.removeList.append(parameters[2].name)
@@ -157,16 +160,38 @@ class MipsGenerator:
 			if check in self.Frequency and self.Frequency[check] <= 0:
 				del self.variableMap[check]
 				self.registermap.freeRegisterByName(check)
-			variable.type = "reg"
+			if variable.type != "local" and variable.type != "glob" and variable.type != "arrglob":
+				variable.type = "reg"
 			if "i_" in variable.name:
 				self.registermap.InsertIntoRecentMap(value)
 			return value
 		elif variable.type == "local":
 			reg = self.registermap.getSavedRegister(check)
+			if reg == 0:
+				# shot one of the saved registers
+				name = self.registermap.freeASavedRegister()
+				self.variableMap[name] = None
+				reg = self.registermap.getSavedRegister(check)
 			self.variableMap["local_" + variable.name] = reg
 			return reg
 		elif variable.type == "glob":
-			pass
+			reg = self.registermap.getSavedRegister(check)
+			if reg == 0:
+				# shot one of the saved registers
+				name = self.registermap.freeASavedRegister()
+				self.variableMap[name] = None
+				reg = self.registermap.getSavedRegister(check)
+			self.variableMap["glob_" + variable.name] = reg
+			return reg
+		elif variable.type == "arrglob":
+			reg = self.registermap.getSavedRegister(check)
+			if reg == 0:
+				# shot one of the saved registers
+				name = self.registermap.freeASavedRegister()
+				self.variableMap[name] = None
+				reg = self.registermap.getSavedRegister(check)
+			self.variableMap["arrglob_" + variable.name] = reg
+			return reg
 		reg = self.registermap.getTemporaryRegister(check)
 		if "i_" in variable.name or variable.type == "cons" or "save_" in variable.name:
 			self.registermap.InsertIntoRecentMap(reg)
@@ -174,7 +199,8 @@ class MipsGenerator:
 
 		if variable.type != "cons":
 			self.variableMap[check] = reg
-		variable.type = "reg"
+		if variable.type != "local" and variable.type != "glob" and variable.type != "arrglob":
+			variable.type = "reg"
 		#print self.Frequency
 		if check in self.Frequency:
 			#print check
@@ -200,8 +226,7 @@ class MipsGenerator:
 		print "test"
 
 	def ASSIGN(self,parameters):
-
-		string = "#assign \n"
+		string = "# Assign Began\n"
 		# figure out destination
 		dest = parameters[2]
 
@@ -211,7 +236,9 @@ class MipsGenerator:
 		value = parameters[0]
 
 		#val = self.registerMap(value)
-
+		ty = parameters[2].type
+		ty2 = parameters[0].type
+		tempor = self.registermap.getTemporaryRegister("test")
 		plist, temp = self.MagicFunction(  [(parameters[0],False), (parameters[2],False) ],False )
 
 		reg = plist[1]
@@ -223,9 +250,14 @@ class MipsGenerator:
 
 		string += temp
 
-		tempor,temp = self.MagicFunction([( Variable(["temp"]), True) ])
-		tempor = tempor[0]
-		string += temp
+
+		
+		if tempor == reg:
+			print "SCARY"
+		#tempor = tempor[0]
+		#string += temp
+
+
 
 		# Loading constants
 		if value.type == "" or value.type == "cons" or value.type == "char":
@@ -237,8 +269,12 @@ class MipsGenerator:
 		#self.stackTracker.SetVariable(dest.type+"_"+dest.name,4)
 		if parameters[2].type == "local" and not parameters[2].type == "indr":
 			#raw_input(reg)
+			#raw_input("TEST")
 			string += self.StoreOntoStack(tempor, parameters[2].type + "_" +parameters[2].name)
-			string += "\t\tmove " + reg + "," + tempor + "\n" 
+			string += "\t\tmove " + reg + "," + tempor + "\n"
+		elif parameters[2].type == "glob" and not parameters[2].type == "indr":
+			string += "\t\tmove " + reg + "," + tempor + "\n"
+			string += "\t\t" 
 		elif parameters[2].modifier == "indr":
 			string += "\t\tsw " + tempor + "," + "(" + reg + ")# indr here" + "\n"
 			string += "\t\tmove " + reg + "," + tempor + "\n"
@@ -246,19 +282,27 @@ class MipsGenerator:
 			string += "\t\tmove " + reg + "," + tempor + "\n"
 
 		# make the assignment happen
-		#string += "\t\tsw " + reg + ","+ str(self.stackTracker.GetVariable(dest.type+"_"+dest.name)) + "($sp)"+ "\n"
+		if ty == "glob":
+			#raw_input("HERE")
+			regs = self.registermap.getTemporaryRegister("ss")
+			string += "\t\tla " + regs + ", GLOBAL_" + parameters[2].name + " # glob \n" 
+			string += "\t\tsw " + reg + ",(" + regs + ") # glob\n"
+			self.registermap.freeRegisterByName("ss")
+		self.registermap.freeRegisterByName("test")
 
+		string += "# Assign Ends\n"
 		return string
 
 	def VALOUT(self,parameters):
-		string = ""
-		string = ""
-		plist,string = self.MagicFunction( [ ( parameters[2] ,True)  ] )
+		string = "# VALOUT Began\n"
+		plist,temp = self.MagicFunction( [ ( parameters[2] ,True)  ] )
+		string += temp
 		reg = self.arguments[0]
 		val = plist[0]
 		#val = self.registerMap(parameters[2])
 		if parameters[2].type == "local":
-			string += self.StoreOntoStack(reg,parameters[2].type+ "_" + parameters[2].name)
+			print "Assign", reg
+			string += self.LoadFromStack(reg,parameters[2].type+ "_" + parameters[2].name)
 		if parameters[2].type == "cons" and not val.startswith('$'):
 			#print reg
 			string += "\t\tli " + reg + "," + str(val)  + "\n"
@@ -266,9 +310,12 @@ class MipsGenerator:
 			#print reg
 			string += "\t\tli " + reg + ',' + str(val)  + '\n'	
 		else:
+			
 			string += "\t\tmove " + reg + "," + str(val) + "\n"
 
 		del self.arguments[0]
+
+		string += "# VALOUT End\n"
 		return string
 	def REFOUT(self,parameters):
 		string = ""
@@ -448,10 +495,19 @@ class MipsGenerator:
 			else:
 				#freelist.append(i.type + "_" + i.name)
 				#i.type = 'reg'
+				ty = i.type
 				reg = self.registerMap(i)
-				if i.modifier == "indr" and indr:
+				if ty == "glob" and i.modifier != "indr":
+					#raw_input("HERE")
+					string += "\t\tla " + reg + ",GLOBAL_" + i.name + "\n"
+					string += "\t\tlw " + reg + ",(" + reg + ")\n"
+				elif ty == "arrglob":
+					#raw_input("INDR")
+					string += "\t\tla " + reg + ",GLOBAL_" + i.name + "#ARRGLOB\n"
+				if i.modifier == "indr" and indr and ty != "glob" and ty != "arrglob":
 					string += "\t\tlw " + reg + "," + "(" + reg + ")# load indr here" + "\n"
 					#raw_input("LOADING")
+
 				parameterlist.append(reg)
 		for free in freelist:
 			self.registermap.freeRegisterByName(free)
@@ -833,19 +889,19 @@ class MipsGenerator:
 
 		# restore return address
 		string += "\n#Restoring Stack\n"
-		string += self.LoadOntoStack("$ra","$ra") 
-		string += self.LoadOntoStack("$s0","$s0")
-		string += self.LoadOntoStack("$s1","$s1")
-		string += self.LoadOntoStack("$s2","$s2")
-		string += self.LoadOntoStack("$s3","$s3")
-		string += self.LoadOntoStack("$s4","$s4")
-		string += self.LoadOntoStack("$s5","$s5")
-		string += self.LoadOntoStack("$s6","$s6")
-		string += self.LoadOntoStack("$s7","$s7")
-		string += self.LoadOntoStack("$a0","$a0")
-		string += self.LoadOntoStack("$a1","$a1")
-		string += self.LoadOntoStack("$a2","$a2")
-		string += self.LoadOntoStack("$a3","$a3")
+		string += self.LoadFromStack("$ra","$ra") 
+		string += self.LoadFromStack("$s0","$s0")
+		string += self.LoadFromStack("$s1","$s1")
+		string += self.LoadFromStack("$s2","$s2")
+		string += self.LoadFromStack("$s3","$s3")
+		string += self.LoadFromStack("$s4","$s4")
+		string += self.LoadFromStack("$s5","$s5")
+		string += self.LoadFromStack("$s6","$s6")
+		string += self.LoadFromStack("$s7","$s7")
+		string += self.LoadFromStack("$a0","$a0")
+		string += self.LoadFromStack("$a1","$a1")
+		string += self.LoadFromStack("$a2","$a2")
+		string += self.LoadFromStack("$a3","$a3")
 		string += self.stackTracker.ResetStack()
 		self.registermap.freeRegisterByName("stack")
 		self.stackTracker.SetStackSymbol(oldstacksymbol)
@@ -861,10 +917,11 @@ class MipsGenerator:
 		string = ""
 		reg,temp = self.GetStackVariable(stackregister)
 		string += temp
+		print register
 		string += "\t\tsw " + register + ",(" + reg +")\n"
 		return string
 
-	def LoadOntoStack(self,register,stackregister):
+	def LoadFromStack(self,register,stackregister):
 		string = ""
 		reg,temp = self.GetStackVariable(stackregister)
 		string += temp
@@ -873,7 +930,7 @@ class MipsGenerator:
 
 	def ADDR(self,parameters):
 		# 
-		string = ""
+		string = "# ADDR Began\n"
 
 		if parameters[0].type == "local":
 			reg, temp = self.GetStackVariable(parameters[0].type + "_" + parameters[0].name)
@@ -907,6 +964,7 @@ class MipsGenerator:
 			string += "\t\tlw " + plist[0] + ",(" + reg + ")# INDR HERE\n"
 			string += "\t\tlw " + plist[0] + ",(" + plist[0] + ")# INDR HERE\n"
 
+		string += "# ADDR End\n"
 		return string
 
 
@@ -921,6 +979,11 @@ class MipsGenerator:
 			string += "\t\tsw " + self.variableMap["_"+params[2].name] + ",($sp)# APPLE HERE\n"
 			return string
 		return ""
+
+	def GLOBAL(self,params):
+		string = ""
+		string  += "\t\tGLOBAL_" + params[0].name + ": .space " + params[2].name + "\n"
+		return string
 	def FUNCTION(self,function):
 		reg = self.registermap.getTemporaryRegister("stack")
 		self.stackTracker.SetStackSymbol(reg)
@@ -998,19 +1061,19 @@ class MipsGenerator:
 		self.stackTracker.SetStackSymbol(treg)
 		# restore return address
 		string += "\n#Restoring Stack\n"
-		string += self.LoadOntoStack("$ra","$ra") 
-		string += self.LoadOntoStack("$s0","$s0")
-		string += self.LoadOntoStack("$s1","$s1")
-		string += self.LoadOntoStack("$s2","$s2")
-		string += self.LoadOntoStack("$s3","$s3")
-		string += self.LoadOntoStack("$s4","$s4")
-		string += self.LoadOntoStack("$s5","$s5")
-		string += self.LoadOntoStack("$s6","$s6")
-		string += self.LoadOntoStack("$s7","$s7")
-		string += self.LoadOntoStack("$a0","$a0")
-		string += self.LoadOntoStack("$a1","$a1")
-		string += self.LoadOntoStack("$a2","$a2")
-		string += self.LoadOntoStack("$a3","$a3")
+		string += self.LoadFromStack("$ra","$ra") 
+		string += self.LoadFromStack("$s0","$s0")
+		string += self.LoadFromStack("$s1","$s1")
+		string += self.LoadFromStack("$s2","$s2")
+		string += self.LoadFromStack("$s3","$s3")
+		string += self.LoadFromStack("$s4","$s4")
+		string += self.LoadFromStack("$s5","$s5")
+		string += self.LoadFromStack("$s6","$s6")
+		string += self.LoadFromStack("$s7","$s7")
+		string += self.LoadFromStack("$a0","$a0")
+		string += self.LoadFromStack("$a1","$a1")
+		string += self.LoadFromStack("$a2","$a2")
+		string += self.LoadFromStack("$a3","$a3")
 		self.registermap.freeRegisterByName("stack1")
 		self.registermap.freeRegisterByName("stack")
 		string += "#Restoring Stack Complete\n\n"
@@ -1035,9 +1098,17 @@ class MipsGenerator:
 	def Parse(self,string):
 		Global,functions = self.TacSplit(string)
 		Global,functions = self.ConstructData(functions,Global)
-		string = ""
+		string = ".data\n"
+		after = ""
+
 		for i in Global:
-			string += self.call(i.name,i.params())
+			if i.name == "global":
+				string += self.call(i.name,i.params())
+			else:
+				after += self.call(i.name,i.params())
+		string += "\n.text\n"
+		string += after
+
 		Funcs = {}
 		for function in functions:
 			Funcs[function.name] = self.call("function",function) + "\n"
@@ -1059,8 +1130,6 @@ class MipsGenerator:
 		if len(Globals) != 0:
 			Globals = map(Instruction,Globals)
 		functions = map(Function,functions)
-		print Globals
-		raw_input("HERE")
 		return Globals,functions
 
 	def TacSplit(self,string):

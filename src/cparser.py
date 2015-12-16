@@ -8,6 +8,8 @@ from node import *
 from asttree import *
 import strconv
 
+killswitch = False
+
 def makeParserDict(symboltablenode,astnode):
     return {"symbolNode" : symboltablenode,"astNode" : astnode}
 start = 'translation_unit'
@@ -36,8 +38,10 @@ class Parser(Scanner):
                 self.SetNodeInformation(p[0],1,1,p)
 
         except SymbolTableError, e:
-            print("We need to fail(this output on line 14): " + str(e))
-            sys.exit()
+                print "ERROR: Identifier Error at line: " + str(p.lineno(1))
+                print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
+                sys.exit()
+
 
     def p_primary_expression_2(self, p):
         '''primary_expression : CONSTANT'''
@@ -73,9 +77,11 @@ class Parser(Scanner):
             p[0] = PtrRef(p[1].name,Type(node.GetType(),[],[]),p[3])
         elif type(p[1]) != type(ArrRef(None, None, None, None)):
             node = self.symbol_table.Retrieve(p[1].name)
-            if type(node) != type(ArrayNode()):
-                print("We Should Fail Because this is not an array access.")
-                print("With Type: " + str(type(node)))
+            if type(node) != ArrayNode and type(node) != StructRef:
+                print "ERROR: Bad Type at line number: " + str(p.lineno(1))
+                print p[1].type.type
+                print type(p[1])
+                print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
                 #sys.exit()
 
             # ArrRef: [name,subscript*,type*,dim**]
@@ -93,18 +99,27 @@ class Parser(Scanner):
                 node = node.FindField(p[1].field.name)
                 typenode.type.append(node.GetType()[0])
             dimension = []
+            #raw_input(type(node))
             for i in node.dimensions:
                 dimension.append(i)
-
+            
             if type(node) == StructVariableNode:
+                #p[0] = StructRef(p[1],None,None,Type([],[],[]))# StructRef: [name,field*] {}
+                # [name,field*,offset,type]
                 p[0] = ArrRef(p[1].field.name, [p[3]], typenode, dimension)
+            elif type(p[1]) == StructRef:
+                p[0] = p[1]
+                #raw_input(p[1].field)
+                p[1].field = ArrRef(p[1].field.name, [p[3]], typenode, dimension)
             else:
                 p[0] = ArrRef(p[1].name, [p[3]], typenode, dimension)
         else:
             p[1].subscript.append(p[3])
 
             if len(p[1].subscript) > len(p[1].dim):
-                print("We need to fail due to n-array access on an (n-1)-array.")
+                print "ERROR: Array access out of bounds at line number: " + str(p.lineno(1))
+                print "Max Length Expected: " + str(len(p[1].dim)) + ", Length Received: " + str(len(p[1].subscript))
+                print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
                 sys.exit()
 
             p[0] = p[1]
@@ -112,7 +127,9 @@ class Parser(Scanner):
     def p_postfix_expression_3(self, p):
         '''postfix_expression : postfix_expression OPENPARAN CLOSEPARAN'''
         if len(p[1].ParamList.params) > 0:
-            print("We need to fail since a function is called with less parameters than required. 0 given and " + str(len(p[1].ParamList.params)) + " required.")
+            print("ERROR: Expecting Parameters at line number: ") + str(p.lineno(1))
+            print("0 Parameters given and " + str(len(p[1].ParamList.params)) + " required.")
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit()
         p[0] = p[1]
 
@@ -120,17 +137,21 @@ class Parser(Scanner):
         '''postfix_expression : postfix_expression OPENPARAN argument_expression_list CLOSEPARAN'''
         # Check size of parameters
         if len(p[1].ParamList.params) != len(p[3]):
-            print("We need to fail since a function is called with less parameters than required. " + len(p[3]) + " given and " + str(len(p[1].ParamList.params)) + " required.")
+            print("ERROR: Expecting Parameters at line number: ") + str(p.lineno(3))
+            print( str(len(p[3])) + " Parameters given and " + str(len(p[1].ParamList.params)) + " required.")
+            print self.highlightstring(p.lineno(1),p.lexspan(3)[1])
             sys.exit()
 
         # Check that the types are correct
         paramlist = ParamList([])
         for index in range(len(p[3])):
             if p[1].ParamList.params[index].type != p[3][index].type.type:
-                print("Needs to fail for improper parameter types at parameter location " + str(index) + ". " 
-                       + str(p[3][index].type.type) + " given and " + str(p[1].ParamList.params[index].type) + " expected.")
-                print (type(p[3][index]))
+
+                print("ERROR: Incorrect Parameter Types at line number: ") + str(p.lineno(1))
+                print str(p[1].ParamList.params[index].type) + " given, " + str(p[3][index].type.type) + " expected."
+                print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
                 sys.exit()
+
             else:
                 paramlist.params.append(p[3][index])
         p[1].ParamList = paramlist
@@ -156,8 +177,10 @@ class Parser(Scanner):
         rType = ""
         One = Constant(Type(["int"],[],[]),str(1))
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",One.type):
-            print "Error can't add these two types together!!"
-            sys.exit(0)
+            print("ERROR: Incorrect Types at line number: ") + str(p.lineno(1))
+            print str(p[1].type) + ", and " + str(One.type) + " given, non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
+            sys.exit()
 
         if type(p[1]) == Constant and type(One) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,One.type):
@@ -169,7 +192,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 One.value = float(One.value)
                 if not self.WeakTypeComparison(p[1].type,One.type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(p[1].value + One.value))
         else:
             one,two,Typed = self.StrongestType(p[1],One)
@@ -181,7 +205,9 @@ class Parser(Scanner):
         rType = ""
         One = Constant(Type(["Int"],[],[]),1)
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",One.type):
-            print "Error can't add these two types together!!"
+            print("ERROR: Incompatible Types at line number: ") + str(p.lineno(1))
+            print str(p[1].type) + ", and " + str(One.type) + " given, non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
 
         if type(p[1]) == Constant and type(One) == Constant:
@@ -194,7 +220,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 One.value = float(One.value)
                 if not self.WeakTypeComparison(p[1].type,One.type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(p[1].value - One.value))
         else:
             one,two,Typed = self.StrongestType(p[1],One)
@@ -218,7 +245,9 @@ class Parser(Scanner):
         rType = ""
         One = Constant(Type(["int"],[],[]),str(1))
         if self.TypeComparison("char",p[2].type) or self.TypeComparison("char",One.type):
-            print "Error can't add these two types together!!"
+            print("ERROR: Incompatible Types at line number: ") + str(p.lineno(2))
+            print str(p[2].type) + ", and " + str(One.type) + " given, non-char expected."
+            print self.highlightstring(p.lineno(2),p.lexspan(2)[1])
             sys.exit(0)
 
         if type(p[2]) == Constant and type(One) == Constant:
@@ -231,7 +260,8 @@ class Parser(Scanner):
                 p[2].value = float(p[2].value)
                 One.value = float(One.value)
                 if not self.WeakTypeComparison(p[2].type,One.type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(2))
+                    print self.highlightstring(p.lineno(2),p.lexspan(2)[1])
             p[0]= Constant(rType,str(p[2].value + One.value))
         else:
             one,two,Typed = self.StrongestType(p[2],One)
@@ -243,7 +273,9 @@ class Parser(Scanner):
         rType = ""
         One = Constant(Type(["int"],[],[]),str(1))
         if self.TypeComparison("char",p[2].type) or self.TypeComparison("char",One.type):
-            print "Error can't add these two types together!!"
+            print("ERROR: Incompatible Types at line number: ") + str(p.lineno(2))
+            print str(p[2].type) + ", and " + str(One.type) + " given, non-char expected."
+            print self.highlightstring(p.lineno(2),p.lexspan(2)[1])
             sys.exit(0)
 
         if type(p[2]) == Constant and type(One) == Constant:
@@ -256,7 +288,8 @@ class Parser(Scanner):
                 p[2].value = float(p[2].value)
                 One.value = float(One.value)
                 if not self.WeakTypeComparison(p[2].type,One.type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(2))
+                    print self.highlightstring(p.lineno(2),p.lexspan(2)[1])
             p[0]= Constant(rType,str(p[2].value - One.value))
         else:
             one,two,Typed = self.StrongestType(p[2],One)
@@ -321,8 +354,9 @@ class Parser(Scanner):
         '''multiplicative_expression : multiplicative_expression '*' cast_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't multiply these two types together!!"
-            sys.exit(0)
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
                 rType = Type(['int'],[],[])
@@ -333,7 +367,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak Upcast Warning"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(p[1].value * p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -345,7 +380,9 @@ class Parser(Scanner):
         '''multiplicative_expression : multiplicative_expression '/' cast_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't divide these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -357,7 +394,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(p[1].value / p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -368,7 +406,9 @@ class Parser(Scanner):
         '''multiplicative_expression : multiplicative_expression '%' cast_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type) or self.TypeComparison("float",p[1].type) or self.TypeComparison("float",p[3].type):
-            print "Error can't modulo these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char and non-float expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -391,7 +431,9 @@ class Parser(Scanner):
         '''additive_expression : additive_expression '+' multiplicative_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't add these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
 
         if type(p[1]) == Constant and type(p[3]) == Constant:
@@ -404,7 +446,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(p[1].value + p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -415,7 +458,9 @@ class Parser(Scanner):
         '''additive_expression : additive_expression '-' multiplicative_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -427,7 +472,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(p[1].value - p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -441,7 +487,9 @@ class Parser(Scanner):
         '''shift_expression : shift_expression LEFT_OP additive_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -453,7 +501,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(p[1].value << p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -464,7 +513,9 @@ class Parser(Scanner):
         '''shift_expression : shift_expression RIGHT_OP additive_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -476,7 +527,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(p[1].value >> p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -489,7 +541,9 @@ class Parser(Scanner):
         '''relational_expression : relational_expression '<' shift_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -501,7 +555,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(1 if p[1].value < p[3].value else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -511,7 +566,9 @@ class Parser(Scanner):
         '''relational_expression : relational_expression '>' shift_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -523,7 +580,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(1 if p[1].value > p[3].value else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -533,7 +591,9 @@ class Parser(Scanner):
         '''relational_expression : relational_expression LE_OP shift_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -545,7 +605,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(1 if p[1].value <= p[3].value else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -555,7 +616,9 @@ class Parser(Scanner):
         '''relational_expression : relational_expression GE_OP shift_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -567,7 +630,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(1 if p[1].value >= p[3].value else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -580,7 +644,9 @@ class Parser(Scanner):
         '''equality_expression : equality_expression EQ_OP relational_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -592,7 +658,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(1 if p[1].value == p[3].value else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -603,7 +670,9 @@ class Parser(Scanner):
         '''equality_expression : equality_expression NE_OP relational_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -615,7 +684,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(1 if p[1].value != p[3].value else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -628,7 +698,9 @@ class Parser(Scanner):
         '''and_expression : and_expression '&' equality_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -640,7 +712,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(p[1].value & p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -653,7 +726,9 @@ class Parser(Scanner):
         '''exclusive_or_expression : exclusive_or_expression '^' and_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -665,7 +740,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(p[1].value ^ p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -678,7 +754,9 @@ class Parser(Scanner):
         '''inclusive_or_expression : inclusive_or_expression '|' exclusive_or_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -690,7 +768,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(p[1].value | p[3].value))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -703,7 +782,9 @@ class Parser(Scanner):
         '''logical_and_expression : logical_and_expression AND_OP inclusive_or_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -715,7 +796,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(1 if p[1].value != 0 and p[3].value != 0 else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -728,7 +810,9 @@ class Parser(Scanner):
         '''logical_or_expression : logical_or_expression OR_OP logical_and_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant and type(p[3]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -740,7 +824,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0]= Constant(rType,str(1 if p[1].value != 0 or p[3].value != 0 else 0))
         else:
             one,two,Typed = self.StrongestType(p[1],p[3])
@@ -754,7 +839,9 @@ class Parser(Scanner):
         '''conditional_expression : logical_or_expression '?' expression ':' conditional_expression'''
         rType = ""
         if self.TypeComparison("char",p[1].type) or self.TypeComparison("char",p[3].type):
-            print "Error can't subtract these two types together!!"
+            print"ERROR: Incompatible Types at line number: " + str(p.lineno(1))
+            print str(p[1].type.type[0]) + ", and " + str(p[3].type.type[0]) + " given, both non-char expected."
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit(0)
         if type(p[1]) == Constant:
             if self.WeakTypeComparisonWithType('int',p[1].type,p[3].type):
@@ -766,7 +853,8 @@ class Parser(Scanner):
                 p[1].value = float(p[1].value)
                 p[3].value = float(p[3].value)
                 if not self.WeakTypeComparison(p[1].type,p[3].type):
-                    print "Weak upcast warning!"
+                    print("WARNING: Weak upcast at line: ") + str(p.lineno(1))
+                    print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             p[0] = p[3] if p[1].value != 0 else p[5]
         else:
             p[0] = TernaryOp(p[1],p[3],p[5])
@@ -780,7 +868,9 @@ class Parser(Scanner):
         '''assignment_expression : unary_expression assignment_operator assignment_expression'''
 
         if 'const' in p[1].type.qualifier:
-            print("This is not allowed since the variable is constant.")
+            print("WARNING: Invalid Type Qualifier: ") + str(p.lineno(1))
+            print "Must not be Constant, " + str(p[1].type.qualifiers) + " given"
+            print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
             sys.exit()
 
         p[2].left = p[1]
@@ -1006,10 +1096,10 @@ class Parser(Scanner):
             self.symbol_table.InsertNewType(p[1].GetName(),self.typelist[-1].type[1:])
 
         if not p[1].GetType().type == p[3].type.type:
-            print "ERROR: Bad Type!!!!!!!!!! at line number: " + str(p.lineno(1))
-            print p[1].GetType().type
-            print p[3].type.type
+            print "ERROR: Bad Type at line number: " + str(p.lineno(1))
+            print str(p[1].GetType().type[0]) + " and " + str(p[3].type.type[0]) + " given"
             print self.highlightstring(p.lineno(1),p.lexspan(3)[1])
+
 
         if VariableNode == type(p[1]):
             p[0] = makeParserDict(p[1], Decl(p[1].GetName(),None,p[3],None,Constant( Type(["int"],[],[]),str(1))) )
@@ -1202,10 +1292,19 @@ class Parser(Scanner):
 
     def p_direct_declarator_3(self, p):
         '''direct_declarator : direct_declarator '[' constant_expression ']' '''
+
         if type(p[1]) == type(VariableNode()):
+            if len(self.symbol_table.stack) == 1 and type(p[3]) != Constant:
+                print "THERE SHOULD BE AN ERROR HERE"
+                print p[3]
+                sys.exit()
             #print("Here: ", p[3])
             p[1] = ArrayNode(type_var = p[1].GetType(), name = p[1].GetName(), line = p[1].GetLine(), line_loc = p[1].GetCharacterLocation(), dim = p[3])
         else:
+            if len(self.symbol_table.stack) == 1 and type(p[3]) != Constant:
+                print "THERE SHOULD BE AN ERROR HERE"
+                print p[3]
+                sys.exit()
             #p[1].IncrementDimensions()
             p[1].AddDimension(p[3])
         p[0] = p[1]
@@ -1333,7 +1432,7 @@ class Parser(Scanner):
         '''parameter_declaration : declaration_specifiers declarator'''
         self.typelist.pop()
         p[2].SetType(p[1].type)
-        p[2].SetQualifiers(p[1].qualifier)
+        #p[2].SetQualifiers(p[1].qualifier)
         p[0] = p[2]
 
     def p_parameter_declaration_2(self, p):

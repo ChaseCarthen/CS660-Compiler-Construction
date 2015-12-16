@@ -234,7 +234,7 @@ class Scanner():
     self.loginfo("==============================Completed LINE NUMBER: " + str(t.lexer.lineno-1) + "======================")
     self.loginfo("==============================Starting    LINE NUMBER: " + str(t.lexer.lineno) + "======================")
 
-  # PRint the color at the line
+  # Print the color at the line
   def highlightstring(self,line,position):
     data = self.lexer.lexdata
     string = data[self.lines[line-1]:self.lines[line]]
@@ -375,7 +375,6 @@ class Scanner():
       if typeval != None:
         t.value = str(typeval)
         t.type = "INT" # Hack to get it through
-        print "HERE"
     self.logging(t.type,t.value)
     return t
 

@@ -186,17 +186,21 @@ class MipsGenerator:
 	def FUNCCALL(self,parameters):
 		string = ""
 		string += "\t\tjal " + parameters[2].name + "\n"
-		string += self.LoadOntoStack("$a0","$a0")
-		string += self.LoadOntoStack("$a1","$a1")
-		string += self.LoadOntoStack("$a2","$a2")
-		string += self.LoadOntoStack("$a3","$a3")
+		#string += "# Resetting arguments"
+		#string += self.LoadOntoStack("$a0","$a0")
+		#string += self.LoadOntoStack("$a1","$a1")
+		#string += self.LoadOntoStack("$a2","$a2")
+		#string += self.LoadOntoStack("$a3","$a3")
+		#string += "# Done Resetting arguments"
 		return string
+
 	def undef(self,parameters):
 		print "UNDEFINED"
 	def test(self,parameters):
 		print "test"
 
 	def ASSIGN(self,parameters):
+
 		string = "#assign \n"
 		# figure out destination
 		dest = parameters[2]
@@ -870,11 +874,42 @@ class MipsGenerator:
 	def ADDR(self,parameters):
 		# 
 		string = ""
-		parameters[0].modifier = "indr"
-		plist,string = self.MagicFunction([ (parameters[0],True),(parameters[2],True)  ])
-		string += "\t\tmove " + plist[1] + "," + plist[0] + "# ADDR HERE\n"
+
+		if parameters[0].type == "local":
+			reg, temp = self.GetStackVariable(parameters[0].type + "_" + parameters[0].name)
+			string += temp
+			plist,temp = self.MagicFunction([ (parameters[2],True)  ])
+			string += temp
+			string += "\t\tmove " + plist[0] + "," + reg + "# ADDR HERE\n"
+
+		else:
+			parameters[0].modifier = ""
+			plist,string = self.MagicFunction([ (parameters[0],True),(parameters[2],True)  ])
+			string += "\t\tmove " + plist[1] + "," + plist[0] + "# ADDR HERE\n"
 
 		return string
+
+	def INDR(self, parameters):
+		string = ""
+		if parameters[0].type == "local":
+			reg, temp = self.GetStackVariable(parameters[0].type + "_" + parameters[0].name)
+			string += temp
+			plist,temp = self.MagicFunction([ (parameters[2],True)  ])
+			string += temp
+			string += "\t\tlw " + plist[0] + ",(" + reg + ")# INDR HERE\n"
+			string += "\t\tlw " + plist[0] + ",(" + plist[0] + ")# INDR HERE\n"
+
+		elif parameters[0].type == "arg":
+			reg, temp = self.GetStackVariable(parameters[0].name)
+			string += temp
+			plist,temp = self.MagicFunction([ (parameters[2],True)  ])
+			string += temp
+			string += "\t\tlw " + plist[0] + ",(" + reg + ")# INDR HERE\n"
+			string += "\t\tlw " + plist[0] + ",(" + plist[0] + ")# INDR HERE\n"
+
+		return string
+
+
 	def CheckSave(self,params):
 		string = ""
 		if "save_" in params[0].name and "save_" in params[1].name:
@@ -1065,3 +1100,6 @@ class MipsGenerator:
 			Globals = [['']]
 
 		return Globals,functions
+
+
+

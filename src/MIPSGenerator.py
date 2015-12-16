@@ -302,8 +302,8 @@ class MipsGenerator:
 		val = plist[0]
 		#val = self.registerMap(parameters[2])
 		if parameters[2].type == "local":
-			print "Assign", reg
 			string += self.LoadFromStack(reg,parameters[2].type+ "_" + parameters[2].name)
+
 		if parameters[2].type == "cons" and not val.startswith('$'):
 			#print reg
 			string += "\t\tli " + reg + "," + str(val)  + "\n"
@@ -311,7 +311,6 @@ class MipsGenerator:
 			#print reg
 			string += "\t\tli " + reg + ',' + str(val)  + '\n'	
 		else:
-			
 			string += "\t\tmove " + reg + "," + str(val) + "\n"
 
 		del self.arguments[0]
@@ -926,8 +925,20 @@ class MipsGenerator:
 		return string 
 
 	def ADDR(self,parameters):
-		# 
 		string = "# ADDR Began\n"
+
+		'''
+		# WHAT CHASE HAD BEFORE MERGE
+		reg,temp = self.GetStackVariable(parameters[0].type+"_"+parameters[0].name)
+		string += temp
+		plist, temp = self.MagicFunction([(parameters[2],False)])
+		string += temp
+		string += "\t\tmove " + plist[0] + "," + reg + "\n"
+		#raw_input(reg)
+		#parameters[0].modifier = "indr"
+		#plist,string = self.MagicFunction([ (parameters[0],True),(parameters[2],True)  ])
+		#string += "\t\tmove " + plist[1] + "," + plist[0] + "# ADDR HERE\n"
+		'''
 
 		if parameters[0].type == "local":
 			reg, temp = self.GetStackVariable(parameters[0].type + "_" + parameters[0].name)
@@ -963,7 +974,6 @@ class MipsGenerator:
 
 		string += "# ADDR End\n"
 		return string
-
 
 	def CheckSave(self,params):
 		string = ""

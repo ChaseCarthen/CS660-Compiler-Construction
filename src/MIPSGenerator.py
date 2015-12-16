@@ -170,8 +170,9 @@ class MipsGenerator:
 			if reg == 0:
 				# shot one of the saved registers
 				name = self.registermap.freeASavedRegister()
-				self.variableMap[name] = None
+				del self.variableMap[name]
 				reg = self.registermap.getSavedRegister(check)
+			self.registermap.InsertIntoRecentMap(reg)
 			self.variableMap["local_" + variable.name] = reg
 			return reg
 		elif variable.type == "glob":
@@ -179,8 +180,9 @@ class MipsGenerator:
 			if reg == 0:
 				# shot one of the saved registers
 				name = self.registermap.freeASavedRegister()
-				self.variableMap[name] = None
+				del self.variableMap[name]
 				reg = self.registermap.getSavedRegister(check)
+			self.registermap.InsertIntoRecentMap(reg)
 			self.variableMap["glob_" + variable.name] = reg
 			return reg
 		elif variable.type == "arrglob":
@@ -188,8 +190,9 @@ class MipsGenerator:
 			if reg == 0:
 				# shot one of the saved registers
 				name = self.registermap.freeASavedRegister()
-				self.variableMap[name] = None
+				del self.variableMap[name]
 				reg = self.registermap.getSavedRegister(check)
+			self.registermap.InsertIntoRecentMap(reg)
 			self.variableMap["arrglob_" + variable.name] = reg
 			return reg
 		reg = self.registermap.getTemporaryRegister(check)
@@ -223,7 +226,6 @@ class MipsGenerator:
 		print "test"
 
 	def ASSIGN(self,parameters):
-		print "ASSIGN"
 		string = "#assign \n"
 		# figure out destination
 		dest = parameters[2]
@@ -266,9 +268,6 @@ class MipsGenerator:
 
 		#self.stackTracker.SetVariable(dest.type+"_"+dest.name,4)
 		if parameters[2].type == "local" and not parameters[2].type == "indr":
-			#raw_input(reg)
-			#raw_input("TEST")
-			print parameters[2].type,parameters[2].name
 			string += self.StoreOntoStack(tempor, parameters[2].type + "_" +parameters[2].name)
 			string += "\t\tmove " + reg + "," + tempor + "\n"
 		elif parameters[2].type == "glob" and not parameters[2].type == "indr":
@@ -495,11 +494,9 @@ class MipsGenerator:
 					string += "\t\tla " + reg + ",GLOBAL_" + i.name + "\n"
 					string += "\t\tlw " + reg + ",(" + reg + ")\n"
 				elif ty == "arrglob":
-					#raw_input("INDR")
 					string += "\t\tla " + reg + ",GLOBAL_" + i.name + "#ARRGLOB\n"
 				if i.modifier == "indr" and indr and ty != "glob" and ty != "arrglob":
 					string += "\t\tlw " + reg + "," + "(" + reg + ")# load indr here" + "\n"
-					#raw_input("LOADING")
 
 				parameterlist.append(reg)
 		for free in freelist:
@@ -669,9 +666,7 @@ class MipsGenerator:
 
 	def LT(self,parameters):
 		string = ""
-
 		reglist, temp = self.MagicFunction([(parameters[0], True), (parameters[1], True), (parameters[2], False)])
-		
 		string += temp
 		string += "\t\tslt " + reglist[2] + "," + reglist[0] + "," + reglist[1] + "\n"
 		return string

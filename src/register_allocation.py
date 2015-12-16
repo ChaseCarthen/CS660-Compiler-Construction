@@ -39,6 +39,9 @@ class RegisterAllocation(object):
     self.recentmap.append(item)
   # Get the next temporary register
   def getTemporaryRegister(self, name):
+    result = self.findRegisterByValue(name)
+    if result != False:
+      return self.temporary[result]
     for index in temporary:
       if not self.registers[index] and not self.temporary[index] in self.recentmap:
         self.registers[index] = name
@@ -47,6 +50,9 @@ class RegisterAllocation(object):
     return 0
   # Get the next saved register
   def getSavedRegister(self, name):
+    result = self.findRegisterByValue(name)
+    if result != False:
+      return self.saved[result]
     for index in saved:
       if not self.registers[index]:
         self.registers[index] = name
@@ -72,9 +78,13 @@ class RegisterAllocation(object):
     return 0
   # we will free s1
   def freeASavedRegister(self):
-    name = self.registers[saved[1]]
-    self.freeRegisterByName(name)
-    return name
+    for i in range(1,8):
+      name = self.registers[saved[i]]
+      if not name in self.recentmap:
+        name = self.registers[saved[1]]
+        self.freeRegisterByName(name)
+      return name
+    return 0
   def freeRegisterByValue(self, item):
     for index, value in self.registers.items():
       if value == item:
@@ -94,7 +104,7 @@ class RegisterAllocation(object):
   def findRegisterByValue(self, item):
     for index, value in self.registers.items():
       if value == item:
-        return self.registers[index]
+        return index
 
     return False
   def clear(self):

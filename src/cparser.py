@@ -82,6 +82,7 @@ class Parser(Scanner):
                 print p[1].type.type
                 print type(p[1])
                 print self.highlightstring(p.lineno(1),p.lexspan(1)[1])
+                #raw_input("F")
                 #sys.exit()
 
             # ArrRef: [name,subscript*,type*,dim**]

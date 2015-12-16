@@ -244,7 +244,7 @@ class ThreeAddressCode(NodeVisitor):
         if not self.local:
             op = "glob"
             #dims = map(int,node.dim)
-            prod = 1
+            prod = 4
             for i in node.dim:
                 prod *= int(i.value)
 

@@ -15,3 +15,11 @@ parsetab.py
 *.sublime-*
 *.tac
 test.cpp
+*.c
+parselog
+*.log
+testtest.s
+input.file
+input.asm
+log/tokenfile.log
+*.asm

@@ -1,7 +1,7 @@
 from astvisitor import *
 from asttree import *
 import math
-
+import re
 class ThreeAddressCode(NodeVisitor):
     # Add a shadow variable handing
     '''
@@ -14,11 +14,12 @@ class ThreeAddressCode(NodeVisitor):
     inttemp = TicketCounter("i_")
     localticket = TicketCounter("l_")
     labelticket = TicketCounter("label_")
-
+    saveticket = TicketCounter("save_")
     def __init__(self, code):
         self.local = False # If this this is true we are in a local scope
         #self.globals = {}
         self.locals = [] # pop off of this guy if leaving a scope
+        self.arg = []
         self.done = ""
         self.localcount = 0
         self.CODE = code
@@ -37,11 +38,18 @@ class ThreeAddressCode(NodeVisitor):
         for local in self.locals:
             if name in local:
                 return self.compressedTAC("local",local[name])
+
+        for arg in self.arg:
+            if name in arg:
+                return self.compressedTAC("arg",arg[name])
+
         return self.compressedTAC("glob",name)
     def InsertLocalScope(self):
         self.locals.append({})
+        self.arg.append({})
     def PopLocalScope(self):
         self.locals.pop()
+        self.arg.pop()
     def insertVariable(self,name,label):
         if len(self.locals):
             self.locals[-1][name] = label
@@ -90,8 +98,10 @@ class ThreeAddressCode(NodeVisitor):
     def visit_Type(self,node):
         qualifier = ""
         Type = ""
-        for i in node.qualifier:
-            qualifier += i + " "
+        if node.qualifier:
+            for i in node.qualifier:
+                qualifier += i + " "
+
         for i in node.type:
             Type += i + " "
 
@@ -111,7 +121,8 @@ class ThreeAddressCode(NodeVisitor):
         name = node.name
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(4)) # hard codeness
+            string += self.printTAC("global",name," ",str(4)) # hard codeness
+            return string,self.compressedTAC(op,name)
         else:
             op = "local"
             # Create a local counter
@@ -145,6 +156,8 @@ class ThreeAddressCode(NodeVisitor):
         Qual = TypeOut[1]
         if "int" in Type:
             op = "cons"
+        elif "char" in Type:
+            op = "char"
         else:# Add string check here when we get to it.
             op = "fcons"
         string = self.compressedTAC(op,node.value)
@@ -170,6 +183,14 @@ class ThreeAddressCode(NodeVisitor):
         self.InsertLocalScope()
         local = {}
         #raw_input()
+
+        temp = self.arg.pop()
+        index = 0
+        for name in node.ParamList.params:
+            temp[name.name] = "$a" + str(index)
+            index += 1
+
+        self.arg.append(temp)
 
         string2,s = self.visit(node.expression)
         string = "\n"+ self.commentify(node.text,node.lines)
@@ -214,14 +235,21 @@ class ThreeAddressCode(NodeVisitor):
 
     #ArrDecl: [name,type*,init*,dim**] {}
     def visit_ArrDecl(self,node):
-        print "ARRDECL"
         op = ""
         assignOP = ""
         string = ""
         name = node.name
+
+        TypeOut,variable = self.visit(node.type)
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(4)) # hard codeness
+            #dims = map(int,node.dim)
+            prod = 1
+            for i in node.dim:
+                prod *= int(i.value)
+
+            string += self.printTAC("global",name,"_",str(prod*self.offset[variable])) # hard codeness
+            return string,self.compressedTAC(op,name)
         else:
             op = "local"
             # Create a local counter
@@ -230,8 +258,7 @@ class ThreeAddressCode(NodeVisitor):
             self.localcount += 1
             self.insertVariable(previousname,name)
         
-        TypeOut,variable = self.visit(node.type)
-        print variable
+
         #Type = TypeOut[0]
         #Qual = TypeOut[1]
         #string += TypeOut
@@ -249,11 +276,11 @@ class ThreeAddressCode(NodeVisitor):
             outstr, label = self.visit(i)
             string +=  outstr
             newlabel = self.inttemp.GetNextTicket()
-            string += self.printTAC("mul",dim,label,newlabel)
+            string += self.printTAC("mult",dim,label,newlabel)
             dim = newlabel
-            
+        
         string += self.printTAC("array",dim,"-",self.compressedTAC(op,name),node.text,node.lines) 
-        string += self.printTAC("assign",initvalue,"-",self.compressedTAC(op,name),node.text,node.lines) 
+        #string += self.printTAC("assign",initvalue,"-",self.compressedTAC(op,name),node.text,node.lines) 
 
         # We need to add strings
         return string,self.compressedTAC(op,name)
@@ -262,43 +289,49 @@ class ThreeAddressCode(NodeVisitor):
     def visit_ArrRef(self, node):
         #print "ARRREF"
         variableName = self.searchForVariable(node.name)
+        if "glob" in variableName:
+            variableName = self.compressedTAC("arrglob",node.name)
+
         subscripts = []
         dims = []
         string = ""
         for i in node.subscript:
-            string, label = self.visit(i)
+            temp, label = self.visit(i)
+            string += temp
             subscripts.append(label)
 
         for i in node.dim:
-            string, label = self.visit(i)
+            temp, label = self.visit(i)
+            string += temp
             dims.append(label)
 
         # Gets the base address to a temp
         baseAddress = self.inttemp.GetNextTicket()
-        string += self.printTAC("assign",self.compressedTAC("indr",variableName),"-",baseAddress)
+        string += self.printTAC("assign",variableName,"-",baseAddress)
 
         # Build types as a full string
         t = ''
 
-        _,t = self.visit(node.type)
+        temp,t = self.visit(node.type)
+
         typeSize = self.offset[t]
 
         addTemps = []
-        string += self.printTAC("bound",dims[len(subscripts)-1],0,subscripts[len(subscripts)-1])
+        string += self.printTAC("bound",dims[len(subscripts)-1],self.compressedTAC("cons",0),subscripts[len(subscripts)-1])
         temp = self.inttemp.GetNextTicket()
         addTemps.append(temp)
-        string += self.printTAC("multiply", typeSize, subscripts[len(subscripts)-1], temp, "-")
+        string += self.printTAC("mult", self.compressedTAC("cons",typeSize*4), subscripts[len(subscripts)-1], temp, "-")
 
         for i in reversed(range(len(subscripts)-1)):
-            string += self.printTAC("bound",dims[i],0,subscripts[i])
+            string += self.printTAC("bound",dims[i],self.compressedTAC("cons",0),subscripts[i])
             temp1 = self.inttemp.GetNextTicket()
-            string += self.printTAC("multiply", typeSize, subscripts[len(subscripts)-1], temp1, "-")
+            string += self.printTAC("mult", self.compressedTAC("cons",typeSize*4), subscripts[i], temp1, "-")
 
             final = ""
             current1 = temp1
             for j in range(i+1, len(subscripts)):
                 final = self.inttemp.GetNextTicket()
-                string += self.printTAC("multiply", current1, subscripts[j], final, "-")
+                string += self.printTAC("mult", current1, dims[j], final, "-")
                 current1 = final
 
             addTemps.append(final)
@@ -309,8 +342,8 @@ class ThreeAddressCode(NodeVisitor):
         string += self.printTAC("add", baseAddress, addTemps[0], assignment, "-")
         for i in range(1, len(addTemps)):
             string += self.printTAC("add", addTemps[i], assignment, assignment, "-")
-
-        return string, assignment
+        #string += self.printTAC("assign",self.compressedTAC("indr",assignment),"-",assignment)
+        return string, self.compressedTAC("indr",assignment)
 
     def visit_AddOp(self,node):
         return self.OPCommand("add",node)
@@ -335,19 +368,19 @@ class ThreeAddressCode(NodeVisitor):
             self.done = self.labelticket.GetNextTicket()
             first = True
 
-        donestring = self.printTAC("br","_","_",self.compressedTAC("label",self.done),"") + "\n"
+        donestring = self.printTAC("br","_","_",self.done,"") + "\n"
         if node.falsecond != None:
             falsestring,flabel = self.visit(node.falsecond)
 
-        string += self.printTAC("brne",conditional,0,falselabel,node.text) + "\n" 
+        string += self.printTAC("bre",conditional,'(cons 0)',falselabel,node.text) + "\n" 
         string += truestring
         string += donestring 
-        string += self.compressedTAC("label",falselabel) + "\n"
+        string += self.printTAC("label",'-','-',falselabel) + "\n"
         string += falsestring
         
         
         if first:
-            string += self.compressedTAC("label",self.done) + "\n"
+            string += self.printTAC("label",'-','-',self.done) + "\n"
             self.done = ""
         return string, ""
     # IterStatement: [init*, cond*, next*, stmt*,isdowhile,name] {}
@@ -360,12 +393,17 @@ class ThreeAddressCode(NodeVisitor):
         if not node.isdowhile:
             string = string + self.printTAC("br",'-','-',top,node.text.replace("\n", "")) 
         string += self.printTAC("label",'-','-',top,"") 
-        temp, dummy = self.visit(node.stmt)
-        string += temp
-        string += self.printTAC("label",'-','-',bottom,"") 
-        temp, label = self.visit(node.cond)
-        string += temp
-        string += self.printTAC("brne",'0',label,top,"") 
+        if (node.stmt != None):
+            temp, dummy = self.visit(node.stmt)
+            string += temp
+        string += self.printTAC("label",'-','-',bottom,"")
+        if(node.next != None):
+            temp, label = self.visit(node.next)
+            string += temp
+        if(node.cond != None):
+            temp, label = self.visit(node.cond)
+            string += temp
+        string += self.printTAC("bne",'(cons 0)',label,top,"") 
         return string, None
 
     def visit_AssignOp(self, node):
@@ -379,18 +417,22 @@ class ThreeAddressCode(NodeVisitor):
         return string + self.printTAC('assign', label_1, '-', label_2, node.text,node.lines), ""
 
     def visit_FuncCall(self,node):
-        string = 'args ' + self.compressedTAC("cons",len(node.ParamList.params)) + "\n"
+        string = self.printTAC('args',"-","-",self.compressedTAC("cons",len(node.ParamList.params)))
         for i in node.ParamList.params:
             content, label = self.visit(i)
             string += content
             #raw_input()
             if type(i) == ArrRef or ( i == type(VariableCall) and i.isPtr):
-                string += "refout " + label + "\n"
+                string += self.printTAC("refout", "_","_",label)
             else:
-                string += "valout " + label + "\n"
+                string += self.printTAC("valout ", "_", "_", label) 
             
-        string += "call " + self.compressedTAC("glob",node.name) + "\n"      
-        return string, "ra"
+        string += self.printTAC("funccall","_","_",self.compressedTAC("glob",node.name)) 
+        temp = "$v0"
+        if "int" in node.type.type or "float" in node.type.type: 
+            temp = self.saveticket.GetNextTicket()
+            string += self.printTAC("assign","$v0","_",temp)
+        return string, temp
 
     def visit_EmptyStatement(self,node):
         return "", ""
@@ -414,7 +456,8 @@ class ThreeAddressCode(NodeVisitor):
         name = node.name
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(4)) # hard codeness
+            string += self.printTAC("global",name," ",str(4)) # hard codeness
+            return string,self.compressedTAC(op,name)
         else:
             op = "local"
             # Create a local counter
@@ -439,10 +482,10 @@ class ThreeAddressCode(NodeVisitor):
         else:
             finallabel = self.compressedTAC(op,name)
             #lets get down to the meat
-            for i in range(node.numindirections):
-                nextlabel = self.GetTempLabel("int")
-                string += self.printTAC("assign",self.compressedTAC("indr",finallabel),"-",nextlabel,node.text,node.lines)
-                finallabel = nextlabel
+            #for i in range(node.numindirections):
+            #    nextlabel = self.GetTempLabel("int")
+            #    string += self.printTAC("assign",self.compressedTAC("indr",finallabel),"-",nextlabel,node.text,node.lines)
+            #    finallabel = nextlabel
             #raw_input()
             string += self.printTAC("assign",initvalue,"-",finallabel,node.text,node.lines) 
         # We need to add strings
@@ -461,11 +504,15 @@ class ThreeAddressCode(NodeVisitor):
     # Return: [expr*]
     def visit_Return(self,node):
         string = ""
-        string += self.printTAC("return") + "\n"
-        if node.expr != node:
+
+        if node.expr != None and node.expr != node:
             exprstring, exprlabel = self.visit(node.expr)
             string += exprstring
-            string += self.printTAC("assign",exprlabel,"_","ra",node.text,node.lines)
+            string += self.printTAC("return","_","_",exprlabel,node.text,node.lines)
+        else:
+            string += self.printTAC("return","_","_","_",node.text,node.lines)
+        #string += self.printTAC("return") + "\n"
+
         return string,""
 
     def visit_ParamList(self,node):
@@ -489,9 +536,9 @@ class ThreeAddressCode(NodeVisitor):
     def visit_XorOp(self,node):
         return self.OPCommand("xor",node)
     def visit_LandOp(self,node):
-        return self.OPCommand("andi",node)
+        return self.OPCommand("Land",node)
     def visit_LorOp(self,node):
-        return self.OPCommand("ori",node)
+        return self.OPCommand("Lor",node)
     def visit_TernaryOp(self,node):
         return None, None
     def visit_NEqualOp(self,node):
@@ -537,14 +584,14 @@ class ThreeAddressCode(NodeVisitor):
         return self.UnaryOp("neg",node)
 
     def visit_Struct(self,node):
-        print "STRUCT"
         op = ""
         assignOP = ""
         string = ""
         name = node.name
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,str(4)) # hard codeness
+            string += self.printTAC("global",name,"_",node.size) # hard codeness
+            return string,self.compressedTAC(op,name)
         else:
             op = "local"
             # Create a local counter
@@ -565,24 +612,33 @@ class ThreeAddressCode(NodeVisitor):
         return string,self.compressedTAC(op,name)
     def visit_StructDecl(self,node):
         self.offset[node.name] = node.size
-        print "STRUCT DECL"
         return "",node.name
 
     # StructRef: [name,field*,offset,type]
     def visit_StructRef(self,node):
-        print "STRUCT REF"
+        #print "STRUCT REF"
         op = ""
         assignOP = ""
         string = ""
         name = variableName = self.searchForVariable(node.name)
+        if "glob" in name:
+            name = variableName = self.compressedTAC("arrglob",node.name)
 
         fieldstring, fieldvalue = self.visit(node.field)
-        
+        #raw_input(fieldstring)
+        #string += "MEOX\n"
+        fieldstring = re.sub(";.*","",re.sub("arrglob " + node.field.name,"cons " +str(0),fieldstring),re.DOTALL)
+        string += fieldstring
+        #string += fieldstring
+        #string += "BARK\n"
         templabel = self.GetTempLabel("int")
         string += self.printTAC("assign",name,"_",templabel,node.text,node.lines)
         string += self.printTAC("add",self.compressedTAC("cons",node.offset), templabel,templabel,"",None)
-        string += self.printTAC("assign",self.compressedTAC("indr",templabel), "-", templabel,"",None)
-        return string,templabel
+
+        if fieldstring != "":
+            string += self.printTAC("add",re.sub('\)',"",re.sub('\(',"",re.sub("indr","",fieldvalue))),templabel,templabel,"",None)
+        #string += self.printTAC("assign",self.compressedTAC("indr",templabel), "-", templabel,"",None)
+        return string,self.compressedTAC("indr",templabel)
 
     #name,[name,type*,offset*]
     def visit_PtrRef(self,node):

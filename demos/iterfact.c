@@ -1,19 +1,13 @@
-// Note to the grader: both the iterative and recursive factorial are here!
 
-// recursive factorial implementation -- down below
 int recurfact(int n);
-
-// iterative factorial implementation -- down below
 int iterfact(int n);
 
 int main()
 {
-   int n;
-   //printf("What factorial(n) do you wish to compute (n=): ");
-   //scanf("%d", &n);
+   int n = 5;
+   printint(recurfact(n));
 
-   iterfact(n);
-   recurfact(n);
+   printint(iterfact(n));
 }
 
 
@@ -25,7 +19,7 @@ int recurfact(int n)
    }
    else
    {
-      return n * recurfact(n - 1);
+      return n * recurfact(n-1);
    }
 }
 
@@ -35,6 +29,7 @@ int iterfact(int n)
    int i = 1;
    for(i = 2; i <= n; i++)
    {
+      //printint(10);
       product = product * i;
    }
    return product;

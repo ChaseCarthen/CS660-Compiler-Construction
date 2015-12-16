@@ -15,6 +15,14 @@ class SymbolTable(object):
     self.pointer = None
     self.previouslocalcount = 0
 
+    intparam = VariableNode(None, ['int'], 'a', 0, 0)
+    charparam = VariableNode(None, ['char'], 'a', 0, 0)
+
+    self.InsertNode(FunctionNode([intparam], ['void'], 'printint', 0,0))
+    self.InsertNode(FunctionNode([intparam], ['void'], 'sleep', 0,0))
+    self.InsertNode(FunctionNode([charparam], ['void'], 'printchar', 0,0))
+    self.InsertNode(FunctionNode([intparam,intparam,intparam,intparam],['void'],'playsound',0,0 ))
+
   def Retrieve(self, name):
     self.pointer = None
     self._CheckStack(name, self.pointer)
@@ -392,9 +400,21 @@ class ArrayNode(SymbolTreeNode):
     string = string + " Dimensions: " + str(self.dimensions) + ","
     string += " Type Qualifiers: " + str(self.typequalifiers)
     return string
+  def GetDims(self):
+    dims = []
+    for dim in self.dimensions:
+      if(dim == str):
+        dims.append(Constant( Type(["int"],[],[]),str(dim)))
+      else:
+        dims.append(dim)
+
+    return dims
+
   def GetWordSize(self):
+
     dim = 1
     for i in self.dimensions:
+      print(i.type)
       dim *= int(i.value)
     return dim
 
@@ -416,11 +436,17 @@ class StructNode(SymbolTreeNode):
     return wordsize
   def GetWordSize(self,field):
     if type(field) == VariableNode:
-      return 1
+      if "int" in field.GetType():
+        return 4
+      else:
+        return 1
     elif type(field) == PointerNode:
-      return 1
+      return 4
     elif type(field) == ArrayNode:
-      dim = 1
+      if "int" in field.GetType():
+        dim = 4
+      else:
+        dim = 1
       for i in field.dimensions:
         dim *= int(i.value)
       return dim
@@ -451,6 +477,7 @@ class StructNode(SymbolTreeNode):
 class StructVariableNode(StructNode):
   '''Struct Variable Node'''
   def __init__(self, structtype= "", type_var ="", name = "", line = "", line_loc = "" ):
+    self.type_var = type_var
     self.structtype = structtype
     self.name = name
     super(StructVariableNode, self).__init__(type_var = type_var, name = name, line = line, line_loc = line_loc)

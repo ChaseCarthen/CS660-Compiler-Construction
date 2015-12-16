@@ -3,6 +3,7 @@ sys.path.insert(0, 'src/')
 
 from cparser import Parser
 from symboltable import SymbolTable
+from MIPSGenerator import MipsGenerator
 import argparse
 
 # for more information goto https://docs.python.org/2/library/argparse.html
@@ -29,10 +30,23 @@ if args.source != None:
 	if type(args.tokenfile) != str:
 		args.tokenfile = args.tokenfile[0]
 
-	print args.codeout
-
 	scan = Parser(data, args.parselogfile != " ", args.parselogfile[0], args.tokenfile, args.graphfile, args.tacfile, args.codeout)
 	st = SymbolTable()
 	scan.set_symbol_table(st)
 	#scan.scan(data)
 	scan.run()
+
+	bas = open("log/3AC.tac",'r')
+	a = bas.read()
+	bas.close()
+	generator = MipsGenerator()
+	assembly = generator.Parse(a)
+	temp = args.source.split(".")
+	filename = ""
+	for i in temp[:len(temp)-1]:
+		filename += i
+		filename += "."
+	filename += "asm"
+	asm = open(filename, "w")
+	asm.write(assembly)
+	asm.close()

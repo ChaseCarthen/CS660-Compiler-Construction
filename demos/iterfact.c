@@ -5,8 +5,9 @@ int iterfact(int n);
 int main()
 {
    int n = 5;
-   printint(iterfact(n));
    printint(recurfact(n));
+
+   printint(iterfact(n));
 }
 
 
@@ -18,7 +19,7 @@ int recurfact(int n)
    }
    else
    {
-      return n *recurfact(n-1);
+      return n * recurfact(n-1);
    }
 }
 

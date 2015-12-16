@@ -299,13 +299,11 @@ class ThreeAddressCode(NodeVisitor):
             temp, label = self.visit(i)
             string += temp
             subscripts.append(label)
-            string += strings
 
         for i in node.dim:
             temp, label = self.visit(i)
             string += temp
             dims.append(label)
-            string += strings
 
         # Gets the base address to a temp
         baseAddress = self.inttemp.GetNextTicket()

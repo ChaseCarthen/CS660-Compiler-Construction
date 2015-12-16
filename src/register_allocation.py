@@ -70,7 +70,11 @@ class RegisterAllocation(object):
         return index
 
     return 0
-
+  # we will free s1
+  def freeASavedRegister(self):
+    name = self.registers[saved[1]]
+    self.freeRegisterByName(name)
+    return name
   def freeRegisterByValue(self, item):
     for index, value in self.registers.items():
       if value == item:

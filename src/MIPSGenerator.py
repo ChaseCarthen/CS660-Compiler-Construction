@@ -109,15 +109,15 @@ class MipsGenerator:
 		# addi temp reg, temp reg, -offset
 		# add temp reg, $sp, temp reg
 	def MarkForRemove(self,parameters):
-		if parameters[0].type == "local" or parameters[0].type == "glob":
+		if parameters[0].type == "local" or parameters[0].type == "glob" or parameters[0].type == "arrglob":
 			self.removeList.append(parameters[0].type + "_" + parameters[0].name)
 		else:
 			self.removeList.append(parameters[0].name)
-		if parameters[1].type == "local" or parameters[1].type == "glob":
+		if parameters[1].type == "local" or parameters[1].type == "glob" or parameters[1].type == "arrglob":
 			self.removeList.append(parameters[1].type + "_" + parameters[1].name)
 		else:
 			self.removeList.append(parameters[0].name)
-		if parameters[2].type == "local" or parameters[2].type == "glob":
+		if parameters[2].type == "local" or parameters[2].type == "glob" or parameters[2].type == "arrglob":
 			self.removeList.append(parameters[2].type + "_" + parameters[2].name)
 		else:
 			self.removeList.append(parameters[2].name)
@@ -166,11 +166,31 @@ class MipsGenerator:
 			return value
 		elif variable.type == "local":
 			reg = self.registermap.getSavedRegister(check)
+			if reg == 0:
+				# shot one of the saved registers
+				name = self.registermap.freeASavedRegister()
+				self.variableMap[name] = None
+				reg = self.registermap.getSavedRegister(check)
 			self.variableMap["local_" + variable.name] = reg
 			return reg
 		elif variable.type == "glob":
 			reg = self.registermap.getSavedRegister(check)
+			if reg == 0:
+				# shot one of the saved registers
+				name = self.registermap.freeASavedRegister()
+				self.variableMap[name] = None
+				reg = self.registermap.getSavedRegister(check)
 			self.variableMap["glob_" + variable.name] = reg
+			return reg
+		elif variable.type == "arrglob":
+			reg = self.registermap.getSavedRegister(check)
+			if reg == 0:
+				# shot one of the saved registers
+				name = self.registermap.freeASavedRegister()
+				self.variableMap[name] = None
+				reg = self.registermap.getSavedRegister(check)
+			self.variableMap["arrglob_" + variable.name] = reg
+			return reg
 		reg = self.registermap.getTemporaryRegister(check)
 		if "i_" in variable.name or variable.type == "cons" or "save_" in variable.name:
 			self.registermap.InsertIntoRecentMap(reg)
@@ -213,6 +233,7 @@ class MipsGenerator:
 		#val = self.registerMap(value)
 		ty = parameters[2].type
 		ty2 = parameters[0].type
+		tempor = self.registermap.getTemporaryRegister("test")
 		plist, temp = self.MagicFunction(  [(parameters[0],False), (parameters[2],False) ],False )
 
 		reg = plist[1]
@@ -225,9 +246,11 @@ class MipsGenerator:
 		string += temp
 
 
-		tempor,temp = self.MagicFunction([( Variable(["temp"]), True) ])
-		tempor = tempor[0]
-		string += temp
+		
+		if tempor == reg:
+			print "SCARY"
+		#tempor = tempor[0]
+		#string += temp
 
 
 
@@ -241,7 +264,7 @@ class MipsGenerator:
 		#self.stackTracker.SetVariable(dest.type+"_"+dest.name,4)
 		if parameters[2].type == "local" and not parameters[2].type == "indr":
 			#raw_input(reg)
-			raw_input("TEST")
+			#raw_input("TEST")
 			string += self.StoreOntoStack(tempor, parameters[2].type + "_" +parameters[2].name)
 			string += "\t\tmove " + reg + "," + tempor + "\n"
 		elif parameters[2].type == "glob" and not parameters[2].type == "indr":
@@ -264,6 +287,7 @@ class MipsGenerator:
 			string += "\t\tla " + regs + ", GLOBAL_" + parameters[2].name + " # glob \n" 
 			string += "\t\tsw " + reg + ",(" + regs + ") # glob\n"
 			self.registermap.freeRegisterByName("ss")
+		self.registermap.freeRegisterByName("test")
 		#elif ty2 == "glob":
 		#	string += "\t\tlw " + val + ",(" + val + ")\n" 
 		return string
@@ -469,13 +493,13 @@ class MipsGenerator:
 				ty = i.type
 				reg = self.registerMap(i)
 				if ty == "glob" and i.modifier != "indr":
-					raw_input("HERE")
+					#raw_input("HERE")
 					string += "\t\tla " + reg + ",GLOBAL_" + i.name + "\n"
 					string += "\t\tlw " + reg + ",(" + reg + ")\n"
-				elif ty == "arrglob" and i.modifier == "indr":
-					raw_input("INDR")
-					string += "\t\tla " + reg + ",GLOBAL_" + i.name + "\n"
-				if i.modifier == "indr" and indr and ty != "glob":
+				elif ty == "arrglob":
+					#raw_input("INDR")
+					string += "\t\tla " + reg + ",GLOBAL_" + i.name + "#ARRGLOB\n"
+				if i.modifier == "indr" and indr and ty != "glob" and ty != "arrglob":
 					string += "\t\tlw " + reg + "," + "(" + reg + ")# load indr here" + "\n"
 					#raw_input("LOADING")
 

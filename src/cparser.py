@@ -93,11 +93,18 @@ class Parser(Scanner):
                 node = node.FindField(p[1].field.name)
                 typenode.type.append(node.GetType()[0])
             dimension = []
+            #raw_input(type(node))
             for i in node.dimensions:
                 dimension.append(i)
-
+            
             if type(node) == StructVariableNode:
+                #p[0] = StructRef(p[1],None,None,Type([],[],[]))# StructRef: [name,field*] {}
+                # [name,field*,offset,type]
                 p[0] = ArrRef(p[1].field.name, [p[3]], typenode, dimension)
+            elif type(p[1]) == StructRef:
+                p[0] = p[1]
+                #raw_input(p[1].field)
+                p[1].field = ArrRef(p[1].field.name, [p[3]], typenode, dimension)
             else:
                 p[0] = ArrRef(p[1].name, [p[3]], typenode, dimension)
         else:
@@ -1342,7 +1349,7 @@ class Parser(Scanner):
         '''parameter_declaration : declaration_specifiers declarator'''
         self.typelist.pop()
         p[2].SetType(p[1].type)
-        p[2].SetQualifiers(p[1].qualifier)
+        #p[2].SetQualifiers(p[1].qualifier)
         p[0] = p[2]
 
     def p_parameter_declaration_2(self, p):

@@ -1,7 +1,7 @@
 from astvisitor import *
 from asttree import *
 import math
-
+import re
 class ThreeAddressCode(NodeVisitor):
     # Add a shadow variable handing
     '''
@@ -590,7 +590,7 @@ class ThreeAddressCode(NodeVisitor):
         name = node.name
         if not self.local:
             op = "glob"
-            string += self.printTAC("global",name,"_",str(4)) # hard codeness
+            string += self.printTAC("global",name,"_",node.size) # hard codeness
             return string,self.compressedTAC(op,name)
         else:
             op = "local"
@@ -623,13 +623,21 @@ class ThreeAddressCode(NodeVisitor):
         string = ""
         name = variableName = self.searchForVariable(node.name)
         if "glob" in name:
-            name = variableName = self.compressedTAC("compressedTAC",node.name)
+            name = variableName = self.compressedTAC("arrglob",node.name)
 
         fieldstring, fieldvalue = self.visit(node.field)
-        
+        #raw_input(fieldstring)
+        #string += "MEOX\n"
+        fieldstring = re.sub(";.*","",re.sub("arrglob " + node.field.name,"cons " +str(0),fieldstring),re.DOTALL)
+        string += fieldstring
+        #string += fieldstring
+        #string += "BARK\n"
         templabel = self.GetTempLabel("int")
         string += self.printTAC("assign",name,"_",templabel,node.text,node.lines)
-        string += self.printTAC("add",self.compressedTAC("cons",4*node.offset), templabel,templabel,"",None)
+        string += self.printTAC("add",self.compressedTAC("cons",node.offset), templabel,templabel,"",None)
+
+        if fieldstring != "":
+            string += self.printTAC("add",re.sub('\)',"",re.sub('\(',"",re.sub("indr","",fieldvalue))),templabel,templabel,"",None)
         #string += self.printTAC("assign",self.compressedTAC("indr",templabel), "-", templabel,"",None)
         return string,self.compressedTAC("indr",templabel)
 

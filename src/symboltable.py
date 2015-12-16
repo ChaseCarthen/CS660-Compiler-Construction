@@ -411,6 +411,7 @@ class ArrayNode(SymbolTreeNode):
     return dims
 
   def GetWordSize(self):
+
     dim = 1
     for i in self.dimensions:
       print(i.type)
@@ -435,11 +436,17 @@ class StructNode(SymbolTreeNode):
     return wordsize
   def GetWordSize(self,field):
     if type(field) == VariableNode:
-      return 1
+      if "int" in field.GetType():
+        return 4
+      else:
+        return 1
     elif type(field) == PointerNode:
-      return 1
+      return 4
     elif type(field) == ArrayNode:
-      dim = 1
+      if "int" in field.GetType():
+        dim = 4
+      else:
+        dim = 1
       for i in field.dimensions:
         dim *= int(i.value)
       return dim

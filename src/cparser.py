@@ -77,7 +77,7 @@ class Parser(Scanner):
             p[0] = PtrRef(p[1].name,Type(node.GetType(),[],[]),p[3])
         elif type(p[1]) != type(ArrRef(None, None, None, None)):
             node = self.symbol_table.Retrieve(p[1].name)
-            if type(node) != ArrayNode or type(node) != StructRef:
+            if type(node) != ArrayNode and type(node) != StructRef:
                 print "ERROR: Bad Type at line number: " + str(p.lineno(1))
                 print p[1].type.type
                 print type(p[1])

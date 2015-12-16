@@ -1,5 +1,5 @@
 
-void swap(int *s, int *d);
+//void swap(int *s, int *d);
 
 int main() 
 {
@@ -59,10 +59,10 @@ int main()
 }
 
 
-void swap(int *s, int *d)
+/*void swap(int *s, int *d)
 {
   int temp = *d;
   *d = *s;
   *s = temp;
-}
+}*/
 

@@ -325,13 +325,13 @@ class ThreeAddressCode(NodeVisitor):
         for i in reversed(range(len(subscripts)-1)):
             string += self.printTAC("bound",dims[i],self.compressedTAC("cons",0),subscripts[i])
             temp1 = self.inttemp.GetNextTicket()
-            string += self.printTAC("mult", self.compressedTAC("cons",typeSize*4), subscripts[len(subscripts)-1], temp1, "-")
+            string += self.printTAC("mult", self.compressedTAC("cons",typeSize*4), subscripts[i], temp1, "-")
 
             final = ""
             current1 = temp1
             for j in range(i+1, len(subscripts)):
                 final = self.inttemp.GetNextTicket()
-                string += self.printTAC("mult", current1, subscripts[j], final, "-")
+                string += self.printTAC("mult", current1, dims[j], final, "-")
                 current1 = final
 
             addTemps.append(final)

@@ -297,7 +297,8 @@ class MipsGenerator:
 		val = plist[0]
 		#val = self.registerMap(parameters[2])
 		if parameters[2].type == "local":
-			string += self.StoreOntoStack(reg,parameters[2].type+ "_" + parameters[2].name)
+			#string += self.StoreOntoStack(reg,parameters[2].type+ "_" + parameters[2].name)
+			pass
 		if parameters[2].type == "cons" and not val.startswith('$'):
 			#print reg
 			string += "\t\tli " + reg + "," + str(val)  + "\n"
@@ -917,12 +918,27 @@ class MipsGenerator:
 
 	def ADDR(self,parameters):
 		# 
-		string = ""
-		parameters[0].modifier = "indr"
-		plist,string = self.MagicFunction([ (parameters[0],True),(parameters[2],True)  ])
-		string += "\t\tmove " + plist[1] + "," + plist[0] + "# ADDR HERE\n"
+		string = "#addr\n"
+		reg,temp = self.GetStackVariable(parameters[0].type+"_"+parameters[0].name)
+		string += temp
+		plist, temp = self.MagicFunction([(parameters[2],False)])
+		string += temp
+		string += "\t\tmove " + plist[0] + "," + reg + "\n"
+		string += "#addr\n"
+		#raw_input(reg)
+		#parameters[0].modifier = "indr"
+		#plist,string = self.MagicFunction([ (parameters[0],True),(parameters[2],True)  ])
+		#string += "\t\tmove " + plist[1] + "," + plist[0] + "# ADDR HERE\n"
 
 		return string
+	def INDR(self,parameters):
+		string = ""
+		plist, temp = self.MagicFunction([(parameters[0],True),(parameters[2],False)])
+		string += temp
+		reg = plist[1]
+		value = plist[0]
+		return ""
+
 	def CheckSave(self,params):
 		string = ""
 		if "save_" in params[0].name and "save_" in params[1].name:

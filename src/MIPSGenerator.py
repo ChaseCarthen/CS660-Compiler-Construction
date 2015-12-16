@@ -303,8 +303,7 @@ class MipsGenerator:
 		#val = self.registerMap(parameters[2])
 		if parameters[2].type == "local":
 			string += self.LoadFromStack(reg,parameters[2].type+ "_" + parameters[2].name)
-
-		if parameters[2].type == "cons" and not val.startswith('$'):
+		elif parameters[2].type == "cons" and not val.startswith('$'):
 			#print reg
 			string += "\t\tli " + reg + "," + str(val)  + "\n"
 		elif parameters[2].type == "char":
@@ -913,7 +912,6 @@ class MipsGenerator:
 		string = ""
 		reg,temp = self.GetStackVariable(stackregister)
 		string += temp
-		print register
 		string += "\t\tsw " + register + ",(" + reg +")\n"
 		return string
 

@@ -1,46 +1,64 @@
-# CS660 Compiler Construction
+ANSI C to MIPS Compiler
+========================================
+*Institution: University of Nevada, Reno*<br/>
+*Course: CS660: Compiler Construction*<br/>
+*Author: Chase Carthen*<br/>
+*Author: Nolan Burfield*<br/>
+*Author: Vinh Le*<br/>
+*Date: 12/15/15*
 
-Chase Carthen
-Vinh Le
-Nolan Burfield  
+========================================
+
+To run this compiler
+---------------------
+
+*On ubuntu it can be installed with these commands*
+
+>$ sudo apt-get install python-pip spim <br/>
+>$ sudo pip install ply bintrees strconv termcolor <br/>
+
+To run this compiler:
+
+>$ python driver.py input_file<br/>
+>$ spim a input_asm<br/>
+The spim command will verify the results<br/><br/>
+Flags offered by this compiler can be referenced using the <br/>
+>$ python driver.py -h<br/>
+
+Dependencies
+========================================
+**Python - Main Language of this Compiler Project**<br>
+**PiP - This module allows for easy of use in installing these python modules. **<br>
+**PLY - This module mimics the C equivalent of Flex and Yacc **<br>
+**Bintrees - This module allows for an easy of use Red-Black Tree **<br>
+**StrConv - This module allows for the type inference needed for type checking **<br>
+**TermColor - Chase has OCD for coloring text **<br>
 
 
-#Files
+Features
+==================================================
+**Type Definitions - Capable of handling simple variable types(char, int).**<br>
+**N-Arrays - Fully Functional.**<br>
+**Functions - Fully Functional.**<br>
+**Constants - Fully Functional.**<br>
+**Recognize Syntax Errors - Can locate errors and provide IMPROVED feedback.**<br>
+**Constant Value Arithmetic - Capable of optimizing simple arithmetic.**<br>
+**For Loop - Fully Functional.**<br>
+**While Loop - Fully Functional.**<br>
+**Function Declarations - Fully Functional.**<br>
+**Function Definitions - Fully Functional.**<br>
+**Variable Declarions/Calls - Fully Functional.**<br>
+**If/Else - Fully Functional.**<br>
+**Simple Assignment - Fully Functional.**<br>
+**Type Checking - Fully Functional.**<br>
+**Pointer - Simple 1D Pointers **<br>
+**Structs - No Array of Structs **<br>
 
 
-#Read Before Use
-
-To work on this directory do not upload straight to master, use branches to make changes and
-submit a pull request. This ensures good code review.
-
-##Steps to create a branch and submit pull request:
-
-1. Have clone of master.
-
-2. In directory type 
-  `git checkout -b "'YourInitials''specific-name'"`
-
-3. Make required changes to the project, keep the changes concise to branch. Create a new branch for different major changes.
-
-**Submitting Changes**
-
-4. `git add .`  
-  `git commit -m"Descriptive Message"`  
-  `git push origin 'Branch Name'`
-
-5. Navigate to github.com
-
-6. Go to repo and click on the pull request at top.
-
-7. In there add users to the request @'Username', and click send pull request.
-
-8. Wait for team response.
-
-9. When changes are accepted merge the branch on github, and delete the branch.
-
-10. Back to terminal.  
-  `git checkout master`  
-  `git pull`  
-  `git branch -d 'Branch Name'`
-
+Additional Notes
+=========================================
+**Assignment Completed in Python 2.7** <br/>
+<br/>
+Extra credit: 1D Pointers, Structs, Multiple Dimensions, Recursion<br/>
+<br/>
 

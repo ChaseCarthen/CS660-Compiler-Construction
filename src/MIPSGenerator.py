@@ -215,12 +215,12 @@ class MipsGenerator:
 	def FUNCCALL(self,parameters):
 		string = ""
 		string += "\t\tjal " + parameters[2].name + "\n"
-		#string += "# Resetting arguments"
-		#string += self.LoadOntoStack("$a0","$a0")
-		#string += self.LoadOntoStack("$a1","$a1")
-		#string += self.LoadOntoStack("$a2","$a2")
-		#string += self.LoadOntoStack("$a3","$a3")
-		#string += "# Done Resetting arguments"
+		string += "# Resetting arguments\n"
+		string += self.LoadFromStack("$a0","$a0")
+		string += self.LoadFromStack("$a1","$a1")
+		string += self.LoadFromStack("$a2","$a2")
+		string += self.LoadFromStack("$a3","$a3")
+		string += "# Done Resetting arguments\n"
 		return string
 
 	def undef(self,parameters):
